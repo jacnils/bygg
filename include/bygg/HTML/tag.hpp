@@ -182,4 +182,11 @@ namespace bygg::HTML {
      * @return Tag The resolved tag
      */
     Tag resolve_tag(const string_type& tag);
+    /**
+     * @brief Check if a tag is a container.
+     * @param tag The tag to check
+     * @return bool True if the tag is a container, false otherwise
+     */
+    bool is_container(const string_type& tag);
+    bool is_container(Tag tag);
 } // namespace bygg

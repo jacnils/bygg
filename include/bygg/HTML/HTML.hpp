@@ -17,3 +17,6 @@
 #include <bygg/HTML/element.hpp>
 #include <bygg/HTML/section.hpp>
 #include <bygg/HTML/document.hpp>
+#ifdef BYGG_USE_LIBXML2
+#include <bygg/HTML/parser.hpp>
+#endif

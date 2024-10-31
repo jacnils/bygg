@@ -24,6 +24,10 @@ if (APPLE)
     set(INSTALL_RPATH_USE_LINK_PATH ON)
 endif()
 
+if (NOT DEFINED BYGG_USE_LIBXML2)
+    set(BYGG_USE_LIBXML2 ON)
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -54,7 +58,15 @@ set(PUBLIC_HEADERS
         include/bygg/version.hpp
 )
 
-add_library(${PROJECT_NAME} SHARED
+if (BYGG_USE_LIBXML2)
+    set(PUBLIC_HEADERS ${PUBLIC_HEADERS}
+            include/bygg/HTML/parser.hpp
+    )
+
+    add_compile_definitions(BYGG_USE_LIBXML2)
+endif()
+
+set(SOURCE_FILES
         ${PUBLIC_HEADERS}
         include/bygg/CSS/impl/color_conversions.hpp
         src/CSS/element.cpp
@@ -70,8 +82,25 @@ add_library(${PROJECT_NAME} SHARED
         src/HTML/tag.cpp
         src/CSS/impl/color_conversions.cpp)
 
+if (BYGG_USE_LIBXML2)
+    set(SOURCE_FILES ${SOURCE_FILES}
+            include/bygg/HTML/impl/libxml2.hpp
+            src/HTML/parser.cpp
+            src/HTML/impl/libxml2.cpp
+    )
+endif()
+
+add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
+
 target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}")
 include_directories(include)
+
+if (BYGG_USE_LIBXML2)
+    find_package(LibXml2 REQUIRED)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE BYGG_USE_LIBXML2)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${LIBXML2_INCLUDE_DIR})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBXML2_LIBRARIES})
+endif()
 
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET HEADERS
@@ -131,6 +160,10 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_link_libraries(${PROJECT_NAME}_test PRIVATE
         Catch2::Catch2WithMain
     )
+
+    if (BYGG_USE_LIBXML2)
+        target_link_libraries(${PROJECT_NAME}_test PRIVATE ${LIBXML2_LIBRARIES})
+    endif()
 
     add_custom_command(
          TARGET ${PROJECT_NAME}_test
