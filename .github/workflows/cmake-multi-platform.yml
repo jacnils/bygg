@@ -32,14 +32,16 @@ jobs:
       shell: bash
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-
-    - name: Install scoop for Windows
+        
+    - name: Install libxml2 on Windows
       if: matrix.os == 'windows-latest'
-      run: iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
-
-    - name: Install libxml2 for Windows using scoop
-      if: matrix.os == 'windows-latest'
-      run: scoop install libxml2
+      run: |
+        choco install -y cmake make
+        curl -L -o libxml2.zip https://github.com/GNOME/libxml2/archive/refs/tags/v2.13.4.zip
+        Expand-Archive -Path libxml2.zip -DestinationPath .
+        cd libxml2-2.13.4
+        cmake -B build -DCMAKE_INSTALL_PREFIX=C:/libxml2
+        cmake --build build --target install
 
     - name: Configure CMake
       run: >
