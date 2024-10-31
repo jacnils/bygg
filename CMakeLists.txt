@@ -97,9 +97,7 @@ include_directories(include)
 
 if (BYGG_USE_LIBXML2)
     find_package(LibXml2 REQUIRED)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE BYGG_USE_LIBXML2)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${LIBXML2_INCLUDE_DIR})
-    target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBXML2_LIBRARIES})
+    target_link_libraries(${PROJECT_NAME} PRIVATE LibXml2::LibXml2)
 endif()
 
 target_sources(${PROJECT_NAME} PUBLIC
@@ -162,7 +160,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     )
 
     if (BYGG_USE_LIBXML2)
-        target_link_libraries(${PROJECT_NAME}_test PRIVATE ${LIBXML2_LIBRARIES})
+        target_link_libraries(${PROJECT_NAME}_test PRIVATE LibXml2::LibXml2)
     endif()
 
     add_custom_command(
