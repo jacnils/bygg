@@ -1991,6 +1991,46 @@ inline namespace General {
     }
 }
 
+#ifdef BYGG_USE_LIBXML2
+inline namespace Parser {
+    void test_html_parser() {
+        const auto test_basic = []() {
+            using namespace bygg::HTML::Parser;
+
+            const std::string html = "<html><head><title>Test</title></head><body><h1>Hello, World!</h1></body></html>";
+            const auto document = bygg::HTML::Parser::parse_html_string(html);
+
+            REQUIRE(document.get(bygg::HTML::Formatting::Pretty) == "<html>\n\t<head>\n\t\t<title>Test</title>\n\t</head>\n\t<body>\n\t\t<h1>Hello, World!</h1>\n\t</body>\n</html>");
+            REQUIRE(document.get() == html);
+        };
+
+        const auto test_slightly_more_advanced = []() {
+            using namespace bygg::HTML::Parser;
+
+            const std::string html = "<html><head><title>Test</title></head><body><h1>Hello, World!</h1><h2>Test</h2><h3>Test</h3><h4>Test</h4><h5>Test</h5><h6>Test</h6></body></html>";
+            const auto document = bygg::HTML::Parser::parse_html_string(html);
+
+            REQUIRE(document.get(bygg::HTML::Formatting::Pretty) == "<html>\n\t<head>\n\t\t<title>Test</title>\n\t</head>\n\t<body>\n\t\t<h1>Hello, World!</h1>\n\t\t<h2>Test</h2>\n\t\t<h3>Test</h3>\n\t\t<h4>Test</h4>\n\t\t<h5>Test</h5>\n\t\t<h6>Test</h6>\n\t</body>\n</html>");
+            REQUIRE(document.get() == html);
+        };
+
+        const auto test_divs = []() {
+            using namespace bygg::HTML::Parser;
+
+            const std::string html = "<html><head><title>Test</title></head><body><div><h1>Hello, World!</h1></div><div><h2>Test</h2></div><div><h3>Test</h3></div><div><h4>Test</h4></div><div><h5>Test</h5></div><div><h6>Test</h6></div></body></html>";
+            const auto document = bygg::HTML::Parser::parse_html_string(html);
+
+            REQUIRE(document.get(bygg::HTML::Formatting::Pretty) == "<html>\n\t<head>\n\t\t<title>Test</title>\n\t</head>\n\t<body>\n\t\t<div>\n\t\t\t<h1>Hello, World!</h1>\n\t\t</div>\n\t\t<div>\n\t\t\t<h2>Test</h2>\n\t\t</div>\n\t\t<div>\n\t\t\t<h3>Test</h3>\n\t\t</div>\n\t\t<div>\n\t\t\t<h4>Test</h4>\n\t\t</div>\n\t\t<div>\n\t\t\t<h5>Test</h5>\n\t\t</div>\n\t\t<div>\n\t\t\t<h6>Test</h6>\n\t\t</div>\n\t</body>\n</html>");
+            REQUIRE(document.get() == html);
+        };
+
+        test_basic();
+        test_slightly_more_advanced();
+        test_divs();
+    }
+}
+#endif
+
 /**
  * @brief Test cases for the bygg namespace.
  */
@@ -2013,5 +2053,14 @@ SCENARIO("Test HTML", "[HTML]") {
 SCENARIO("Test CSS", "[CSS]") {
     CSS::test_css();
 }
+
+#ifdef BYGG_USE_LIBXML2
+/**
+ * @brief Test cases for the bygg namespace.
+ */
+SCENARIO("Test HTML parser", "[libxml2]") {
+    Parser::test_html_parser();
+}
+#endif
 
 // NOLINTEND

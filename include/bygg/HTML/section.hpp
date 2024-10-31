@@ -478,5 +478,5 @@ namespace bygg::HTML {
             std::unordered_map<size_type, Section> sections{};
     };
 
-    template <typename... Args> Section make_section_container(Args&&... args) { return Section(bygg::HTML::Tag::Empty, {}, {std::forward<Args>(args)...}); }
+    template <typename... Args> Section make_section_container(Args&&... args) { return Section(bygg::HTML::Tag::Empty, make_properties(), {std::forward<Args>(args)...}); }
 } // namespace bygg
