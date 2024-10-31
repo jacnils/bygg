@@ -5,6 +5,9 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include <algorithm>
+#include <functional>
+
 #include <bygg/except.hpp>
 #include <bygg/HTML/tag.hpp>
 #include <bygg/HTML/impl/libxml2.hpp>
