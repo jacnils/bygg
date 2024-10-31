@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <cstring>
 
 #include <bygg/except.hpp>
 #include <bygg/HTML/tag.hpp>
