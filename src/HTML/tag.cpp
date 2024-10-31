@@ -7,6 +7,7 @@
 
 #include <bygg/except.hpp>
 #include <bygg/HTML/tag.hpp>
+#include <algorithm>
 
 std::unordered_map<bygg::HTML::Tag, std::pair<bygg::string_type, bygg::HTML::Type>> bygg::HTML::get_tag_map() {
     return {
@@ -165,8 +166,8 @@ std::pair<bygg::string_type, bygg::HTML::Type> bygg::HTML::resolve_tag(const Tag
         return tag_map.at(tag);
     }
 
-    const bygg::string_type throwmsg{"Invalid tag: " + std::to_string(static_cast<bygg::integer_type>(tag))};
-    throw bygg::invalid_argument{throwmsg.c_str()};
+    const string_type throwmsg{"Invalid tag: " + std::to_string(static_cast<bygg::integer_type>(tag))};
+    throw invalid_argument{throwmsg.c_str()};
 }
 
 bygg::HTML::Tag bygg::HTML::resolve_tag(const bygg::string_type& tag) {
@@ -178,7 +179,7 @@ bygg::HTML::Tag bygg::HTML::resolve_tag(const bygg::string_type& tag) {
         }
     }
 
-    throw bygg::invalid_argument{"Invalid tag"};
+    throw invalid_argument{"Invalid tag"};
 }
 
 bool bygg::HTML::is_container(const string_type& tag) {
