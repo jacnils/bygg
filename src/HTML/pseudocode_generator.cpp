@@ -7,6 +7,7 @@
 
 #include <bygg/except.hpp>
 #include <bygg/HTML/pseudocode_generator.hpp>
+#include <functional>
 
 bygg::string_type bygg::HTML::generate_pseudocode(const Section& section, const GeneratorOptions& options) {
     enum class SectionType {
