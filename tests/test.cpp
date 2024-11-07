@@ -1230,6 +1230,29 @@ inline namespace HTML {
         test_constructors();
     }
 
+    void test_pseudocode_generator() {
+        using namespace bygg::HTML;
+
+        Section mysection = Section{bygg::HTML::Tag::Html, {},
+            {
+                Element{bygg::HTML::Tag::H1, "data1"},
+                Element{bygg::HTML::Tag::H2, "data2"},
+                Element{bygg::HTML::Tag::H3, "data3"},
+                Element{bygg::HTML::Tag::H4, "data4"},
+                Element{bygg::HTML::Tag::H5, "data5"},
+                Element{bygg::HTML::Tag::H6, "data6"}
+            }
+        };
+
+        std::string expected_1 = "#include <bygg/bygg.hpp>\n\nint main() {\n\tbygg::HTML::Section root{\"html\", bygg::HTML::make_properties(), bygg::HTML::SectionList {\n\t\tbygg::HTML::Element{\"h1\", bygg::HTML::make_properties(), \"data1\", bygg::HTML::Type::Non_Self_Closing},\n\t\tbygg::HTML::Element{\"h2\", bygg::HTML::make_properties(), \"data2\", bygg::HTML::Type::Non_Self_Closing},\n\t\tbygg::HTML::Element{\"h3\", bygg::HTML::make_properties(), \"data3\", bygg::HTML::Type::Non_Self_Closing},\n\t\tbygg::HTML::Element{\"h4\", bygg::HTML::make_properties(), \"data4\", bygg::HTML::Type::Non_Self_Closing},\n\t\tbygg::HTML::Element{\"h5\", bygg::HTML::make_properties(), \"data5\", bygg::HTML::Type::Non_Self_Closing},\n\t\tbygg::HTML::Element{\"h6\", bygg::HTML::make_properties(), \"data6\", bygg::HTML::Type::Non_Self_Closing},\n\t}};\n}\n";
+        REQUIRE(generate_pseudocode(mysection, {.use_tag_enums = false}) == expected_1);
+
+        std::string expected_2 = "#include <bygg/bygg.hpp>\n\nint main() {\n\tbygg::HTML::Section root{bygg::HTML::Tag::Html, bygg::HTML::make_properties(), bygg::HTML::SectionList {\n\t\tbygg::HTML::Element{bygg::HTML::Tag::H1, bygg::HTML::make_properties(), \"data1\", bygg::HTML::Type::Non_Self_Closing},\n\t\tbygg::HTML::Element{bygg::HTML::Tag::H2, bygg::HTML::make_properties(), \"data2\", bygg::HTML::Type::Non_Self_Closing},\n\t\tbygg::HTML::Element{bygg::HTML::Tag::H3, bygg::HTML::make_properties(), \"data3\", bygg::HTML::Type::Non_Self_Closing},\n\t\tbygg::HTML::Element{bygg::HTML::Tag::H4, bygg::HTML::make_properties(), \"data4\", bygg::HTML::Type::Non_Self_Closing},\n\t\tbygg::HTML::Element{bygg::HTML::Tag::H5, bygg::HTML::make_properties(), \"data5\", bygg::HTML::Type::Non_Self_Closing},\n\t\tbygg::HTML::Element{bygg::HTML::Tag::H6, bygg::HTML::make_properties(), \"data6\", bygg::HTML::Type::Non_Self_Closing},\n\t}};\n}\n";
+        REQUIRE(generate_pseudocode(mysection, {.use_tag_enums = true}) == expected_2);
+
+        // TODO: More advanced tests
+    }
+
     void test_html() {
         test_tag();
         test_property();
@@ -1237,6 +1260,7 @@ inline namespace HTML {
         test_element();
         test_section();
         test_document();
+        test_pseudocode_generator();
     }
 } // namespace HTML
 

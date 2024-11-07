@@ -52,6 +52,7 @@ set(PUBLIC_HEADERS
         include/bygg/HTML/section.hpp
         include/bygg/HTML/tag.hpp
         include/bygg/HTML/type_enum.hpp
+        include/bygg/HTML/pseudocode_generator.hpp
         include/bygg/bygg.hpp
         include/bygg/except.hpp
         include/bygg/types.hpp
@@ -80,6 +81,7 @@ set(SOURCE_FILES
         src/HTML/property.cpp
         src/HTML/section.cpp
         src/HTML/tag.cpp
+        src/HTML/pseudocode_generator.cpp
         src/CSS/impl/color_conversions.cpp)
 
 if (BYGG_USE_LIBXML2)

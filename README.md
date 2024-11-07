@@ -8,6 +8,7 @@ Component-based HTML/CSS builder for C++17.
 
 - HTML and CSS document generation and deserialization
 - Component-based, modular design
+- C++ pseudo-code generation
 - Easy to use, with a modern C++ API
 - Iterator- and reference-based design for easy manipulation and traversal
 - Sensible indentation for pretty-formatting.

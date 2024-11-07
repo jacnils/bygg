@@ -182,6 +182,12 @@ namespace bygg::HTML {
      * @return Tag The resolved tag
      */
     Tag resolve_tag(const string_type& tag);
+
+    /**
+     * @brief Get the name of the enum for a tag.
+     * @param tag The tag to get the enum name for
+     */
+    string_type resolve_tag_enum_name(Tag tag);
     /**
      * @brief Check if a tag is a container.
      * @param tag The tag to check
