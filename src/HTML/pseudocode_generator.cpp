@@ -95,12 +95,13 @@ bygg::string_type bygg::HTML::generate_pseudocode(const Section& section, const 
                     }
 
                     pseudocode += "bygg::HTML::Element{" + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(i_section.at(index).get_tag()))) + ", bygg::HTML::make_properties(";
+                    append_properties(i_section.at(index).get_properties());
+                    pseudocode += "), \"" + i_section.at(index).get_data() + "\"},\n";
                 } catch (bygg::invalid_argument&) {
                     pseudocode += "bygg::HTML::Element{\"" + i_section.at(index).get_tag() + "\", bygg::HTML::make_properties(";
+                    append_properties(i_section.at(index).get_properties());
+                    pseudocode += "), \"" + i_section.at(index).get_data() + "\", " + type_map.at(i_section.at(index).get_type()) + "},\n";
                 }
-
-                append_properties(i_section.at(index).get_properties());
-                pseudocode += "), \"" + i_section.at(index).get_data() + "\", " + type_map.at(i_section.at(index).get_type()) + "},\n";
             }
         }
     };
