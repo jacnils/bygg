@@ -24,6 +24,36 @@ bygg::string_type bygg::HTML::generate_pseudocode(const Section& section, const 
         return ret;
     };
 
+    const auto escape_invalid = [&options](const string_type& input) -> string_type {
+        string_type ret{};
+        for (auto& c : input) {
+            if (c == '"') {
+                ret += '\\' + c;
+            } else if (c == '\t') {
+                if (options.sequence_mode == SequenceMode::Replace) {
+                    ret += "\\t";
+                } else if (options.sequence_mode == SequenceMode::Remove) {
+                    continue;
+                }
+            } else if (c == '\n') {
+                if (options.sequence_mode == SequenceMode::Replace) {
+                    ret += "\\n";
+                } else if (options.sequence_mode == SequenceMode::Remove) {
+                    continue;
+                }
+            } else if (c == '\r') {
+                if (options.sequence_mode == SequenceMode::Replace) {
+                    ret += "\\r";
+                } else if (options.sequence_mode == SequenceMode::Remove) {
+                    continue;
+                }
+            } else {
+                ret += c;
+            }
+        }
+        return ret;
+    };
+
     static const std::unordered_map<bygg::HTML::Type, string_type> type_map {
         {Type::Non_Closed, "bygg::HTML::Type::Non_Closed"},
         {Type::Non_Opened, "bygg::HTML::Type::Non_Opened"},
@@ -52,13 +82,13 @@ bygg::string_type bygg::HTML::generate_pseudocode(const Section& section, const 
         for (int i{0}; i < tabc; i++) pseudocode += "\t";
     };
 
-    const auto append_properties = [&pseudocode](const auto& properties) {
+    const auto append_properties = [&pseudocode, &escape_invalid](const auto& properties) {
         bool first_passed{false};
         for (const auto& it : properties) {
             if (first_passed) {
                 pseudocode += ", ";
             }
-            pseudocode += "bygg::HTML::Property{\"" + it.get_key() + "\", \"" + it.get_value() + "\"}";
+            pseudocode += "bygg::HTML::Property{\"" + escape_invalid(it.get_key()) + "\", \"" + escape_invalid(it.get_value()) + "\"}";
             first_passed = true;
         }
     };
@@ -73,7 +103,7 @@ bygg::string_type bygg::HTML::generate_pseudocode(const Section& section, const 
                     }
                     pseudocode += "bygg::HTML::Section{" + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(i_section.at_section(index).get_tag()))) + ", bygg::HTML::make_properties(";
                 } catch (bygg::invalid_argument&) {
-                    pseudocode += "bygg::HTML::Section{\"" + i_section.at_section(index).get_tag() + "\", bygg::HTML::make_properties(";
+                    pseudocode += "bygg::HTML::Section{\"" + escape_invalid(i_section.at_section(index).get_tag()) + "\", bygg::HTML::make_properties(";
                 }
                 append_properties(i_section.at_section(index).get_properties());
 
@@ -96,11 +126,11 @@ bygg::string_type bygg::HTML::generate_pseudocode(const Section& section, const 
 
                     pseudocode += "bygg::HTML::Element{" + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(i_section.at(index).get_tag()))) + ", bygg::HTML::make_properties(";
                     append_properties(i_section.at(index).get_properties());
-                    pseudocode += "), \"" + i_section.at(index).get_data() + "\"},\n";
+                    pseudocode += "), \"" + escape_invalid(i_section.at(index).get_data()) + "\"},\n";
                 } catch (bygg::invalid_argument&) {
                     pseudocode += "bygg::HTML::Element{\"" + i_section.at(index).get_tag() + "\", bygg::HTML::make_properties(";
                     append_properties(i_section.at(index).get_properties());
-                    pseudocode += "), \"" + i_section.at(index).get_data() + "\", " + type_map.at(i_section.at(index).get_type()) + "},\n";
+                    pseudocode += "), \"" + escape_invalid(i_section.at(index).get_data()) + "\", " + type_map.at(i_section.at(index).get_type()) + "},\n";
                 }
             }
         }
