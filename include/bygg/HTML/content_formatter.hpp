@@ -63,6 +63,9 @@ namespace bygg::HTML {
         template <typename T> T get() const {
             return T(this->get());
         }
+#ifndef BYGG_ALLOW_IMPLICIT_CONVERSIONS
+        explicit
+#endif
         operator string_type() const { // NOLINT(google-explicit-constructor)
             return this->get();
         }
