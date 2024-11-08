@@ -504,11 +504,22 @@ inline namespace HTML {
             REQUIRE(element.get<std::string>() == "</h1>");
         };
 
+        const auto test_builder = []() {
+            using namespace bygg::HTML;
+
+            Element element = Element{bygg::HTML::Tag::H1, ContentFormatter("This header contains @STRONG(bold) text.").get()};
+            REQUIRE(element.get() == "<h1>This header contains <strong>bold</strong> text.</h1>");
+
+            Element element2 = Element{Tag::H1, ContentFormatter("This header contains %s %s %s", "an", "extra", "string").get()};
+            REQUIRE(element2.get() == "<h1>This header contains an extra string</h1>");
+        };
+
         test_get_and_set();
         test_copy_element();
         test_operators();
         test_constructors();
         test_string_get();
+        test_builder();
     }
 
     void test_section() {

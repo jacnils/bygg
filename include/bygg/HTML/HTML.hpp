@@ -18,6 +18,7 @@
 #include <bygg/HTML/section.hpp>
 #include <bygg/HTML/document.hpp>
 #include <bygg/HTML/pseudocode_generator.hpp>
+#include <bygg/HTML/content_formatter.hpp>
 #ifdef BYGG_USE_LIBXML2
 #include <bygg/HTML/parser.hpp>
 #endif

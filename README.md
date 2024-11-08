@@ -12,9 +12,9 @@ Component-based HTML/CSS builder for C++17.
 - Easy to use, with a modern C++ API
 - Iterator- and reference-based design for easy manipulation and traversal
 - Sensible indentation for pretty-formatting.
-- HTML serialization*
-- No dependencies, other than the standard library*
-- Windows, macOS, Linux and *BSD support**
+- HTML serialization\*
+- No dependencies, other than the standard library\*
+- Windows, macOS, Linux and \*BSD support\*\*
 
 *Serialization requires the use of libxml2, which is not included in this repository.
 Tests require the use of Catch2, which is not included in this repository.

@@ -20,6 +20,7 @@
 #include <src/HTML/section.cpp>
 #include <src/HTML/tag.cpp>
 #include <src/HTML/pseudocode_generator.cpp>
+#include <src/HTML/content_formatter.cpp>
 #ifdef BYGG_USE_LIBXML2
 #include <src/HTML/parser.cpp>
 #include <src/HTML/impl/libxml2.cpp>
