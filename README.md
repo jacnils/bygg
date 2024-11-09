@@ -47,8 +47,13 @@ If you don't need serialization, you can disable it along with the libxml2
 dependency by passing `-DBYGG_USE_LIBXML2=OFF` to CMake. This will disable the
 serialization features of the library and not install the headers for it.
 
-If you want to enable the tests, you can pass `-DCMAKE_BUILD_TYPE=Debug` to 
+If you want to enable the tests, you can pass `-DBYGG_BUILD_TESTS=ON` to 
 CMake, and they will automatically be built.
+
+If you want to download and build Catch2, you can pass `-DBYGG_BUILD_CATCH2=ON` to CMake.
+This will download and build Catch2 as part of the build process. If you want to build
+libxml2, you can pass `-DBYGG_BUILD_LIBXML2=ON` to CMake. This will download and build
+libxml2 as part of the build process.
 
 ## Usage
 
