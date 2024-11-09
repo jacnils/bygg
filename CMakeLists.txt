@@ -16,6 +16,14 @@ if (NOT DEFINED CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif()
 
+if (NOT DEFINED BYGG_BUILD_TESTS)
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(BYGG_BUILD_TESTS ON)
+    else()
+        set(BYGG_BUILD_TESTS OFF)
+    endif()
+endif()
+
 if (MSVC AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
@@ -26,6 +34,10 @@ endif()
 
 if (NOT DEFINED BYGG_USE_LIBXML2)
     set(BYGG_USE_LIBXML2 ON)
+endif()
+
+if (NOT DEFINED BYGG_BUILD_LIBXML2)
+    set(BYGG_BUILD_LIBXML2 OFF)
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
@@ -71,6 +83,7 @@ endif()
 set(SOURCE_FILES
         ${PUBLIC_HEADERS}
         include/bygg/CSS/impl/color_conversions.hpp
+        src/version.cpp
         src/CSS/element.cpp
         src/CSS/property.cpp
         src/CSS/properties.cpp
@@ -100,8 +113,29 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}")
 include_directories(include)
 
 if (BYGG_USE_LIBXML2)
-    find_package(LibXml2 REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PRIVATE LibXml2::LibXml2)
+    if (BYGG_BUILD_LIBXML2)
+        include(FetchContent)
+
+        FetchContent_Declare(
+            libxml2
+            GIT_REPOSITORY https://gitlab.gnome.org/GNOME/libxml2.git
+            GIT_TAG v2.13.4
+        )
+
+        FetchContent_GetProperties(libxml2)
+
+        FetchContent_MakeAvailable(libxml2)
+
+        target_link_libraries(${PROJECT_NAME} PRIVATE xml2)
+
+        target_include_directories(${PROJECT_NAME} PRIVATE
+            "${libxml2_SOURCE_DIR}/include"
+            "${libxml2_BINARY_DIR}/include"
+        )
+    else()
+        find_package(LibXml2 REQUIRED)
+        target_link_libraries(${PROJECT_NAME} PRIVATE LibXml2::LibXml2)
+    endif()
 endif()
 
 target_sources(${PROJECT_NAME} PUBLIC
@@ -148,24 +182,47 @@ if (NOT WIN32 AND NOT APPLE)
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 endif()
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    find_package(Catch2 3 REQUIRED)
+if (BYGG_BUILD_TESTS)
+    if (NOT DEFINED BYGG_BUILD_CATCH2)
+        set(BYGG_BUILD_CATCH2 OFF)
+    endif()
+
+    set(LINK_TARGETS
+            ${PROJECT_NAME}
+    )
+
+    if (BYGG_BUILD_CATCH2)
+        include(FetchContent)
+
+        FetchContent_Declare(
+                Catch2
+                GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+                GIT_TAG v3.7.1
+        )
+
+        FetchContent_MakeAvailable(Catch2)
+
+        set(LINK_TARGETS
+                Catch2::Catch2WithMain
+                ${LINK_TARGETS}
+        )
+    else()
+        find_package(Catch2 3 REQUIRED)
+
+        set(LINK_TARGETS
+            Catch2::Catch2WithMain
+            ${LINK_TARGETS}
+        )
+    endif()
 
     add_executable(${PROJECT_NAME}_test
         tests/test.cpp
     )
 
+    target_link_libraries(${PROJECT_NAME}_test PRIVATE ${LINK_TARGETS})
     target_include_directories(${PROJECT_NAME}_test PRIVATE
-        "${PROJECT_SOURCE_DIR}"
+        "${PROJECT_SOURCE_DIR}/include"
     )
-
-    target_link_libraries(${PROJECT_NAME}_test PRIVATE
-        Catch2::Catch2WithMain
-    )
-
-    if (BYGG_USE_LIBXML2)
-        target_link_libraries(${PROJECT_NAME}_test PRIVATE LibXml2::LibXml2)
-    endif()
 
     add_custom_command(
          TARGET ${PROJECT_NAME}_test

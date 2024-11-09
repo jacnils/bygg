@@ -8,7 +8,7 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
-#include <src/bygg.cpp>
+#include <bygg/bygg.hpp>
 #include <catch2/catch_test_macros.hpp>
 
 // NOLINTBEGIN
