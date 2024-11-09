@@ -216,7 +216,11 @@ if (BYGG_BUILD_TESTS)
     endif()
 
     add_executable(${PROJECT_NAME}_test
-        tests/test.cpp
+            tests/test.cpp
+            tests/HTML.cpp
+            tests/CSS.cpp
+            tests/general.cpp
+            tests/parser.cpp
     )
 
     target_link_libraries(${PROJECT_NAME}_test PRIVATE ${LINK_TARGETS})
