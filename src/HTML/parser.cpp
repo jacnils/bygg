@@ -48,6 +48,11 @@ bygg::HTML::Section bygg::HTML::Parser::parse_html_string(const string_type& htm
                             Type::Non_Self_Closing : list[inner].type);
 
                         size_t pos = data.find("  ");
+
+                        if (pos == string_type::npos) {
+                            break;
+                        }
+
                         data.replace(pos, 2, " " + inner_elem.get() + " ");
 
                         ++inner;
@@ -55,7 +60,7 @@ bygg::HTML::Section bygg::HTML::Parser::parse_html_string(const string_type& htm
 
                     i = inner;
 
-                    if (data.at(data.length() - 1) == ' ') {
+                    if (data.length() - 1 != string_type::npos && data.at(data.length() - 1) == ' ') {
                         data.pop_back();
                     }
 
