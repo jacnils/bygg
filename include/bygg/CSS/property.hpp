@@ -8,6 +8,7 @@
 
 #include <string>
 #include <bygg/types.hpp>
+#include <bygg/CSS/formatting_enum.hpp>
 
 namespace bygg::CSS {
     /**
@@ -91,13 +92,13 @@ namespace bygg::CSS {
              * @brief Get the property in a formatted form.
              * @return string_type The formatted CSS property.
              */
-            [[nodiscard]] string_type get() const;
+            [[nodiscard]] string_type get(Formatting formatting = Formatting::None, integer_type tabc = 0) const;
             /**
              * @brief Get the property in a specific type.
              * @return T The formatted CSS property.
              */
-            template <typename T> T get() const {
-                return T(get());
+            template <typename T> T get(Formatting formatting = Formatting::None, integer_type tabc = 0) const {
+                return T(get(formatting, tabc));
             }
             /**
              * @brief Set the key of the property.

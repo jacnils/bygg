@@ -159,50 +159,24 @@ void bygg::CSS::Element::swap(const Property& property1, const Property& propert
 }
 
 bygg::string_type bygg::CSS::Element::get(const Formatting formatting, const bygg::integer_type tabc) const {
-    bygg::string_type ret{};
+    string_type ret{};
 
-    if (!this->element.first.empty()) {
-        if (formatting == bygg::CSS::Formatting::Pretty) {
-            for (size_type i{0}; i < tabc; i++) {
-                ret += "\t";
-            }
+    if (formatting == bygg::CSS::Formatting::Pretty && !this->element.first.empty()) {
+        for (size_type i{0}; i < tabc; i++) {
+            ret += "\t";
         }
+    }
 
-        ret += this->element.first + " {";
+    ret += !this->element.first.empty() ? (this->element.first + " {") : "";
 
-        if (formatting == bygg::CSS::Formatting::Pretty || formatting == bygg::CSS::Formatting::Newline) {
-            ret += "\n";
-        }
+    if (formatting == bygg::CSS::Formatting::Pretty || formatting == bygg::CSS::Formatting::Newline) {
+        ret += "\n";
+    }
 
-        for (const Property& it : this->element.second) {
-            if (it.get_key().empty() || it.get_value().empty()) {
-                continue;
-            }
+    ret += this->element.second.get(formatting, tabc + 1) + (!this->element.first.empty() ? "}" : "");
 
-            if (formatting == bygg::CSS::Formatting::Pretty) {
-                for (size_type i{0}; i < tabc + 1; i++) {
-                    ret += "\t";
-                }
-            }
-
-            ret += it.get();
-
-            if (formatting == bygg::CSS::Formatting::Pretty || formatting == bygg::CSS::Formatting::Newline) {
-                ret += "\n";
-            }
-        }
-
-        if (formatting == bygg::CSS::Formatting::Pretty) {
-            for (size_type i{0}; i < tabc; i++) {
-                ret += "\t";
-            }
-        }
-
-        ret += "}";
-
-        if (formatting == bygg::CSS::Formatting::Pretty || formatting == bygg::CSS::Formatting::Newline) {
-            ret += "\n";
-        }
+    if (formatting == bygg::CSS::Formatting::Pretty || formatting == bygg::CSS::Formatting::Newline) {
+        ret += "\n";
     }
 
     return ret;
