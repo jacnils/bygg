@@ -15,10 +15,6 @@ bygg::string_type bygg::HTML::Property::get_value() const {
     return this->property.second;
 }
 
-std::pair<bygg::string_type, bygg::string_type> bygg::HTML::Property::get_pair() const {
-    return this->property;
-}
-
 bygg::string_type bygg::HTML::Property::get() const {
     return this->get_key() + "=\"" + this->get_value() + "\"";
 }
@@ -35,17 +31,21 @@ void bygg::HTML::Property::set(const std::pair<bygg::string_type, bygg::string_t
     this->property = property;
 }
 
+void bygg::HTML::Property::set(const bygg::string_type& key, const bygg::string_type& value) {
+    this->property = std::make_pair(key, value);
+}
+
 bygg::HTML::Property& bygg::HTML::Property::operator=(const bygg::HTML::Property& property) {
-    this->set(property.get_pair());
+    this->set(property.get_key(), property.get_value());
     return *this;
 }
 
 bool bygg::HTML::Property::operator==(const bygg::HTML::Property& property) const {
-    return this->property == property.get_pair();
+    return this->property.first == property.get_key() && this->property.second == property.get_value();
 }
 
 bool bygg::HTML::Property::operator!=(const bygg::HTML::Property& property) const {
-    return this->property != property.get_pair();
+    return this->property.first != property.get_key() || this->property.second != property.get_value();
 }
 
 void bygg::HTML::Property::clear() {

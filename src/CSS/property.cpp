@@ -16,10 +16,6 @@ bygg::string_type bygg::CSS::Property::get_value() const {
     return this->property.second;
 }
 
-std::pair<bygg::string_type, bygg::string_type> bygg::CSS::Property::get_pair() const {
-    return this->property;
-}
-
 bygg::string_type bygg::CSS::Property::get(bygg::CSS::Formatting formatting, integer_type tabc) const {
     string_type ret;
     if (formatting == bygg::CSS::Formatting::Pretty) {
@@ -50,14 +46,14 @@ void bygg::CSS::Property::set(const bygg::string_type& key, const bygg::string_t
 }
 
 bygg::CSS::Property& bygg::CSS::Property::operator=(const bygg::CSS::Property& property) {
-    this->set(property.get_pair().first, property.get_pair().second);
+    this->set(property.get_key(), property.get_value());
     return *this;
 }
 
 bool bygg::CSS::Property::operator==(const bygg::CSS::Property& property) const {
-    return this->get_pair() == property.get_pair();
+    return this->get_key() == property.get_key() && this->get_value() == property.get_value();
 }
 
 bool bygg::CSS::Property::operator!=(const bygg::CSS::Property& property) const {
-    return this->get_pair() != property.get_pair();
+    return this->get_key() != property.get_key() || this->get_value() != property.get_value();
 }

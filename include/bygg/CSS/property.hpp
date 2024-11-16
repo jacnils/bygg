@@ -74,21 +74,6 @@ namespace bygg::CSS {
                 return T(this->property.second);
             }
             /**
-             * @brief Get the property.
-             * @return std::pair<string_type, string_type> The value of the property
-             */
-            [[nodiscard]] std::pair<string_type, string_type> get_pair() const;
-            /**
-             * @brief Get the property in a specific type.
-             * @return std::pair<T, T> The value of the property
-             */
-            template <typename T> std::pair<T, T> get_pair() const {
-                if (std::is_same_v<T, string_type>) {
-                    return std::make_pair(this->property.first, this->property.second);
-                }
-                return std::pair<T, T>(this->property.first, this->property.second);
-            }
-            /**
              * @brief Get the property in a formatted form.
              * @return string_type The formatted CSS property.
              */

@@ -75,22 +75,6 @@ namespace bygg::HTML {
                 return T(this->property.second);
             }
             /**
-             * @brief Get the property.
-             * @return std::pair<string_type, string_type> The value of the property
-             */
-            [[nodiscard]] std::pair<string_type, string_type> get_pair() const;
-            /**
-             * @brief Get the property in a specific type.
-             * @return std::pair<T, T> The value of the property
-             */
-            template <typename T> std::pair<T, T> get_pair() const {
-                if (std::is_same_v<T, string_type>) {
-                    return this->property;
-                }
-
-                return T(this->property);
-            }
-            /**
              * @brief Get the formatted property.
              * @return string_type Formatted property.
              */
@@ -117,6 +101,12 @@ namespace bygg::HTML {
              * @param property The property.
              */
             void set(const std::pair<string_type, string_type>& property);
+            /**
+             * @brief Set the property
+             * @param key The key of the property
+             * @param value The value of the property
+             */
+            void set(const string_type& key, const string_type& value);
             /**
              * @brief Clear the property
              */
