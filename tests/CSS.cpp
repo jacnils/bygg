@@ -144,6 +144,14 @@ void CSS::test_element() {
         REQUIRE(element2.get_properties().at(0).get_pair().second == "value");
         REQUIRE(element2.get_properties().at(1).get_pair().first == "key2");
         REQUIRE(element2.get_properties().at(1).get_pair().second == "value2");
+        
+        Element element3{"my_new_element", Property{"key", "value"}, Property{"key2", "value2"}};
+
+        REQUIRE(element3.get_tag() == "my_new_element");
+        REQUIRE(element3.get_properties().at(0).get_pair().first == "key");
+        REQUIRE(element3.get_properties().at(0).get_pair().second == "value");
+        REQUIRE(element3.get_properties().at(1).get_pair().first == "key2");
+        REQUIRE(element3.get_properties().at(1).get_pair().second == "value2");
     };
 
     const auto test_copy_section = []() {
