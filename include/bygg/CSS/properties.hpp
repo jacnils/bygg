@@ -9,6 +9,7 @@
 #include <vector>
 #include <bygg/types.hpp>
 #include <bygg/CSS/property.hpp>
+#include <bygg/CSS/formatting_enum.hpp>
 
 namespace bygg::CSS {
    /**
@@ -89,6 +90,25 @@ namespace bygg::CSS {
              * @return PropertyList The properties of the element
              */
             [[nodiscard]] PropertyList get_properties() const;
+
+            /**
+             * @brief Get the properties of the element in string form
+             * @param formatting The formatting of the properties
+             * @param tabc The number of tabs to use for formatting
+             */
+            [[nodiscard]] string_type get(Formatting formatting = Formatting::None, integer_type tabc = 0) const;
+
+            /**
+             * @brief Get the properties of the element in a specific type
+             * @param formatting The formatting of the properties
+             * @param tabc The number of tabs to use for formatting
+             */
+            template <typename T> T get(Formatting formatting = Formatting::None, integer_type tabc = 0) const {
+                if (std::is_same_v<T, string_type>) {
+                    return this->get(formatting, tabc);
+                }
+                return T(this->get(formatting, tabc));
+            }
             /**
              * @brief Set the properties of the element
              * @param properties The properties to set

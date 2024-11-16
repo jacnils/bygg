@@ -6,6 +6,7 @@
  */
 
 #include <bygg/CSS/property.hpp>
+#include <bygg/CSS/formatting_enum.hpp>
 
 bygg::string_type bygg::CSS::Property::get_key() const {
     return this->property.first;
@@ -19,8 +20,21 @@ std::pair<bygg::string_type, bygg::string_type> bygg::CSS::Property::get_pair() 
     return this->property;
 }
 
-bygg::string_type bygg::CSS::Property::get() const {
-    return this->get_key() + ": " + this->get_value() + ";";
+bygg::string_type bygg::CSS::Property::get(bygg::CSS::Formatting formatting, integer_type tabc) const {
+    string_type ret;
+    if (formatting == bygg::CSS::Formatting::Pretty) {
+        for (int i{0}; i < tabc; i++) {
+            ret += "\t";
+        }
+    }
+
+    ret += this->get_key() + ": " + this->get_value() + ";";
+
+    if (formatting == bygg::CSS::Formatting::Newline || formatting == bygg::CSS::Formatting::Pretty) {
+        ret += "\n";
+    }
+
+    return ret;
 }
 
 void bygg::CSS::Property::set_key(const bygg::string_type& key) {

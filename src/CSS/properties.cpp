@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <bygg/except.hpp>
 #include <bygg/CSS/properties.hpp>
+#include <bygg/CSS/formatting_enum.hpp>
 
 bygg::CSS::Properties& bygg::CSS::Properties::operator=(const bygg::CSS::Property& property) {
     this->properties = {property};
@@ -68,6 +69,17 @@ bygg::CSS::Properties& bygg::CSS::Properties::operator+=(const bygg::CSS::Proper
 
 bygg::CSS::PropertyList bygg::CSS::Properties::get_properties() const {
     return this->properties;
+}
+
+
+bygg::string_type bygg::CSS::Properties::get(bygg::CSS::Formatting formatting, bygg::integer_type tabc) const {
+    string_type ret;
+
+    for (const bygg::CSS::Property& property : this->properties) {
+        ret += property.get(formatting, tabc);
+    }
+
+    return ret;
 }
 
 bygg::CSS::Property& bygg::CSS::Properties::at(const size_type index) {
