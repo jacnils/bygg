@@ -87,6 +87,7 @@ namespace bygg::CSS {
              * @param properties The properties of the element
              */
             Element(const string_type& tag, const bygg::CSS::Properties& properties) : element(std::make_pair(tag, properties)) {};
+            Element(HTML::Tag tag, const bygg::CSS::Properties& properties) : element(std::make_pair(resolve_tag(tag).first, properties)) {};
             /**
              * @brief Construct a new Element object
              * @param element The element to set
@@ -98,8 +99,16 @@ namespace bygg::CSS {
              * @param tag The tag of the element
              * @param args The properties of the element
              */
-            template <typename... Args> Element(const string_type& tag, Args&&... args) :
+            template <typename... Args> explicit Element(const string_type& tag, Args&&... args) :
                 element(std::make_pair(tag, bygg::CSS::Properties(std::forward<Args>(args)...))) {};
+
+            /**
+             * @brief Construct a new Element object
+             * @param tag The tag of the element
+             * @param args The properties of the element
+             */
+            template <typename... Args> explicit Element(HTML::Tag tag, Args&&... args) :
+                element(std::make_pair(resolve_tag(tag).first, bygg::CSS::Properties(std::forward<Args>(args)...))) {};
             /**
              * @brief Construct a new Element object
              */
