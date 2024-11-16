@@ -24,22 +24,16 @@ void CSS::test_property() {
 
         property.set("key", "value");
 
-        REQUIRE(property.get_pair().first == "key");
-        REQUIRE(property.get_pair().second == "value");
         REQUIRE(property.get_key() == "key");
         REQUIRE(property.get_value() == "value");
 
         property.set_key("new_key");
 
-        REQUIRE(property.get_pair().first == "new_key");
-        REQUIRE(property.get_pair().second == "value");
         REQUIRE(property.get_key() == "new_key");
         REQUIRE(property.get_value() == "value");
 
         property.set_value("new_value");
 
-        REQUIRE(property.get_pair().first == "new_key");
-        REQUIRE(property.get_pair().second == "new_value");
         REQUIRE(property.get_key() == "new_key");
         REQUIRE(property.get_value() == "new_value");
 
@@ -87,25 +81,25 @@ void CSS::test_element() {
 
         element.set_properties(make_properties(Property{"key", "value"}, Property{"key2", "value2"}));
 
-        REQUIRE(element.get_properties().at(0).get_pair().first == "key");
-        REQUIRE(element.get_properties().at(0).get_pair().second == "value");
-        REQUIRE(element.get_properties().at(1).get_pair().first == "key2");
-        REQUIRE(element.get_properties().at(1).get_pair().second == "value2");
+        REQUIRE(element.get_properties().at(0).get_key() == "key");
+        REQUIRE(element.get_properties().at(0).get_value() == "value");
+        REQUIRE(element.get_properties().at(1).get_key() == "key2");
+        REQUIRE(element.get_properties().at(1).get_value() == "value2");
 
         element.set("new_element", make_properties(Property{"key", "value"}, Property{"key2", "value2"}));
 
         REQUIRE(element.get_tag() == "new_element");
-        REQUIRE(element.get_properties().at(0).get_pair().first == "key");
-        REQUIRE(element.get_properties().at(0).get_pair().second == "value");
-        REQUIRE(element.get_properties().at(1).get_pair().first == "key2");
-        REQUIRE(element.get_properties().at(1).get_pair().second == "value2");
+        REQUIRE(element.get_properties().at(0).get_key() == "key");
+        REQUIRE(element.get_properties().at(0).get_value() == "value");
+        REQUIRE(element.get_properties().at(1).get_key() == "key2");
+        REQUIRE(element.get_properties().at(1).get_value() == "value2");
 
         element.set_properties(make_properties(Property{"key3", "value3"}, Property{"key4", "value4"}));
 
-        REQUIRE(element.get_properties().at(0).get_pair().first == "key3");
-        REQUIRE(element.get_properties().at(0).get_pair().second == "value3");
-        REQUIRE(element.get_properties().at(1).get_pair().first == "key4");
-        REQUIRE(element.get_properties().at(1).get_pair().second == "value4");
+        REQUIRE(element.get_properties().at(0).get_key() == "key3");
+        REQUIRE(element.get_properties().at(0).get_value() == "value3");
+        REQUIRE(element.get_properties().at(1).get_key() == "key4");
+        REQUIRE(element.get_properties().at(1).get_value() == "value4");
     };
 
     const auto test_operators = []() {
@@ -140,18 +134,18 @@ void CSS::test_element() {
         Element element2{"my_element", make_properties(Property{"key", "value"}, Property{"key2", "value2"})};
 
         REQUIRE(element2.get_tag() == "my_element");
-        REQUIRE(element2.get_properties().at(0).get_pair().first == "key");
-        REQUIRE(element2.get_properties().at(0).get_pair().second == "value");
-        REQUIRE(element2.get_properties().at(1).get_pair().first == "key2");
-        REQUIRE(element2.get_properties().at(1).get_pair().second == "value2");
+        REQUIRE(element2.get_properties().at(0).get_key() == "key");
+        REQUIRE(element2.get_properties().at(0).get_value() == "value");
+        REQUIRE(element2.get_properties().at(1).get_key() == "key2");
+        REQUIRE(element2.get_properties().at(1).get_value() == "value2");
 
         Element element3{"my_new_element", Property{"key", "value"}, Property{"key2", "value2"}};
 
         REQUIRE(element3.get_tag() == "my_new_element");
-        REQUIRE(element3.get_properties().at(0).get_pair().first == "key");
-        REQUIRE(element3.get_properties().at(0).get_pair().second == "value");
-        REQUIRE(element3.get_properties().at(1).get_pair().first == "key2");
-        REQUIRE(element3.get_properties().at(1).get_pair().second == "value2");
+        REQUIRE(element3.get_properties().at(0).get_key() == "key");
+        REQUIRE(element3.get_properties().at(0).get_value() == "value");
+        REQUIRE(element3.get_properties().at(1).get_key() == "key2");
+        REQUIRE(element3.get_properties().at(1).get_value() == "value2");
     };
 
     const auto test_copy_section = []() {
@@ -186,11 +180,11 @@ void CSS::test_element() {
             Property property = *it;
 
             if (index == 0) {
-                REQUIRE(property.get_pair().first == "key");
-                REQUIRE(property.get_pair().second == "value");
+                REQUIRE(property.get_key() == "key");
+                REQUIRE(property.get_value() == "value");
             } else if (index == 1) {
-                REQUIRE(property.get_pair().first == "key2");
-                REQUIRE(property.get_pair().second == "value2");
+                REQUIRE(property.get_key() == "key2");
+                REQUIRE(property.get_value() == "value2");
             }
 
             ++index;
@@ -201,11 +195,11 @@ void CSS::test_element() {
             Property property = *it;
 
             if (index == 0) {
-                REQUIRE(property.get_pair().first == "key");
-                REQUIRE(property.get_pair().second == "value");
+                REQUIRE(property.get_key() == "key");
+                REQUIRE(property.get_value() == "value");
             } else if (index == 1) {
-                REQUIRE(property.get_pair().first == "key2");
-                REQUIRE(property.get_pair().second == "value2");
+                REQUIRE(property.get_key() == "key2");
+                REQUIRE(property.get_value() == "value2");
             }
 
             ++index;
@@ -216,11 +210,11 @@ void CSS::test_element() {
             Property property = *it;
 
             if (index == 0) {
-                REQUIRE(property.get_pair().first == "key2");
-                REQUIRE(property.get_pair().second == "value2");
+                REQUIRE(property.get_key() == "key2");
+                REQUIRE(property.get_value() == "value2");
             } else if (index == 1) {
-                REQUIRE(property.get_pair().first == "key");
-                REQUIRE(property.get_pair().second == "value");
+                REQUIRE(property.get_key() == "key");
+                REQUIRE(property.get_value() == "value");
             }
 
             ++index;
@@ -231,11 +225,11 @@ void CSS::test_element() {
             Property property = *it;
 
             if (index == 0) {
-                REQUIRE(property.get_pair().first == "key2");
-                REQUIRE(property.get_pair().second == "value2");
+                REQUIRE(property.get_key() == "key2");
+                REQUIRE(property.get_value() == "value2");
             } else if (index == 1) {
-                REQUIRE(property.get_pair().first == "key");
-                REQUIRE(property.get_pair().second == "value");
+                REQUIRE(property.get_key() == "key");
+                REQUIRE(property.get_value() == "value");
             }
 
             ++index;
@@ -258,7 +252,7 @@ void CSS::test_element() {
 
         Property property = element.at(element.find("key2"));
 
-        REQUIRE(property.get_pair().first == "key2");
+        REQUIRE(property.get_key() == "key2");
     };
 
     const auto test_insert = []() {
@@ -278,7 +272,7 @@ void CSS::test_element() {
 
         REQUIRE(element.at(pos2) == property);
         REQUIRE(element.get_properties().at(pos2) == property);
-        REQUIRE(element.get_properties().at(pos2).get_pair().first == "key");
+        REQUIRE(element.get_properties().at(pos2).get_key() == "key");
     };
 
     const auto test_swap = []() {
@@ -307,8 +301,8 @@ void CSS::test_element() {
 
         element.set("my_element", make_properties(Property{"key", "value"}, Property{"key2", "value2"}));
 
-        REQUIRE(element.front().get_pair().first == "key");
-        REQUIRE(element.back().get_pair().first == "key2");
+        REQUIRE(element.front().get_key() == "key");
+        REQUIRE(element.back().get_key() == "key2");
     };
 
     const auto test_size_empty_and_clear = []() {
@@ -335,8 +329,8 @@ void CSS::test_element() {
         element.push_front(Property{"key", "value"});
         element.push_back(Property{"key2", "value2"});
 
-        REQUIRE(element.front().get_pair().first == "key");
-        REQUIRE(element.back().get_pair().first == "key2");
+        REQUIRE(element.front().get_key() == "key");
+        REQUIRE(element.back().get_key() == "key2");
     };
 
     const auto test_string_get = []() {
@@ -367,10 +361,10 @@ void CSS::test_element() {
         Property retrieved_prop1 = element.get_properties().at(0);
         Property retrieved_prop2 = element.get_properties().at(1);
 
-        REQUIRE(retrieved_prop1.get_pair().first == "key");
-        REQUIRE(retrieved_prop1.get_pair().second == "value");
-        REQUIRE(retrieved_prop2.get_pair().first == "key2");
-        REQUIRE(retrieved_prop2.get_pair().second == "value2");
+        REQUIRE(retrieved_prop1.get_key() == "key");
+        REQUIRE(retrieved_prop1.get_value() == "value");
+        REQUIRE(retrieved_prop2.get_key() == "key2");
+        REQUIRE(retrieved_prop2.get_value() == "value2");
     };
 
     test_get_and_set();
@@ -395,21 +389,21 @@ void CSS::test_stylesheet() {
 
         Stylesheet stylesheet;
 
-        stylesheet.set({Element{"my_element", make_properties(Property{"key", "value"}, Property{"key2", "value2"})}});
+        stylesheet.set_elements({Element{"my_element", make_properties(Property{"key", "value"}, Property{"key2", "value2"})}});
 
         REQUIRE(stylesheet.at(0).get_tag() == "my_element");
-        REQUIRE(stylesheet.at(0).get_properties().at(0).get_pair().first == "key");
-        REQUIRE(stylesheet.at(0).get_properties().at(0).get_pair().second == "value");
-        REQUIRE(stylesheet.at(0).get_properties().at(1).get_pair().first == "key2");
-        REQUIRE(stylesheet.at(0).get_properties().at(1).get_pair().second == "value2");
+        REQUIRE(stylesheet.at(0).get_properties().at(0).get_key() == "key");
+        REQUIRE(stylesheet.at(0).get_properties().at(0).get_value() == "value");
+        REQUIRE(stylesheet.at(0).get_properties().at(1).get_key() == "key2");
+        REQUIRE(stylesheet.at(0).get_properties().at(1).get_value() == "value2");
 
-        stylesheet.set({Element{"my_element2", make_properties(Property{"key3", "value3"}, Property{"key4", "value4"})}});
+        stylesheet.set_elements({Element{"my_element2", make_properties(Property{"key3", "value3"}, Property{"key4", "value4"})}});
 
         REQUIRE(stylesheet.at(0).get_tag() == "my_element2");
-        REQUIRE(stylesheet.at(0).get_properties().at(0).get_pair().first == "key3");
-        REQUIRE(stylesheet.at(0).get_properties().at(0).get_pair().second == "value3");
-        REQUIRE(stylesheet.at(0).get_properties().at(1).get_pair().first == "key4");
-        REQUIRE(stylesheet.at(0).get_properties().at(1).get_pair().second == "value4");
+        REQUIRE(stylesheet.at(0).get_properties().at(0).get_key() == "key3");
+        REQUIRE(stylesheet.at(0).get_properties().at(0).get_value() == "value3");
+        REQUIRE(stylesheet.at(0).get_properties().at(1).get_key() == "key4");
+        REQUIRE(stylesheet.at(0).get_properties().at(1).get_value() == "value4");
 
         try {
             static_cast<void>(stylesheet.at(1));
@@ -429,7 +423,7 @@ void CSS::test_stylesheet() {
 
         Stylesheet stylesheet;
 
-        stylesheet.set({Element{"my_element", make_properties(Property{"key", "value"}, Property{"key2", "value2"})}});
+        stylesheet.set_elements({Element{"my_element", make_properties(Property{"key", "value"}, Property{"key2", "value2"})}});
 
         Stylesheet new_stylesheet = stylesheet;
 
@@ -454,14 +448,14 @@ void CSS::test_stylesheet() {
         Element element{"my_element", make_properties(Property{"key", "value"}, Property{"key2", "value2"})};
         Element element2{"my_element", make_properties(Property{"key", "value"}, Property{"key2", "value2"})};
 
-        stylesheet1.set({element});
-        stylesheet2.set({element2});
+        stylesheet1.set_elements({element});
+        stylesheet2.set_elements({element2});
 
         REQUIRE(stylesheet1 == stylesheet2);
 
         element2.set("my_element", make_properties(Property{"key3", "value3"}, Property{"key4", "value4"}));
 
-        stylesheet2.set({element2});
+        stylesheet2.set_elements({element2});
 
         REQUIRE(stylesheet1 != stylesheet2);
     };
@@ -488,7 +482,7 @@ void CSS::test_stylesheet() {
 
         REQUIRE(stylesheet3.size() == 2);
         REQUIRE(stylesheet3.get<std::string>() == "my_element {property1: data1;property2: data2;}my_element_2 {property3: data3;property4: data4;}");
-        REQUIRE(stylesheet3.at(1).at(1).get_pair().first == "property4");
+        REQUIRE(stylesheet3.at(1).at(1).get_key() == "property4");
     };
 
     const auto test_push_front_and_back = []() {
@@ -710,9 +704,22 @@ void CSS::test_color_formatter() {
     REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Hex_A) == "#ffff00ff");
     REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Rgb) == "rgb(255, 255, 0)");
     REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Rgb_A) == "rgba(255, 255, 0, 255)");
+    REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Hsl) == "hsl(60, 100%, 50%)");
+    REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Hsl_A) == "hsla(60, 100%, 50%, 1)");
 
     formatter.set_formatting(bygg::CSS::ColorFormatting::Hex_A);
     formatter.set_color_struct(bygg::CSS::from_rgba(0, 0, 0, 255));
 
     REQUIRE(formatter.get<std::string>() == "#000000ff");
+
+    formatter.set_formatting(bygg::CSS::ColorFormatting::Rgb);
+    formatter.set_color_struct(bygg::CSS::from_rgba(255, 0, 0, 150));
+
+    REQUIRE(formatter.get<std::string>() == "rgb(255, 0, 0)");
+    REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Hex) == "#ff0000");
+    REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Hex_A) == "#ff000096");
+	REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Rgb) == "rgb(255, 0, 0)");
+    REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Rgb_A) == "rgba(255, 0, 0, 150)");
+    REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Hsl) == "hsl(0, 100%, 50%)");
+    REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Hsl_A) == "hsla(0, 100%, 50%, 0.58)");
 }

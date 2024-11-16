@@ -40,7 +40,7 @@ bool bygg::CSS::Properties::operator==(const bygg::CSS::Properties& properties) 
 bool bygg::CSS::Properties::operator==(const bygg::CSS::Property& property) const {
     return std::any_of(this->properties.begin(), this->properties.end(),
                    [&property](const bygg::CSS::Property& it) {
-                       return it.get_pair() == property.get_pair();
+                       return it.get_key() == property.get_key() && it.get_value() == property.get_value();
                    });
 }
 
@@ -50,7 +50,7 @@ bool bygg::CSS::Properties::operator!=(const bygg::CSS::Properties& properties) 
 
 bool bygg::CSS::Properties::operator!=(const bygg::CSS::Property& property) const {
     return std::all_of(this->properties.begin(), this->properties.end(), [&property](const bygg::CSS::Property& it) {
-        return it.get_pair() == property.get_pair();
+        return it.get_key() == property.get_key() && it.get_value() == property.get_value();
         });
 }
 

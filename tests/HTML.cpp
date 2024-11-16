@@ -29,34 +29,34 @@ void HTML::test_property() {
         using namespace bygg::HTML;
 
         Property property;
-        REQUIRE((property.get_pair().first.empty() && property.get_pair().second.empty() && property.get_key().empty() && property.get_value().empty()));
+        REQUIRE((property.get_key().empty() && property.get_value().empty() && property.get_key().empty() && property.get_value().empty()));
 
         property.set({"key", "value"});
 
-        REQUIRE(property.get_pair().first == "key");
-        REQUIRE(property.get_pair().second == "value");
+        REQUIRE(property.get_key() == "key");
+        REQUIRE(property.get_value() == "value");
         REQUIRE(property.get_key() == "key");
         REQUIRE(property.get_value() == "value");
 
         property.set_key("new_key");
         property.set_value("new_value");
 
-        REQUIRE(property.get_pair().first == "new_key");
-        REQUIRE(property.get_pair().second == "new_value");
+        REQUIRE(property.get_key() == "new_key");
+        REQUIRE(property.get_value() == "new_value");
         REQUIRE(property.get_key() == "new_key");
         REQUIRE(property.get_value() == "new_value");
 
         property.set_key("newer_key");
 
-        REQUIRE(property.get_pair().first == "newer_key");
-        REQUIRE(property.get_pair().second == "new_value");
+        REQUIRE(property.get_key() == "newer_key");
+        REQUIRE(property.get_value() == "new_value");
         REQUIRE(property.get_key() == "newer_key");
         REQUIRE(property.get_value() == "new_value");
 
         property.set_value("newer_value");
 
-        REQUIRE(property.get_pair().first == "newer_key");
-        REQUIRE(property.get_pair().second == "newer_value");
+        REQUIRE(property.get_key() == "newer_key");
+        REQUIRE(property.get_value() == "newer_value");
         REQUIRE(property.get_key() == "newer_key");
         REQUIRE(property.get_value() == "newer_value");
 
@@ -101,25 +101,25 @@ void HTML::test_properties() {
         std::size_t index = 0;
         for (const auto& it : properties) {
             if (index == 0) {
-                REQUIRE(it.get_pair().first == "key1");
-                REQUIRE(it.get_pair().second == "value1");
+                REQUIRE(it.get_key() == "key1");
+                REQUIRE(it.get_value() == "value1");
             } else if (index == 1) {
-                REQUIRE(it.get_pair().first == "key2");
-                REQUIRE(it.get_pair().second == "value2");
+                REQUIRE(it.get_key() == "key2");
+                REQUIRE(it.get_value() == "value2");
             } else if (index == 2) {
-                REQUIRE(it.get_pair().first == "key3");
-                REQUIRE(it.get_pair().second == "value3");
+                REQUIRE(it.get_key() == "key3");
+                REQUIRE(it.get_value() == "value3");
             }
 
             ++index;
         }
 
-        REQUIRE(properties.at(0).get_pair().first == "key1");
-        REQUIRE(properties.at(0).get_pair().second == "value1");
-        REQUIRE(properties.at(1).get_pair().first == "key2");
-        REQUIRE(properties.at(1).get_pair().second == "value2");
-        REQUIRE(properties.at(2).get_pair().first == "key3");
-        REQUIRE(properties.at(2).get_pair().second == "value3");
+        REQUIRE(properties.at(0).get_key() == "key1");
+        REQUIRE(properties.at(0).get_value() == "value1");
+        REQUIRE(properties.at(1).get_key() == "key2");
+        REQUIRE(properties.at(1).get_value() == "value2");
+        REQUIRE(properties.at(2).get_key() == "key3");
+        REQUIRE(properties.at(2).get_value() == "value3");
 
         // should fail, out of range
         try {
@@ -157,14 +157,14 @@ void HTML::test_properties() {
         std::size_t index{0};
         for (auto it = properties.begin(); it != properties.end(); ++it) {
             if (index == 0) {
-                REQUIRE(it->get_pair().first == "key1");
-                REQUIRE(it->get_pair().second == "value1");
+                REQUIRE(it->get_key() == "key1");
+                REQUIRE(it->get_value() == "value1");
             } else if (index == 1) {
-                REQUIRE(it->get_pair().first == "key2");
-                REQUIRE(it->get_pair().second == "value2");
+                REQUIRE(it->get_key() == "key2");
+                REQUIRE(it->get_value() == "value2");
             } else if (index == 2) {
-                REQUIRE(it->get_pair().first == "key3");
-                REQUIRE(it->get_pair().second == "value3");
+                REQUIRE(it->get_key() == "key3");
+                REQUIRE(it->get_value() == "value3");
             }
 
             ++index;
@@ -173,14 +173,14 @@ void HTML::test_properties() {
         index = 0;
         for (auto it = properties.cbegin(); it != properties.cend(); ++it) {
             if (index == 0) {
-                REQUIRE(it->get_pair().first == "key1");
-                REQUIRE(it->get_pair().second == "value1");
+                REQUIRE(it->get_key() == "key1");
+                REQUIRE(it->get_value() == "value1");
             } else if (index == 1) {
-                REQUIRE(it->get_pair().first == "key2");
-                REQUIRE(it->get_pair().second == "value2");
+                REQUIRE(it->get_key() == "key2");
+                REQUIRE(it->get_value() == "value2");
             } else if (index == 2) {
-                REQUIRE(it->get_pair().first == "key3");
-                REQUIRE(it->get_pair().second == "value3");
+                REQUIRE(it->get_key() == "key3");
+                REQUIRE(it->get_value() == "value3");
             }
 
             ++index;
@@ -189,14 +189,14 @@ void HTML::test_properties() {
         index = 0;
         for (auto it = properties.rbegin(); it != properties.rend(); ++it) {
             if (index == 0) {
-                REQUIRE(it->get_pair().first == "key3");
-                REQUIRE(it->get_pair().second == "value3");
+                REQUIRE(it->get_key() == "key3");
+                REQUIRE(it->get_value() == "value3");
             } else if (index == 1) {
-                REQUIRE(it->get_pair().first == "key2");
-                REQUIRE(it->get_pair().second == "value2");
+                REQUIRE(it->get_key() == "key2");
+                REQUIRE(it->get_value() == "value2");
             } else if (index == 2) {
-                REQUIRE(it->get_pair().first == "key1");
-                REQUIRE(it->get_pair().second == "value1");
+                REQUIRE(it->get_key() == "key1");
+                REQUIRE(it->get_value() == "value1");
             }
 
             ++index;
@@ -205,14 +205,14 @@ void HTML::test_properties() {
         index = 0;
         for (auto it = properties.crbegin(); it != properties.crend(); ++it) {
             if (index == 0) {
-                REQUIRE(it->get_pair().first == "key3");
-                REQUIRE(it->get_pair().second == "value3");
+                REQUIRE(it->get_key() == "key3");
+                REQUIRE(it->get_value() == "value3");
             } else if (index == 1) {
-                REQUIRE(it->get_pair().first == "key2");
-                REQUIRE(it->get_pair().second == "value2");
+                REQUIRE(it->get_key() == "key2");
+                REQUIRE(it->get_value() == "value2");
             } else if (index == 2) {
-                REQUIRE(it->get_pair().first == "key1");
-                REQUIRE(it->get_pair().second == "value1");
+                REQUIRE(it->get_key() == "key1");
+                REQUIRE(it->get_value() == "value1");
             }
 
             ++index;
@@ -221,14 +221,14 @@ void HTML::test_properties() {
         index = 0;
         for (const auto& it : properties) {
             if (index == 0) {
-                REQUIRE(it.get_pair().first == "key1");
-                REQUIRE(it.get_pair().second == "value1");
+                REQUIRE(it.get_key() == "key1");
+                REQUIRE(it.get_value() == "value1");
             } else if (index == 1) {
-                REQUIRE(it.get_pair().first == "key2");
-                REQUIRE(it.get_pair().second == "value2");
+                REQUIRE(it.get_key() == "key2");
+                REQUIRE(it.get_value() == "value2");
             } else if (index == 2) {
-                REQUIRE(it.get_pair().first == "key3");
-                REQUIRE(it.get_pair().second == "value3");
+                REQUIRE(it.get_key() == "key3");
+                REQUIRE(it.get_value() == "value3");
             }
 
             ++index;
@@ -257,24 +257,24 @@ void HTML::test_properties() {
 
         std::size_t pos = properties.find("key1");
 
-        REQUIRE(properties[pos].get_pair().first == "key1");
-        REQUIRE(properties.at(pos).get_pair().first == "key1");
-        REQUIRE(properties[pos].get_pair().second == "value1");
-        REQUIRE(properties.at(pos).get_pair().second == "value1");
+        REQUIRE(properties[pos].get_key() == "key1");
+        REQUIRE(properties.at(pos).get_key() == "key1");
+        REQUIRE(properties[pos].get_value() == "value1");
+        REQUIRE(properties.at(pos).get_value() == "value1");
 
         pos = properties.find("key2");
 
-        REQUIRE(properties[pos].get_pair().first == "key2");
-        REQUIRE(properties.at(pos).get_pair().first == "key2");
-        REQUIRE(properties[pos].get_pair().second == "value2");
-        REQUIRE(properties.at(pos).get_pair().second == "value2");
+        REQUIRE(properties[pos].get_key() == "key2");
+        REQUIRE(properties.at(pos).get_key() == "key2");
+        REQUIRE(properties[pos].get_value() == "value2");
+        REQUIRE(properties.at(pos).get_value() == "value2");
 
         pos = properties.find("key3");
 
-        REQUIRE(properties[pos].get_pair().first == "key3");
-        REQUIRE(properties.at(pos).get_pair().first == "key3");
-        REQUIRE(properties[pos].get_pair().second == "value3");
-        REQUIRE(properties.at(pos).get_pair().second == "value3");
+        REQUIRE(properties[pos].get_key() == "key3");
+        REQUIRE(properties.at(pos).get_key() == "key3");
+        REQUIRE(properties[pos].get_value() == "value3");
+        REQUIRE(properties.at(pos).get_value() == "value3");
 
         pos = properties.find("key4");
 
@@ -300,7 +300,7 @@ void HTML::test_properties() {
 
         REQUIRE(properties.at(pos2) == found_property);
         REQUIRE(properties.get_properties().at(pos2) == found_property);
-        REQUIRE(properties.get_properties().at(pos2).get_pair().first == "key1");
+        REQUIRE(properties.get_properties().at(pos2).get_key() == "key1");
     };
 
     const auto test_swap = []() {
@@ -330,11 +330,11 @@ void HTML::test_properties() {
 
         Properties properties = make_properties(Property{"key1", "value1"}, Property{"key2", "value2"}, Property{"key3", "value3"});
 
-        REQUIRE(properties.front().get_pair().first == "key1");
-        REQUIRE(properties.front().get_pair().second == "value1");
+        REQUIRE(properties.front().get_key() == "key1");
+        REQUIRE(properties.front().get_value() == "value1");
 
-        REQUIRE(properties.back().get_pair().first == "key3");
-        REQUIRE(properties.back().get_pair().second == "value3");
+        REQUIRE(properties.back().get_key() == "key3");
+        REQUIRE(properties.back().get_value() == "value3");
     };
 
     const auto test_size_empty_and_clear = []() {
@@ -359,11 +359,11 @@ void HTML::test_properties() {
         properties.push_front({"key1", "value1"});
         properties.push_back({"key2", "value2"});
 
-        REQUIRE(properties.front().get_pair().first == "key1");
-        REQUIRE(properties.front().get_pair().second == "value1");
+        REQUIRE(properties.front().get_key() == "key1");
+        REQUIRE(properties.front().get_value() == "value1");
 
-        REQUIRE(properties.back().get_pair().first == "key2");
-        REQUIRE(properties.back().get_pair().second == "value2");
+        REQUIRE(properties.back().get_key() == "key2");
+        REQUIRE(properties.back().get_value() == "value2");
     };
 
     const auto test_constructors = []() {
@@ -416,10 +416,10 @@ void HTML::test_element() {
 
         REQUIRE(element.get_tag() == "new_element");
         REQUIRE(element.get_data() == "new_data");
-        REQUIRE(element.get_properties().at(0).get_pair().first == "key");
-        REQUIRE(element.get_properties().at(0).get_pair().second == "value");
-        REQUIRE(element.get_properties().at(1).get_pair().first == "key2");
-        REQUIRE(element.get_properties().at(1).get_pair().second == "value2");
+        REQUIRE(element.get_properties().at(0).get_key() == "key");
+        REQUIRE(element.get_properties().at(0).get_value() == "value");
+        REQUIRE(element.get_properties().at(1).get_key() == "key2");
+        REQUIRE(element.get_properties().at(1).get_value() == "value2");
         REQUIRE(element.get_type() == bygg::HTML::Type::Self_Closing);
     };
 
@@ -539,25 +539,25 @@ void HTML::test_section() {
         section.set_properties(make_properties(Property("key", "value"), Property("key2", "value2")));
 
         REQUIRE(section.get_tag() == "new_section");
-        REQUIRE(section.get_properties().at(0).get_pair().first == "key");
-        REQUIRE(section.get_properties().at(0).get_pair().second == "value");
-        REQUIRE(section.get_properties().at(1).get_pair().first == "key2");
-        REQUIRE(section.get_properties().at(1).get_pair().second == "value2");
+        REQUIRE(section.get_properties().at(0).get_key() == "key");
+        REQUIRE(section.get_properties().at(0).get_value() == "value");
+        REQUIRE(section.get_properties().at(1).get_key() == "key2");
+        REQUIRE(section.get_properties().at(1).get_value() == "value2");
 
         section.set("new_section", Properties(Property("key", "value"), Property("key2", "value2")));
 
         REQUIRE(section.get_tag() == "new_section");
-        REQUIRE(section.get_properties().at(0).get_pair().first == "key");
-        REQUIRE(section.get_properties().at(0).get_pair().second == "value");
-        REQUIRE(section.get_properties().at(1).get_pair().first == "key2");
-        REQUIRE(section.get_properties().at(1).get_pair().second == "value2");
+        REQUIRE(section.get_properties().at(0).get_key() == "key");
+        REQUIRE(section.get_properties().at(0).get_value() == "value");
+        REQUIRE(section.get_properties().at(1).get_key() == "key2");
+        REQUIRE(section.get_properties().at(1).get_value() == "value2");
 
         section.set_properties(make_properties(Property("key3", "value3"), Property("key4", "value4")));
 
-        REQUIRE(section.get_properties().at(0).get_pair().first == "key3");
-        REQUIRE(section.get_properties().at(0).get_pair().second == "value3");
-        REQUIRE(section.get_properties().at(1).get_pair().first == "key4");
-        REQUIRE(section.get_properties().at(1).get_pair().second == "value4");
+        REQUIRE(section.get_properties().at(0).get_key() == "key3");
+        REQUIRE(section.get_properties().at(0).get_value() == "value3");
+        REQUIRE(section.get_properties().at(1).get_key() == "key4");
+        REQUIRE(section.get_properties().at(1).get_value() == "value4");
 
         Section completely_empty_section;
 
@@ -643,18 +643,18 @@ void HTML::test_section() {
         Section section2("my_section", make_properties(Property("key", "value"), Property("key2", "value2")));
 
         REQUIRE(section2.get_tag() == "my_section");
-        REQUIRE(section2.get_properties().at(0).get_pair().first == "key");
-        REQUIRE(section2.get_properties().at(0).get_pair().second == "value");
-        REQUIRE(section2.get_properties().at(1).get_pair().first == "key2");
-        REQUIRE(section2.get_properties().at(1).get_pair().second == "value2");
+        REQUIRE(section2.get_properties().at(0).get_key() == "key");
+        REQUIRE(section2.get_properties().at(0).get_value() == "value");
+        REQUIRE(section2.get_properties().at(1).get_key() == "key2");
+        REQUIRE(section2.get_properties().at(1).get_value() == "value2");
 
         Section section3(bygg::HTML::Tag::H1, make_properties(Property{"key", "value"}, Property{"key2", "value2"}), {Element{}});
 
         REQUIRE(section3.get_tag() == "h1");
-        REQUIRE(section3.get_properties().at(0).get_pair().first == "key");
-        REQUIRE(section3.get_properties().at(0).get_pair().second == "value");
-        REQUIRE(section3.get_properties().at(1).get_pair().first == "key2");
-        REQUIRE(section3.get_properties().at(1).get_pair().second == "value2");
+        REQUIRE(section3.get_properties().at(0).get_key() == "key");
+        REQUIRE(section3.get_properties().at(0).get_value() == "value");
+        REQUIRE(section3.get_properties().at(1).get_key() == "key2");
+        REQUIRE(section3.get_properties().at(1).get_value() == "value2");
     };
 
     const auto test_iterators = []() {

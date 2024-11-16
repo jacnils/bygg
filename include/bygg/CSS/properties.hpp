@@ -242,5 +242,9 @@ namespace bygg::CSS {
             Properties& operator+=(const Properties& properties);
     };
 
+    /**
+     * @brief Construct a new Properties object
+     * @param args The properties to set
+     */
     template <typename... Args> Properties make_properties(Args&&... args) { return Properties(std::forward<Args>(args)...); }
 } // namespace bygg

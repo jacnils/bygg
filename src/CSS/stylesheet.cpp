@@ -8,7 +8,7 @@
 #include <bygg/except.hpp>
 #include <bygg/CSS/stylesheet.hpp>
 
-void bygg::CSS::Stylesheet::set(const bygg::CSS::ElementList& elements) {
+void bygg::CSS::Stylesheet::set_elements(const bygg::CSS::ElementList& elements) {
     this->elements = elements;
 }
 
@@ -37,7 +37,7 @@ void bygg::CSS::Stylesheet::erase(const size_type index) {
 }
 
 bygg::CSS::Stylesheet& bygg::CSS::Stylesheet::operator=(const bygg::CSS::Stylesheet& stylesheet) {
-    this->set(stylesheet.get_elements());
+    this->set_elements(stylesheet.get_elements());
     return *this;
 }
 

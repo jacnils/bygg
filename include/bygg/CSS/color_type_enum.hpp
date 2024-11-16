@@ -16,5 +16,7 @@ namespace bygg::CSS {
       Hex_A,
       Rgb,
       Rgb_A,
+      Hsl,
+      Hsl_A,
     };
 } // namespace bygg

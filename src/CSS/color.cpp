@@ -29,6 +29,16 @@ bygg::string_type bygg::CSS::ColorFormatter::get(const bygg::CSS::ColorFormattin
             std::stringstream ss_{};
             ss_ << "rgba(" << std::get<0>(tuple_) << ", " << std::get<1>(tuple_) << ", " << std::get<2>(tuple_) << ", " << std::get<3>(tuple_) << ")";
             return ss_.str();
+        } case bygg::CSS::ColorFormatting::Hsl: {
+            std::tuple<int, int, int> tuple_ = bygg::impl_color_to_hsl(color);
+            std::stringstream ss_{};
+            ss_ << "hsl(" << std::get<0>(tuple_) << ", " << std::get<1>(tuple_) << "%, " << std::get<2>(tuple_) << "%)";
+            return ss_.str();
+        } case bygg::CSS::ColorFormatting::Hsl_A: {
+            std::tuple<int, int, int, int> tuple_ = bygg::impl_color_to_hsl_a(color);
+            std::stringstream ss_{};
+            ss_ << "hsla(" << std::get<0>(tuple_) << ", " << std::get<1>(tuple_) << "%, " << std::get<2>(tuple_) << "%, " << std::get<3>(tuple_) / 100.0 << ")";
+            return ss_.str();
         } default: {
             break;
         }

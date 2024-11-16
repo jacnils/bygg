@@ -99,12 +99,13 @@ bygg::CSS::Property bygg::CSS::Element::at(const size_type index) const {
 
 bygg::size_type bygg::CSS::Element::find(const Property& property) const {
     for (size_type i{0}; i < this->element.second.size(); i++) {
-        if (this->element.second.at(i).get_pair() == property.get_pair()) {
+        if (this->element.second.at(i).get_key() == property.get_key() ||
+            this->element.second.at(i).get_value() == property.get_value()) {
             return i;
         }
     }
 
-    return bygg::CSS::Element::npos;
+    return npos;
 }
 
 bygg::size_type bygg::CSS::Element::find(const bygg::string_type& str) const {
@@ -114,7 +115,7 @@ bygg::size_type bygg::CSS::Element::find(const bygg::string_type& str) const {
         }
     }
 
-    return bygg::CSS::Element::npos;
+    return npos;
 }
 
 bygg::CSS::Property& bygg::CSS::Element::front() {
