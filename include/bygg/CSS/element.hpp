@@ -92,6 +92,14 @@ namespace bygg::CSS {
              * @param element The element to set
              */
             Element(const Element& element) = default;
+
+            /**             *
+             * @brief Construct a new Element object
+             * @param tag The tag of the element
+             * @param args The properties of the element
+             */
+            template <typename... Args> Element(const string_type& tag, Args&&... args) :
+                element(std::make_pair(tag, bygg::CSS::Properties(std::forward<Args>(args)...))) {};
             /**
              * @brief Construct a new Element object
              */
