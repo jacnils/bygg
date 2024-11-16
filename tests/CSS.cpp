@@ -389,7 +389,7 @@ void CSS::test_stylesheet() {
 
         Stylesheet stylesheet;
 
-        stylesheet.set({Element{"my_element", make_properties(Property{"key", "value"}, Property{"key2", "value2"})}});
+        stylesheet.set_elements({Element{"my_element", make_properties(Property{"key", "value"}, Property{"key2", "value2"})}});
 
         REQUIRE(stylesheet.at(0).get_tag() == "my_element");
         REQUIRE(stylesheet.at(0).get_properties().at(0).get_key() == "key");
@@ -397,7 +397,7 @@ void CSS::test_stylesheet() {
         REQUIRE(stylesheet.at(0).get_properties().at(1).get_key() == "key2");
         REQUIRE(stylesheet.at(0).get_properties().at(1).get_value() == "value2");
 
-        stylesheet.set({Element{"my_element2", make_properties(Property{"key3", "value3"}, Property{"key4", "value4"})}});
+        stylesheet.set_elements({Element{"my_element2", make_properties(Property{"key3", "value3"}, Property{"key4", "value4"})}});
 
         REQUIRE(stylesheet.at(0).get_tag() == "my_element2");
         REQUIRE(stylesheet.at(0).get_properties().at(0).get_key() == "key3");
@@ -423,7 +423,7 @@ void CSS::test_stylesheet() {
 
         Stylesheet stylesheet;
 
-        stylesheet.set({Element{"my_element", make_properties(Property{"key", "value"}, Property{"key2", "value2"})}});
+        stylesheet.set_elements({Element{"my_element", make_properties(Property{"key", "value"}, Property{"key2", "value2"})}});
 
         Stylesheet new_stylesheet = stylesheet;
 
@@ -448,14 +448,14 @@ void CSS::test_stylesheet() {
         Element element{"my_element", make_properties(Property{"key", "value"}, Property{"key2", "value2"})};
         Element element2{"my_element", make_properties(Property{"key", "value"}, Property{"key2", "value2"})};
 
-        stylesheet1.set({element});
-        stylesheet2.set({element2});
+        stylesheet1.set_elements({element});
+        stylesheet2.set_elements({element2});
 
         REQUIRE(stylesheet1 == stylesheet2);
 
         element2.set("my_element", make_properties(Property{"key3", "value3"}, Property{"key4", "value4"}));
 
-        stylesheet2.set({element2});
+        stylesheet2.set_elements({element2});
 
         REQUIRE(stylesheet1 != stylesheet2);
     };
@@ -704,9 +704,22 @@ void CSS::test_color_formatter() {
     REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Hex_A) == "#ffff00ff");
     REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Rgb) == "rgb(255, 255, 0)");
     REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Rgb_A) == "rgba(255, 255, 0, 255)");
+    REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Hsl) == "hsl(60, 100%, 50%)");
+    REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Hsl_A) == "hsla(60, 100%, 50%, 1)");
 
     formatter.set_formatting(bygg::CSS::ColorFormatting::Hex_A);
     formatter.set_color_struct(bygg::CSS::from_rgba(0, 0, 0, 255));
 
     REQUIRE(formatter.get<std::string>() == "#000000ff");
+
+    formatter.set_formatting(bygg::CSS::ColorFormatting::Rgb);
+    formatter.set_color_struct(bygg::CSS::from_rgba(255, 0, 0, 150));
+
+    REQUIRE(formatter.get<std::string>() == "rgb(255, 0, 0)");
+    REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Hex) == "#ff0000");
+    REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Hex_A) == "#ff000096");
+	REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Rgb) == "rgb(255, 0, 0)");
+    REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Rgb_A) == "rgba(255, 0, 0, 150)");
+    REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Hsl) == "hsl(0, 100%, 50%)");
+    REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Hsl_A) == "hsla(0, 100%, 50%, 0.58)");
 }

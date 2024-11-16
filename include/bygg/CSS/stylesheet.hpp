@@ -198,7 +198,7 @@ namespace bygg::CSS {
              * @brief Set the elements of the stylesheet
              * @param elements The elements to set
              */
-            void set(const ElementList& elements);
+            void set_elements(const ElementList& elements);
             /**
              * @brief Get the elements of the stylesheet
              * @return ElementList The elements of the stylesheet

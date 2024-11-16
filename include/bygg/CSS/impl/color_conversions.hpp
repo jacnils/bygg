@@ -35,4 +35,16 @@ namespace bygg {
      * @return std::tuple<int, int, int, int>
      */
     std::tuple<int, int, int, int> impl_color_to_int_a(const bygg::CSS::ColorStruct& color);
+    /**
+     * @brief Convert a bygg::CSS::ColorStruct to an std::tuple<int, int, int>
+     * @param color The color to parse from.
+     * @return std::tuple<int, int, int>
+     */
+    std::tuple<int, int, int> impl_color_to_hsl(const bygg::CSS::ColorStruct& color);
+    /**
+     * @brief Convert a bygg::CSS::ColorStruct to an std::tuple<int, int, int, int>
+     * @param color The color to parse from.
+     * @return std::tuple<int, int, int, int>
+     */
+    std::tuple<int, int, int, int> impl_color_to_hsl_a(const bygg::CSS::ColorStruct& color);
 } // namespace bygg
