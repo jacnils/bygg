@@ -18,9 +18,9 @@
 #endif
 
 #ifdef _WIN32
-        constexpr std::string_view temp_file{"temp_data"};
+        const std::string temp_file{"temp_data"};
 #else
-        constexpr std::string_view temp_file{"/tmp/temp_data"};
+        const std::string temp_file{"/tmp/temp_data"};
 #endif
 
 enum class InputType {
