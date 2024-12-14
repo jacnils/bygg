@@ -42,6 +42,7 @@ jobs:
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
         -DBYGG_USE_LIBXML2=OFF
+        -DBYGG_BUILD_CLI=OFF
 
     - name: Configure CMake
       if: matrix.os != 'windows-latest'

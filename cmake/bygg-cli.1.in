@@ -1,0 +1,32 @@
+.TH BYGG-CLI 1 "bygg-cli @PROJECT_VERSION@" "User Commands"
+.SH NAME
+bygg-cli \- a command-line interface for bygg
+.SH SYNOPSIS
+.B bygg-cli
+[\fIoptions\fR] [\fIfile\fR]
+.SH DESCRIPTION
+.B bygg-cli
+is a command-line tool for processing HTML and Markdown files with various formatting options.
+.SH OPTIONS
+.TP
+.B \-h, \--help, /h
+Show this help message.
+.TP
+.B \-v, \--version, /v
+Show the version of bygg-cli.
+.TP
+.B \-c, \--copyright, /c
+Show the copyright information.
+.TP
+.B \-f, \--formatting, /f
+Set the formatting type (none, pretty, newline, pseudo).
+.TP
+.B \-i, \--input, /i
+Set the input type (html, markdown).
+.TP
+.B \fIfile\fR
+The file to read from. If no file is specified, input will be read from stdin.
+.SH AUTHOR
+Jacob Nilsson & contributors
+.SH LICENSE
+Licensed under the MIT license.
