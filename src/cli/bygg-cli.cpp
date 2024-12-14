@@ -76,6 +76,7 @@ int main(int argc, char** argv) {
                 }
             } else {
                 std::cout << "no formatting type specified." << "\n";
+                return 1;
             }
 
             ++i;
@@ -92,6 +93,7 @@ int main(int argc, char** argv) {
                 }
             } else {
                 std::cout << "no input type specified." << "\n";
+                return 1;
             }
 
             ++i;
