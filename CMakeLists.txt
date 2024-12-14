@@ -32,12 +32,24 @@ if (APPLE)
     set(INSTALL_RPATH_USE_LINK_PATH ON)
 endif()
 
+if (NOT DEFINED BYGG_BUILD_CLI)
+    set(BYGG_BUILD_CLI ON)
+endif()
+
+if (NOT DEFINED BYGG_INSTALL_DOCS)
+    set(BYGG_INSTALL_DOCS ON)
+endif()
+
 if (NOT DEFINED BYGG_USE_LIBXML2)
     set(BYGG_USE_LIBXML2 ON)
 endif()
 
 if (NOT DEFINED BYGG_BUILD_LIBXML2)
     set(BYGG_BUILD_LIBXML2 OFF)
+endif()
+
+if (BYGG_BUILD_CLI AND NOT BYGG_USE_LIBXML2)
+    message(FATAL_ERROR "BYGG_BUILD_CLI requires BYGG_USE_LIBXML2 to be enabled.")
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
@@ -180,6 +192,31 @@ if (NOT WIN32 AND NOT APPLE)
 
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+endif()
+
+if (BYGG_BUILD_CLI AND BYGG_USE_LIBXML2)
+    add_executable(${PROJECT_NAME}-cli
+            src/cli/bygg-cli.cpp
+    )
+
+    target_link_libraries(${PROJECT_NAME}-cli PRIVATE ${PROJECT_NAME})
+    target_include_directories(${PROJECT_NAME}-cli PRIVATE
+            "${PROJECT_SOURCE_DIR}/include"
+    )
+
+    install(TARGETS ${PROJECT_NAME}-cli
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+
+    if (BYGG_INSTALL_DOCS)
+        configure_file(${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}-cli.1.in
+                ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-cli.1 @ONLY
+        )
+
+        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-cli.1
+                DESTINATION ${CMAKE_INSTALL_MANDIR}/man1
+        )
+    endif()
 endif()
 
 if (BYGG_BUILD_TESTS)
