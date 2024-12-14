@@ -20,42 +20,45 @@ bygg::TagList bygg::parse_html_string(const string_type& html) {
 
     LIBXML_TEST_VERSION
 
-    htmlDocPtr doc = htmlReadMemory(html.c_str(), static_cast<int>(html.size()), nullptr, nullptr, HTML_PARSE_NOERROR | HTML_PARSE_NOWARNING);
+    htmlDocPtr doc = htmlReadMemory(html.c_str(), static_cast<int>(html.size()), nullptr, "UTF-8", HTML_PARSE_NOERROR | HTML_PARSE_NOWARNING);
 
     if (doc == nullptr) {
         throw invalid_argument("Failed to parse input string");
     }
 
-    std::function<void(xmlNodePtr)> processNode = [&](xmlNodePtr node) {
-        for (xmlNodePtr curNode = node; curNode; curNode = curNode->next) {
-            if (curNode->type == XML_ELEMENT_NODE) {
-                string_type tag = reinterpret_cast<const char*>(curNode->name);
+    std::function<void(xmlNodePtr)> recursive_process_node = [&](xmlNodePtr node) {
+        for (xmlNodePtr current_node = node; current_node; current_node = current_node->next) {
+            if (current_node->type == XML_ELEMENT_NODE) {
+                string_type tag = reinterpret_cast<const char*>(current_node->name);
 
                 HTML::Properties properties;
-                for (xmlAttrPtr attr = curNode->properties; attr; attr = attr->next) {
+                for (xmlAttrPtr attr = current_node->properties; attr; attr = attr->next) {
                     string_type key = reinterpret_cast<const char*>(attr->name);
-                    string_type value = reinterpret_cast<const char*>(xmlNodeGetContent(attr->children));
-                    properties.push_back(HTML::Property(key, value));
+                    xmlChar* value = xmlNodeGetContent(attr->children);
+                    properties.push_back(HTML::Property(key, reinterpret_cast<const char*>(value)));
+                    xmlFree(value);
                 }
 
-                string_type data;
-                for (xmlNodePtr child = curNode->children; child; child = child->next) {
+                string_type data{};
+                for (xmlNodePtr child = current_node->children; child; child = child->next) {
                     if (child->type == XML_TEXT_NODE) {
-                        const char* content = reinterpret_cast<const char*>(xmlNodeGetContent(child));
-                        if (content && *content && !std::all_of(content, content + std::strlen(content), isspace)) {
-                            data += content;
+                        xmlChar* content = xmlNodeGetContent(child);
+
+                        if (content && *content && !std::all_of(reinterpret_cast<const char*>(content), reinterpret_cast<const char*>(content) + std::strlen(reinterpret_cast<const char*>(content)), isspace)) {
+                            data += reinterpret_cast<const char*>(content);
                         }
+
+                        xmlFree(content);
                     }
                 }
 
-                int depth = 0;
-                for (xmlNodePtr parent = curNode->parent; parent; parent = parent->parent) {
+                int depth{};
+                for (xmlNodePtr parent = current_node->parent; parent; parent = parent->parent) {
                     if (parent->type == XML_ELEMENT_NODE) {
                         ++depth;
                     }
                 }
 
-                // TODO: This is a little wasteful, handle it better.
                 const auto get_type_from_tag = [&tag](bygg::HTML::Type& t) -> bool {
                     try {
                         const auto resolved = bygg::HTML::resolve_tag(tag);
@@ -67,21 +70,16 @@ bygg::TagList bygg::parse_html_string(const string_type& html) {
                 };
 
                 bygg::HTML::Type type{};
-                if (get_type_from_tag(type) == false) {
-                    // TODO: Handle unknown tags
-                    if (tag == "br" || tag == "img" || tag == "input" || tag == "meta" || tag == "link") {
-                        type = bygg::HTML::Type::Self_Closing;
-                    }
-                }
+                get_type_from_tag(type);
 
                 ret.push_back({tag, type, data, properties, depth});
 
-                processNode(curNode->children);
+                recursive_process_node(current_node->children);
             }
         }
     };
 
-    processNode(xmlDocGetRootElement(doc));
+    recursive_process_node(xmlDocGetRootElement(doc));
 
     xmlFreeDoc(doc);
     xmlCleanupParser();
