@@ -26,7 +26,8 @@ Include a main() function in the output.
 .TP
 .B \-nm, \--no-main, /nm
 Do not include a main() function in the output.
-.B \-i, \--input, /i
+.TP
+.B \-i, \-i=input \--input, \--input=input, /i, /i=input
 Set the input type (html, markdown).
 .TP
 .B \fIfile\fR
