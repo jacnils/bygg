@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
             std::cout << "  -f, -f=formatting, --formatting, --formatting=formatting, /f, /f=formatting: set the formatting type (none, pretty, newline, pseudo)\n";
             std::cout << "  -m, --main, /m: include a main function in the pseudocode\n";
             std::cout << "  -nm, --no-main, /nm: do not include a main function in the pseudocode\n";
-            std::cout << "  -i, --input, /i: set the input type (html, markdown)\n";
+            std::cout << "  -i, -i=input, --input, --input=input, /i, /i=input: set the input type (html, markdown)\n";
             std::cout << "  file: the file to read from\n";
             std::cout << "If no file is specified, input will be read from stdin\n";
             std::cout << "If no formatting type is specified, the default is pretty\n";
@@ -112,6 +112,10 @@ int main(int argc, char** argv) {
             }
 
             ++i;
+        } else if (args.at(i) == "-i=html" || args.at(i) == "--input=html" || args.at(i) == "/i=html") {
+            input_type = InputType::HTML;
+        } else if (args.at(i) == "-i=markdown" || args.at(i) == "--input=markdown" || args.at(i) == "/i=markdown") {
+            input_type = InputType::Markdown;
         } else {
             if (input_file.empty()) {
                 input_file = std::string{args.at(i)};

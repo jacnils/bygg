@@ -35,25 +35,35 @@ bygg::HTML::Section bygg::HTML::Parser::parse_html_string(const string_type& htm
                 current_section->push_back(new_sect);
                 section_stack.push(&current_section->back_section());
             } else {
-                // HACK: Handle tags inside text data
-                if (it.data.empty() == false && it.data.find("  ") != string_type::npos && options.handle_inner_tags) {
+                // Utilize the <__bygg_placeholder_tag> marker to replace the inner tag with the actual tag
+                if (it.data.empty() == false && options.handle_inner_tags && it.data.find("<__bygg_placeholder_tag>") != string_type::npos) {
                     string_type data = it.data;
 
                     size_t inner = i + 1;
                     while (inner < list.size() && list[inner].depth > it.depth) {
-                        auto inner_elem = Element(list[inner].tag,
-                            list[inner].properties,
-                            list[inner].data,
-                            options.assume_inner_tag_is_non_self_closing ?
-                            Type::Non_Self_Closing : list[inner].type);
+                        Element inner_elem{};
+                        try {
+                            const auto tag_t = resolve_tag(resolve_tag(list[inner].tag)).second;
+                            inner_elem = Element(list[inner].tag,
+                                list[inner].properties,
+                                list[inner].data,
+                                options.assume_inner_tag_is_non_self_closing ?
+                                Type::Non_Self_Closing : tag_t);
+                        } catch (std::exception&) {
+                            inner_elem = Element(list[inner].tag,
+                                list[inner].properties,
+                                list[inner].data,
+                                options.assume_inner_tag_is_non_self_closing ?
+                                Type::Non_Self_Closing : list[inner].type);
+                        }
 
-                        size_t pos = data.find("  ");
+                        size_t pos = data.find("<__bygg_placeholder_tag>");
 
                         if (pos == string_type::npos) {
                             break;
                         }
 
-                        data.replace(pos, 2, " " + inner_elem.get() + " ");
+                        data.replace(pos, 24, inner_elem.get());
 
                         ++inner;
                     }
@@ -75,19 +85,27 @@ bygg::HTML::Section bygg::HTML::Parser::parse_html_string(const string_type& htm
 
                     current_section->push_back(Element(it.tag, it.properties, data, it.type));
                 } else {
-                    if (it.data.find('\n') != string_type::npos && options.replace_newlines) {
-                        string_type data = it.data;
+                    string_type data = it.data;
+
+                    if (data.find('\n') != string_type::npos && options.replace_newlines) {
                         size_t pos = data.find('\n');
 
                         while (pos != string_type::npos) {
                             data.replace(pos, 1, " ");
                             pos = data.find('\n');
                         }
-
-                        current_section->push_back(Element(it.tag, it.properties, data, it.type));
-                    } else {
-                        current_section->push_back(Element(it.tag, it.properties, it.data, it.type));
                     }
+
+                    if (data.find("<__bygg_placeholder_tag>") != string_type::npos) {
+                        size_t pos = data.find("<__bygg_placeholder_tag>");
+
+                        while (pos != string_type::npos) {
+                            data.replace(pos, 24, "");
+                            pos = data.find("<__bygg_placeholder_tag>");
+                        }
+                    }
+
+                    current_section->push_back(Element(it.tag, it.properties, data, it.type));
                 }
             }
         }

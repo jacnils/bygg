@@ -16,7 +16,7 @@ namespace bygg::HTML::Parser {
     struct Options {
         bool consider_whitespace{true}; /* Utilize whitespace to determine depth. Results may vary. */
         bool handle_inner_tags{true}; /* Handle tags inside text data. */
-        bool assume_inner_tag_is_non_self_closing{true}; /* Assume inner tags are non-self-closing. */
+        bool assume_inner_tag_is_non_self_closing{false}; /* Assume inner tags are non-self-closing. */
         bool replace_newlines{true}; /* Replace newlines with a single space. Usually does more good than harm, but disable if you want to keep newlines. */
     };
 
