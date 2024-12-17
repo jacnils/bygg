@@ -64,9 +64,30 @@ bygg::HTML::Section bygg::HTML::Parser::parse_html_string(const string_type& htm
                         data.pop_back();
                     }
 
+                    if (data.find('\n') != string_type::npos && options.replace_newlines) {
+                        size_t pos = data.find('\n');
+
+                        while (pos != string_type::npos) {
+                            data.replace(pos, 1, " ");
+                            pos = data.find('\n');
+                        }
+                    }
+
                     current_section->push_back(Element(it.tag, it.properties, data, it.type));
                 } else {
-                    current_section->push_back(Element(it.tag, it.properties, it.data, it.type));
+                    if (it.data.find('\n') != string_type::npos && options.replace_newlines) {
+                        string_type data = it.data;
+                        size_t pos = data.find('\n');
+
+                        while (pos != string_type::npos) {
+                            data.replace(pos, 1, " ");
+                            pos = data.find('\n');
+                        }
+
+                        current_section->push_back(Element(it.tag, it.properties, data, it.type));
+                    } else {
+                        current_section->push_back(Element(it.tag, it.properties, it.data, it.type));
+                    }
                 }
             }
         }
