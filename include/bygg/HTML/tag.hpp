@@ -66,6 +66,8 @@ namespace bygg::HTML {
         Dl, /* <dl></dl> */
         Dt, /* <dt></dt> */
         Embed, /* <embed></embed> */
+        Em, /* <em></em> */
+        Emphasis, /* <em></em> */
         Fieldset, /* <fieldset></fieldset> */
         Figcaption, /* <figcaption></figcaption> */
         Figure, /* <figure></figure> */

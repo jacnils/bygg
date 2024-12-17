@@ -49,6 +49,8 @@ bygg::TagList bygg::parse_html_string(const string_type& html) {
                         }
 
                         xmlFree(content);
+                    } else if (child->type == XML_ELEMENT_NODE) {
+                        data += "<__bygg_placeholder_tag>";
                     }
                 }
 
