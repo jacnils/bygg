@@ -32,6 +32,7 @@ int main(int argc, char** argv) {
     bygg::HTML::Formatting formatting = bygg::HTML::Formatting::Pretty;
     InputType input_type = InputType::HTML;
     bool pseudocode{false};
+    bool include_main{false};
     std::string input_file{};
 
     const std::vector<std::string_view> args{argv, argv + argc};
@@ -40,24 +41,26 @@ int main(int argc, char** argv) {
         if (args.at(i) == "-h" || args.at(i) == "--help" || args.at(i) == "/h") {
             std::cout << "bygg-cli - a command-line interface for bygg\n";
             std::cout << "usage: bygg-cli [options] [file]\n";
-            std::cout << "options:\n";
             std::cout << "  -h, --help, /h: show this help message\n";
             std::cout << "  -v, --version, /v: show the version of bygg-cli\n";
             std::cout << "  -c, --copyright, /c: show the copyright information\n";
-            std::cout << "  -f, --formatting, /f: set the formatting type (none, pretty, newline, pseudo)\n";
+            std::cout << "  -f, -f=formatting, --formatting, --formatting=formatting, /f, /f=formatting: set the formatting type (none, pretty, newline, pseudo)\n";
+            std::cout << "  -m, --main, /m: include a main function in the pseudocode\n";
+            std::cout << "  -nm, --no-main, /nm: do not include a main function in the pseudocode\n";
             std::cout << "  -i, --input, /i: set the input type (html, markdown)\n";
             std::cout << "  file: the file to read from\n";
-            std::cout << "if no file is specified, input will be read from stdin\n";
-            std::cout << "if no formatting type is specified, the default is pretty\n";
-            std::cout << "if no input type is specified, the default is html\n";
+            std::cout << "If no file is specified, input will be read from stdin\n";
+            std::cout << "If no formatting type is specified, the default is pretty\n";
+            std::cout << "If no input type is specified, the default is html\n";
             return 0;
         } else if (args.at(i) == "-v" || args.at(i) == "--version" || args.at(i) == "/v") {
             std::cout << "bygg-cli version " << BYGG_VERSION << "\n";
             return 0;
         } else if (args.at(i) == "-c" || args.at(i) == "--copyright" || args.at(i) == "/c") {
             std::cout << "bygg-cli - a command-line interface for bygg\n";
-            std::cout << "by Jacob Nilsson & contributors\n";
-            std::cout << "licensed under the MIT license\n";
+            std::cout << "Copyright(c) 2024 - Jacob Nilsson & contributors\n";
+            std::cout << "SPDX-License-Identifier: MIT\n";
+            std::cout << "See https://jacobnilsson.com/bygg and the license document for copyright and licensing details.\n";
             return 0;
         } else if (args.at(i) == "-f" || args.at(i) == "--formatting" || args.at(i) == "/f") {
             if (argc >= i + 1) {
@@ -80,6 +83,18 @@ int main(int argc, char** argv) {
             }
 
             ++i;
+        } else if (args.at(i) == "-f=none" || args.at(i) == "--formatting=none" || args.at(i) == "/f=none") {
+            formatting = bygg::HTML::Formatting::None;
+        } else if (args.at(i) == "-f=pretty" || args.at(i) == "--formatting=pretty" || args.at(i) == "/f=pretty") {
+            formatting = bygg::HTML::Formatting::Pretty;
+        } else if (args.at(i) == "-f=newline" || args.at(i) == "--formatting=newline" || args.at(i) == "/f=newline") {
+            formatting = bygg::HTML::Formatting::Newline;
+        } else if (args.at(i) == "-f=pseudo" || args.at(i) == "--formatting=pseudo" || args.at(i) == "/f=pseudo") {
+            pseudocode = true;
+        } else if (args.at(i) == "-m" || args.at(i) == "--main" || args.at(i) == "/m") {
+            include_main = true;
+        } else if (args.at(i) == "-nm" || args.at(i) == "--no-main" || args.at(i) == "/nm") {
+            include_main = false;
         } else if (args.at(i) == "-i" || args.at(i) == "--input" || args.at(i) == "/i") {
             if (argc >= i + 1) {
                 if (args.at(i+1) == "html") {
@@ -184,7 +199,7 @@ int main(int argc, char** argv) {
 
     bygg::HTML::Section section = bygg::HTML::Parser::parse_html_string(html);
 
-    std::cout << (pseudocode ? bygg::HTML::generate_pseudocode(section) : section.get(formatting)) << "\n";
+    std::cout << (pseudocode ? bygg::HTML::generate_pseudocode(section, bygg::HTML::GeneratorOptions{.include_main=include_main}) : section.get(formatting)) << "\n";
 
     return 0;
 }

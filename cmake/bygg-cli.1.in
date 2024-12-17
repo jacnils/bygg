@@ -18,9 +18,14 @@ Show the version of bygg-cli.
 .B \-c, \--copyright, /c
 Show the copyright information.
 .TP
-.B \-f, \--formatting, /f
+.B \-f, \--formatting, /f, -f=formatting, --formatting=formatting, /f=formatting
 Set the formatting type (none, pretty, newline, pseudo).
 .TP
+.B \-m, \--main, /m
+Include a main() function in the output.
+.TP
+.B \-nm, \--no-main, /nm
+Do not include a main() function in the output.
 .B \-i, \--input, /i
 Set the input type (html, markdown).
 .TP
