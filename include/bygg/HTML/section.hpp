@@ -292,11 +292,29 @@ namespace bygg::HTML {
              * @brief Construct a new Section object
              * @param tag The tag of the section
              * @param properties The properties of the section
+             * @param args The elements and/or sections of the section
+             */
+            template <typename... Args> Section(string_type tag, const Properties& properties, Args&&... args) : tag(std::move(tag)), properties(properties) {
+                (this->push_back(args), ...);
+            }
+            /**
+             * @brief Construct a new Section object
+             * @param tag The tag of the section
+             * @param properties The properties of the section
              * @param elements The elements of the section
              */
             Section(const Tag tag, const Properties& properties, const ElementList& elements) : tag(resolve_tag(tag).first), properties(properties) {
                 for (const auto& element : elements) this->push_back(element);
             };
+            /**
+             * @brief Construct a new Section object
+             * @param tag The tag of the section
+             * @param properties The properties of the section
+             * @param args The elements and/or sections of the section
+             */
+            template <typename... Args> Section(const Tag tag, const Properties& properties, Args&&... args) : tag(resolve_tag(tag).first), properties(properties) {
+                (this->push_back(args), ...);
+            }
             /**
              * @brief Construct a new Section object
              * @param tag The tag of the section
