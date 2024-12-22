@@ -156,6 +156,13 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES ${PUBLIC_HEADERS}
 )
 
+if (APPLE)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+            INSTALL_RPATH "@loader_path/../lib"
+            BUILD_WITH_INSTALL_RPATH ON
+    )
+endif()
+
 install(TARGETS ${PROJECT_NAME}
         EXPORT ${PROJECT_NAME}Targets
         FILE_SET HEADERS
@@ -198,6 +205,13 @@ if (BYGG_BUILD_CLI AND BYGG_USE_LIBXML2)
     add_executable(${PROJECT_NAME}-cli
             src/cli/bygg-cli.cpp
     )
+
+    if (APPLE)
+        set_target_properties(${PROJECT_NAME}-cli PROPERTIES
+                INSTALL_RPATH "@loader_path/../lib"
+                BUILD_WITH_INSTALL_RPATH ON
+        )
+    endif()
 
     target_link_libraries(${PROJECT_NAME}-cli PRIVATE ${PROJECT_NAME})
     target_include_directories(${PROJECT_NAME}-cli PRIVATE
