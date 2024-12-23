@@ -14,7 +14,7 @@ Component-based HTML/CSS builder for C++17.
 - Sensible indentation for pretty-formatting.
 - HTML serialization\*
 - No dependencies, other than the standard library\*
-- Command-line tool for generating HTML or pseudo-code from HTML or Markdown files\*
+- Command-line tool for generating HTML or pseudocode from HTML or Markdown files\*
 - Windows, macOS, Linux and \*BSD support\*\*
 
 *Serialization and CLI requires the use of libxml2, which is not included in this repository.
@@ -81,22 +81,22 @@ int main() {
    using namespace bygg::HTML;
    using CSSProperty = bygg::CSS::Property;
 
-   Section sect{Tag::Html, make_properties(Property{"lang", "us"}), SectionList{
-       Section{Tag::Head, ElementList {
-           Element{Tag::Title, "Hello world!"},
-           Element{Tag::Meta, make_properties(Property{"name", "description"}, Property{"content", "Hello world description!"})},
-           Element{Tag::Meta, make_properties(Property{"name", "viewport"}, Property{"content", "width=device-width, initial-scale=1.0"})},
-       }},
-       Section{Tag::Body, SectionList {
-       Section{Tag::Div, make_properties(Property{"class", "content"}), ElementList{
-           Element{Tag::H1, "Hello world!"},
-           Element{Tag::P, make_properties(Property{"style", CSSProperty("color", "red").get()}), "This is a red string of text."},
-       }},
-       }},
-       Section{Tag::Footer, ElementList {
-           Element{Tag::P, "This is a paragraph in a footer."},
-       }},
-   }};
+   Section sect{Tag::Html, Properties{Property{"lang", "us"}},
+      Section{Tag::Head,
+         Element{Tag::Title, "Hello world!"},
+         Element{Tag::Meta, Properties{Property{"name", "description"}, Property{"content", "Hello world description!"}}},
+         Element{Tag::Meta, Properties{Property{"name", "viewport"}, Property{"content", "width=device-width, initial-scale=1.0"}}},
+      },
+      Section{Tag::Body,
+         Section{Tag::Div, Properties{Property{"class", "content"}},
+            Element{Tag::H1, "Hello world!"},
+            Element{Tag::P, Properties{Property{"style", static_cast<std::string>(CSSProperty("color", "red"))}}, "This is a red string of text."},
+         },
+      },
+      Section{Tag::Footer,
+         Element{Tag::P, "This is a paragraph in a footer."},
+      },
+   };
 
    std::ofstream ofs("hello-world.html");
 
@@ -115,7 +115,7 @@ See the Doxygen documentation in `docs` for classes and functions that are expos
 
 ## CLI
 
-The CLI utility can be used to generate HTML or pseudo-code from HTML or Markdown files.  This may be useful 
+The CLI utility can be used to generate HTML or pseudocode from HTML or Markdown files.  This may be useful 
 if you want to quickly generate `bygg` code from an existing HTML or even Markdown document. Note that you 
 can also read from stdin.
 

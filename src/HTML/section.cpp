@@ -127,6 +127,29 @@ void bygg::HTML::Section::push_back(const Section& section) {
     this->sections[this->index++] = section;
 }
 
+void bygg::HTML::Section::push_back(const Properties& properties) {
+    for (const auto& it : properties) {
+        this->properties.push_back(it);
+    }
+}
+
+void bygg::HTML::Section::push_back(const Property &property) {
+    this->properties.push_back(property);
+}
+
+void bygg::HTML::Section::push_back(const ElementList &elements) {
+    for (const auto& it : elements) {
+        this->push_back(it);
+    }
+}
+
+void bygg::HTML::Section::push_back(const SectionList &sections) {
+    for (const auto& it : sections) {
+        this->push_back(it);
+    }
+}
+
+
 void bygg::HTML::Section::erase(const size_type index) {
     bool erased{false};
 

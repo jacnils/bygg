@@ -142,7 +142,26 @@ namespace bygg::HTML {
              * @param section The section to add
              */
             void push_back(const Section& section);
-
+            /**
+             * @brief Append a property list to the section
+             * @param properties The properties of the element
+             */
+            void push_back(const Properties& properties);
+            /**
+             * @brief Append a property to the section
+             * @param property The property to add
+             */
+            void push_back(const Property& property);
+            /**
+             * @brief Append an element list to the section
+             * @param elements The elements to add
+             */
+            void push_back(const ElementList& elements);
+            /**
+             * @brief Append a section list to the section
+             * @param sections The sections to add
+             */
+            void push_back(const SectionList& sections);
             /**
              * @brief Get the element at an index. To get a section, use at_section()
              * @param index The index of the element
@@ -292,15 +311,6 @@ namespace bygg::HTML {
              * @brief Construct a new Section object
              * @param tag The tag of the section
              * @param properties The properties of the section
-             * @param args The elements and/or sections of the section
-             */
-            template <typename... Args> Section(string_type tag, const Properties& properties, Args&&... args) : tag(std::move(tag)), properties(properties) {
-                (this->push_back(args), ...);
-            }
-            /**
-             * @brief Construct a new Section object
-             * @param tag The tag of the section
-             * @param properties The properties of the section
              * @param elements The elements of the section
              */
             Section(const Tag tag, const Properties& properties, const ElementList& elements) : tag(resolve_tag(tag).first), properties(properties) {
@@ -309,11 +319,40 @@ namespace bygg::HTML {
             /**
              * @brief Construct a new Section object
              * @param tag The tag of the section
+             * @param args The elements and/or sections of the section
+             */
+            template <typename... Args>
+            explicit Section(const Tag tag, Args&&... args) : tag(resolve_tag(tag).first) {
+                (this->push_back(std::forward<Args>(args)), ...);
+            }
+            /**
+             * @brief Construct a new Section object
+             * @param tag The tag of the section
              * @param properties The properties of the section
              * @param args The elements and/or sections of the section
              */
-            template <typename... Args> Section(const Tag tag, const Properties& properties, Args&&... args) : tag(resolve_tag(tag).first), properties(properties) {
-                (this->push_back(args), ...);
+            template <typename... Args>
+            Section(const Tag tag, const Properties& properties, Args&&... args) : tag(resolve_tag(tag).first), properties(properties) {
+                (this->push_back(std::forward<Args>(args)), ...);
+            }
+            /**
+             * @brief Construct a new Section object
+             * @param tag The tag of the section
+             * @param args The elements and/or sections of the section
+             */
+            template <typename... Args>
+            explicit Section(string_type tag, Args&&... args) : tag(std::move(tag)) {
+                (this->push_back(std::forward<Args>(args)), ...);
+            }
+            /**
+             * @brief Construct a new Section object
+             * @param tag The tag of the section
+             * @param properties The properties of the section
+             * @param args The elements and/or sections of the section
+             */
+            template <typename... Args>
+            Section(string_type tag, const Properties& properties, Args&&... args) : tag(std::move(tag)), properties(properties) {
+                (this->push_back(std::forward<Args>(args)), ...);
             }
             /**
              * @brief Construct a new Section object
