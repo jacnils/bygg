@@ -105,5 +105,11 @@ namespace bygg::CSS {
             Property& operator=(const Property& property);
             bool operator==(const Property& property) const;
             bool operator!=(const Property& property) const;
+            #ifndef BYGG_ALLOW_IMPLICIT_CONVERSIONS
+            explicit
+            #endif
+            operator string_type() const { // NOLINT(google-explicit-constructor)
+                return this->get();
+            }
     };
 } // namespace bygg
