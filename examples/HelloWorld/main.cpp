@@ -6,7 +6,7 @@ int main() {
    using namespace bygg::HTML;
    using CSSProperty = bygg::CSS::Property;
 
-   Section sect{Tag::Html, Properties{Property{"lang", "us"}},
+   Section sect{Tag::Html, Property{"lang", "us"},
       Section{Tag::Head,
          Element{Tag::Title, "Hello world!"},
          Element{Tag::Meta, Properties{Property{"name", "description"}, Property{"content", "Hello world description!"}}},

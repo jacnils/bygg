@@ -11,13 +11,22 @@
 #include <bygg/CSS/color_struct.hpp>
 
 namespace bygg::CSS {
+    /**
+     * @brief A class to format colors.
+     */
     class ColorFormatter {
         bygg::CSS::ColorFormatting formatting{bygg::CSS::ColorFormatting::Hex};
         bygg::CSS::ColorStruct color{};
     public:
         ColorFormatter() = default;
-        explicit ColorFormatter(const bygg::CSS::ColorStruct& color, bygg::CSS::ColorFormatting formatting = bygg::CSS::ColorFormatting::Hex) : formatting(formatting), color(color) {};
         ~ColorFormatter() = default;
+
+        /**
+         * @brief Construct a new ColorFormatter object
+         * @param color The color to format
+         * @param formatting The formatting to use
+         */
+        explicit ColorFormatter(const bygg::CSS::ColorStruct& color, bygg::CSS::ColorFormatting formatting = bygg::CSS::ColorFormatting::Hex) : formatting(formatting), color(color) {};
 
         /**
          * @brief Return a formatted string based on the constructor parameters.
