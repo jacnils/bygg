@@ -9,6 +9,10 @@
 #include <bygg/HTML/pseudocode_generator.hpp>
 #include <functional>
 
+/* This entire function is a massive mess. It started out quite simple, but as I added more and more
+ * features to the GeneratorOptions struct, it became much more complex and difficult to read.
+ * So, as a TODO, I should refactor this function to make it more readable and maintainable.
+ */
 bygg::string_type bygg::HTML::generate_pseudocode(const Section& section, const GeneratorOptions& options) {
     enum class SectionType {
         Section,
@@ -135,13 +139,30 @@ bygg::string_type bygg::HTML::generate_pseudocode(const Section& section, const 
                     if (options.use_tag_enums == false) {
                         throw bygg::invalid_argument{"Invalid tag"};
                     }
-                    pseudocode += "bygg::HTML::Section{" + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(i_section.at_section(index).get_tag()))) + ", bygg::HTML::make_properties(";
+                    pseudocode += "bygg::HTML::Section{" + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(i_section.at_section(index).get_tag())));
                 } catch (bygg::invalid_argument&) {
-                    pseudocode += "bygg::HTML::Section{\"" + escape_invalid(i_section.at_section(index).get_tag()) + "\", bygg::HTML::make_properties(";
+                    pseudocode += "bygg::HTML::Section{\"" + escape_invalid(i_section.at_section(index).get_tag()) + "\"";
                 }
-                append_properties(i_section.at_section(index).get_properties());
 
-                const auto& _map = get_element_type(i_section.at_section(index));
+                const auto& _section{ i_section.at_section(index) };
+                const auto& _properties{ _section.get_properties() };
+                if (_properties.size() > 1 || options.use_implicit_property == false) {
+                    if (options.use_make_properties) {
+                        pseudocode += ", bygg::HTML::make_properties(";
+                        append_properties(_properties);
+                        pseudocode += ")";
+                    } else {
+                        pseudocode += ", bygg::HTML::Properties{";
+                        append_properties(_properties);
+                        pseudocode += "}";
+                    }
+                } else if (_properties.size() == 1) {
+                    pseudocode += ", bygg::HTML::Property{\"" + escape_invalid(_properties.at(0).get_key()) + "\", \"" + escape_invalid(_properties.at(0).get_value()) + "\"}";
+                } else if (options.use_empty_properties) {
+                    pseudocode += options.use_make_properties ? ", bygg::HTML::make_properties()" : ", bygg::HTML::Properties{}";
+                }
+
+                const auto& _map = get_element_type(_section);
 
                 SectionType front_type = SectionType::Empty;
 
@@ -150,10 +171,11 @@ bygg::string_type bygg::HTML::generate_pseudocode(const Section& section, const 
                 }
 
                 if (front_type == SectionType::Section) {
-                    pseudocode += "), bygg::HTML::SectionList {\n";
+                    pseudocode += options.use_lists ? "bygg::HTML::SectionList {\n" : ",\n";
+
                     handle_section(i_section.at_section(index), i_tabc + 1);
                 } else {
-                    pseudocode += "), bygg::HTML::ElementList {\n";
+                    pseudocode += options.use_lists ? "bygg::HTML::ElementList {\n" : ",\n";
 
                     // handle all the elements in the section
                     bygg::HTML::Section next_section = i_section.at_section(index);
@@ -180,9 +202,16 @@ bygg::string_type bygg::HTML::generate_pseudocode(const Section& section, const 
 
                             const auto& properties{next_section.at(i).get_properties()};
                             if (!properties.empty() || options.use_empty_properties) {
-                                pseudocode += "bygg::HTML::Element{" + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(next_section.at(i).get_tag()))) + ", bygg::HTML::make_properties(";
-                                append_properties(properties);
-                                pseudocode += "), \"" + escape_invalid(next_section.at(i).get_data()) + "\"},\n";
+                                pseudocode += "bygg::HTML::Element{" + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(next_section.at(i).get_tag())));
+
+                                if (properties.size() == 1 && options.use_implicit_property) {
+                                    pseudocode += ", bygg::HTML::Property{\"" + escape_invalid(properties.at(0).get_key()) + "\", \"" + escape_invalid(properties.at(0).get_value()) + "\"}, \"" + escape_invalid(next_section.at(i).get_data()) + "\"},\n";
+                                } else {
+                                    pseudocode += options.use_make_properties ? ", bygg::HTML::make_properties(" : ", bygg::HTML::Properties{";
+                                    append_properties(properties);
+                                    pseudocode += options.use_make_properties ? ")," : "},";
+                                    pseudocode += " \"" + escape_invalid(next_section.at(i).get_data()) + "\"},\n";
+                                }
                             } else {
                                 pseudocode += "bygg::HTML::Element{" + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(next_section.at(i).get_tag()))) + ", \"" + escape_invalid(next_section.at(i).get_data()) + "\"},\n";
                             }
@@ -190,9 +219,14 @@ bygg::string_type bygg::HTML::generate_pseudocode(const Section& section, const 
                             const auto& properties{next_section.at(i).get_properties()};
 
                             if (!properties.empty() || options.use_empty_properties) {
-                                pseudocode += "bygg::HTML::Element{\"" + next_section.at(i).get_tag() + "\", bygg::HTML::make_properties(";
-                                append_properties(properties);
-                                pseudocode += "), \"" + escape_invalid(next_section.at(i).get_data()) + "\", " + type_map.at(next_section.at(i).get_type()) + "},\n";
+                                if (properties.size() == 1 && options.use_implicit_property) {
+                                    pseudocode += "bygg::HTML::Element{\"" + next_section.at(i).get_tag() + "\", bygg::HTML::Property{\"" + escape_invalid(properties.at(0).get_key()) + "\", \"" + escape_invalid(properties.at(0).get_value()) + "\"}, \"" + escape_invalid(next_section.at(i).get_data()) + "\"},\n";
+                                } else {
+                                    pseudocode += "bygg::HTML::Element{\"" + next_section.at(i).get_tag() + "\",";
+                                    pseudocode += options.use_make_properties ? "bygg::HTML::make_properties(" : "bygg::HTML::Properties{";
+                                    append_properties(properties);
+                                    pseudocode += "), \"" + escape_invalid(next_section.at(i).get_data()) + "\", " + type_map.at(next_section.at(i).get_type()) + "},\n";
+                                }
                             } else {
                                 pseudocode += "bygg::HTML::Element{\"" + next_section.at(i).get_tag() + "\", \"" + escape_invalid(next_section.at(i).get_data()) + "\", " + type_map.at(next_section.at(i).get_type()) + "},\n";
                             }
@@ -201,20 +235,43 @@ bygg::string_type bygg::HTML::generate_pseudocode(const Section& section, const 
                 }
 
                 append_tabs(i_tabc);
-                pseudocode += "}},\n";
+                pseudocode += options.use_lists ? "}},\n" : "},\n";
             } else {
                 try {
+                    // automatically catch
                     if (options.use_tag_enums == false) {
                         throw bygg::invalid_argument{"Invalid tag"};
                     }
 
-                    pseudocode += "bygg::HTML::Element{" + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(i_section.at(index).get_tag()))) + ", bygg::HTML::make_properties(";
-                    append_properties(i_section.at(index).get_properties());
-                    pseudocode += "), \"" + escape_invalid(i_section.at(index).get_data()) + "\"},\n";
+                    const auto& properties{i_section.at(index).get_properties()};
+                    pseudocode += "bygg::HTML::Element{" + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(i_section.at(index).get_tag())));
+                    if (properties.size() == 1 && options.use_implicit_property) {
+                        pseudocode += ", bygg::HTML::Property{\"" + escape_invalid(properties.at(0).get_key()) + "\", \"" + escape_invalid(properties.at(0).get_value()) + "\"}";
+                        continue;
+                    } else if (!properties.empty()) {
+                        pseudocode += options.use_make_properties ? ", bygg::HTML::make_properties(" : ", bygg::HTML::Properties{";
+                        append_properties(properties);
+                        pseudocode += options.use_make_properties ? ")" : "}";
+                    } else if (options.use_empty_properties) {
+                        pseudocode += options.use_make_properties ? ", bygg::HTML::make_properties()" : ", bygg::HTML::Properties{}";
+                    }
+                    pseudocode += ", \"" + escape_invalid(i_section.at(index).get_data()) + "\"},\n";
                 } catch (bygg::invalid_argument&) {
-                    pseudocode += "bygg::HTML::Element{\"" + i_section.at(index).get_tag() + "\", bygg::HTML::make_properties(";
-                    append_properties(i_section.at(index).get_properties());
-                    pseudocode += "), \"" + escape_invalid(i_section.at(index).get_data()) + "\", " + type_map.at(i_section.at(index).get_type()) + "},\n";
+                    const auto& properties{i_section.at(index).get_properties()};
+                    if (properties.size() == 1 && options.use_implicit_property) {
+                        pseudocode += "bygg::HTML::Element{\"" + i_section.at(index).get_tag() + "\", bygg::HTML::Property{\"" + escape_invalid(properties.at(0).get_key()) + "\", \"" + escape_invalid(properties.at(0).get_value()) + "\"}, \"" + escape_invalid(i_section.at(index).get_data()) + "\"},\n";
+                    } else if (!properties.empty()) {
+                        pseudocode += "bygg::HTML::Element{\"" + i_section.at(index).get_tag() + "\",";
+                        pseudocode += options.use_make_properties ? "bygg::HTML::make_properties(" : "bygg::HTML::Properties{";
+                        append_properties(properties);
+                        pseudocode += "), \"" + escape_invalid(i_section.at(index).get_data()) + "\", " + type_map.at(i_section.at(index).get_type()) + "},\n";
+                    } else if (options.use_empty_properties) {
+                        pseudocode += "bygg::HTML::Element{\"" + i_section.at(index).get_tag() + "\", ";
+                        pseudocode += options.use_make_properties ? "bygg::HTML::make_properties()" : "bygg::HTML::Properties{}";
+                        pseudocode += ", \"" + escape_invalid(i_section.at(index).get_data()) + "\", " + type_map.at(i_section.at(index).get_type()) + "},\n";
+                    } else {
+                        pseudocode += "bygg::HTML::Element{\"" + i_section.at(index).get_tag() + "\", \"" + escape_invalid(i_section.at(index).get_data()) + "\", " + type_map.at(i_section.at(index).get_type()) + "},\n";
+                    }
                 }
             }
         }
@@ -223,19 +280,52 @@ bygg::string_type bygg::HTML::generate_pseudocode(const Section& section, const 
     append_tabs(tabc);
 
     try {
+        // automatically catch
         if (options.use_tag_enums == false) {
             throw bygg::invalid_argument{"Invalid tag"};
         }
-        pseudocode += "bygg::HTML::Section root{" + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(section.get_tag())))  + ", bygg::HTML::make_properties(";
+
+        pseudocode += "bygg::HTML::Section root{" + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(section.get_tag())));
+        if (section.get_properties().size() > 1 || options.use_empty_properties) {
+            if (options.use_make_properties) {
+                pseudocode += ", bygg::HTML::make_properties(";
+                append_properties(section.get_properties());
+                pseudocode += ")";
+            } else {
+                pseudocode += ", bygg::HTML::Properties{";
+                append_properties(section.get_properties());
+                pseudocode += "}";
+            }
+        } else if (section.get_properties().size() == 1) {
+            pseudocode += ", bygg::HTML::Property{\"" + escape_invalid(section.get_properties().at(0).get_key()) + "\", \"" + escape_invalid(section.get_properties().at(0).get_value()) + "\"}";
+        } else if (options.use_empty_properties) {
+            pseudocode += options.use_make_properties ? ", bygg::HTML::make_properties()" : ", bygg::HTML::Properties{}";
+        }
     } catch (bygg::invalid_argument&) {
-        pseudocode += "bygg::HTML::Section root{\"" + section.get_tag() + "\", bygg::HTML::make_properties(";
+        pseudocode += "bygg::HTML::Section root{\"" + section.get_tag() + "\"";
+        if (section.get_properties().size() > 1 || options.use_empty_properties) {
+            if (options.use_make_properties) {
+                pseudocode += ", bygg::HTML::make_properties(";
+                append_properties(section.get_properties());
+                pseudocode += ")";
+            } else {
+                pseudocode += ", bygg::HTML::Properties{";
+                append_properties(section.get_properties());
+                pseudocode += "}";
+            }
+        } else if (section.get_properties().size() == 1) {
+            pseudocode += ", bygg::HTML::Property{\"" + escape_invalid(section.get_properties().at(0).get_key()) + "\", \"" + escape_invalid(section.get_properties().at(0).get_value()) + "\"}";
+        } else if (options.use_empty_properties) {
+            pseudocode += options.use_make_properties ? ", bygg::HTML::make_properties()" : ", bygg::HTML::Properties{}";
+        }
     }
 
     append_properties(section.get_properties());
-    pseudocode += get_first_type(section) == SectionType::Section ? "), bygg::HTML::SectionList {\n" : "), bygg::HTML::ElementList {\n";
+    pseudocode += options.use_lists ? (get_first_type(section) == SectionType::Section ? ", bygg::HTML::SectionList {\n" : ", bygg::HTML::ElementList {\n") : ",\n";
     handle_section(section, tabc + 1);
     append_tabs(tabc);
-    pseudocode += (options.include_main ? "}};\n}\n" : "}};\n");
+    pseudocode += options.use_lists ? "}};\n" : "};\n";
+    pseudocode += (options.include_main ? "}\n" : "");
 
     return pseudocode;
 }

@@ -10,13 +10,13 @@
 #include <bygg/types.hpp>
 
 namespace bygg::HTML {
+    class Properties;
+
     /**
      * @brief A class to represent an HTML property
      */
     class Property {
-        private:
             std::pair<string_type, string_type> property{};
-        protected:
         public:
             /**
              * @brief The npos value
@@ -120,6 +120,7 @@ namespace bygg::HTML {
             Property& operator=(const Property& property);
             bool operator==(const Property& property) const;
             bool operator!=(const Property& property) const;
+            operator Properties() const; // NOLINT
 
     };
 } // namespace bygg::HTML

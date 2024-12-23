@@ -6,6 +6,7 @@
  */
 
 #include <bygg/HTML/property.hpp>
+#include <bygg/HTML/properties.hpp>
 
 bygg::string_type bygg::HTML::Property::get_key() const {
     return this->property.first;
@@ -46,6 +47,10 @@ bool bygg::HTML::Property::operator==(const bygg::HTML::Property& property) cons
 
 bool bygg::HTML::Property::operator!=(const bygg::HTML::Property& property) const {
     return this->property.first != property.get_key() || this->property.second != property.get_value();
+}
+
+bygg::HTML::Property::operator bygg::HTML::Properties() const {
+    return Properties({*this});
 }
 
 void bygg::HTML::Property::clear() {
