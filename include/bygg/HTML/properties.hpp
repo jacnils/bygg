@@ -6,9 +6,7 @@
  */
 #pragma once
 
-#include <string>
 #include <vector>
-
 #include <bygg/types.hpp>
 #include <bygg/HTML/property.hpp>
 
