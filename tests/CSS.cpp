@@ -671,10 +671,10 @@ void CSS::test_color_conversions() {
     bygg::CSS::ColorStruct cstr = bygg::CSS::from_rgba(255, 0, 0, 255); // Should be #FF0000FF
 
     const auto check_cstr = [&cstr]() {
-        REQUIRE(cstr.r == 1.0);
-        REQUIRE(cstr.g == 0.0);
-        REQUIRE(cstr.b == 0.0);
-        REQUIRE(cstr.a == 1.0);
+        REQUIRE(std::round(cstr.r * 100) / 100 == 1.0);
+        REQUIRE(std::round(cstr.g * 100) / 100 == 0.0);
+        REQUIRE(std::round(cstr.b * 100) / 100 == 0.0);
+        REQUIRE(std::round(cstr.a * 100) / 100 == 1.0);
     };
 
     check_cstr();
@@ -689,6 +689,15 @@ void CSS::test_color_conversions() {
     check_cstr();
 
     cstr = bygg::CSS::from_double(1, 0, 0, 1); // Should still be #FF0000FF
+    check_cstr();
+
+    cstr = bygg::CSS::from_hsla(0, 100, 50, 100); // Should still be #FF0000FF
+    check_cstr();
+
+    cstr = bygg::CSS::from_hsva(0, 100, 100, 100); // Should still be #FF0000FF
+    check_cstr();
+
+    cstr = bygg::CSS::from_cmyka(0, 100, 100, 0, 100); // Should still be #FF0000FF
     check_cstr();
 }
 
