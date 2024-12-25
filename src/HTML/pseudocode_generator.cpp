@@ -144,7 +144,8 @@ bygg::string_type bygg::HTML::generate_pseudocode(const Section& section, const 
             if (map.find(index) != map.end() && map.at(index) == SectionType::Section) {
                 try {
                     if (!options.use_tag_enums) throw bygg::invalid_argument{"Invalid tag"};
-                    pseudocode += prefix + "Section{" + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(i_section.at_section(index).get_tag())));
+                    pseudocode += prefix + "Section{";
+                    pseudocode += prefix + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(i_section.at_section(index).get_tag())));
                 } catch (bygg::invalid_argument&) {
                     pseudocode += prefix + "Section{\"" + escape_invalid(i_section.at_section(index).get_tag()) + "\"";
                 }
@@ -171,7 +172,8 @@ bygg::string_type bygg::HTML::generate_pseudocode(const Section& section, const 
                 try {
                     if (!options.use_tag_enums) throw bygg::invalid_argument{"Invalid tag"};
                     const auto& properties{i_section.at(index).get_properties()};
-                    pseudocode += prefix + "Element{" + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(i_section.at(index).get_tag())));
+                    pseudocode += prefix + "Element{";
+                    pseudocode += prefix + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(i_section.at(index).get_tag())));
                     if (properties.size() == 1 && options.use_implicit_property) {
                         pseudocode += ", " + prefix + "Property{\"" + escape_invalid(properties.at(0).get_key()) + "\", \"" + escape_invalid(properties.at(0).get_value()) + "\"}";
                     } else if (!properties.empty()) {
@@ -205,7 +207,7 @@ bygg::string_type bygg::HTML::generate_pseudocode(const Section& section, const 
 
     try {
         if (!options.use_tag_enums) throw bygg::invalid_argument{"Invalid tag"};
-        pseudocode += options.root_name.empty() ? (prefix + "Section{" + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(section.get_tag())))) : (prefix + "Section " + options.root_name + "{" + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(section.get_tag()))));
+        pseudocode += options.root_name.empty() ? (prefix + "Section{" + prefix + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(section.get_tag())))) : (prefix + "Section " + options.root_name + "{" + prefix + HTML::resolve_tag_enum_name(HTML::resolve_tag(tolower(section.get_tag()))));
         if (section.get_properties().size() > 1 || options.use_empty_properties) {
             pseudocode += ", ";
             append_properties_block(section.get_properties());
