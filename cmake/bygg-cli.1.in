@@ -30,6 +30,9 @@ Do not include a main() function in the output.
 .B \-i, \-i=input \--input, \--input=input, /i, /i=input
 Set the input type (html, markdown).
 .TP
+.B \-cf, \-cf=config \--config, \--config=config, /cf, /cf=config
+Set the configuration file to use.
+.TP
 .B \fIfile\fR
 The file to read from. If no file is specified, input will be read from stdin.
 .SH AUTHOR
