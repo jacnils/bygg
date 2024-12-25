@@ -21,6 +21,21 @@ namespace bygg::HTML {
         Leave,
     };
     /**
+     * @brief The arguments to pass to the main function
+     */
+    enum class MainArgs {
+        ArgcArgv,
+        None,
+    };
+    /**
+     * @brief The level of the namespace to use
+     */
+    enum class NamespaceLevel {
+        ByggNamespace,
+        ByggHTMLNamespace,
+        None,
+    };
+    /**
      * @brief Options for the pseudocode generator.
      */
     struct GeneratorOptions {
@@ -30,6 +45,13 @@ namespace bygg::HTML {
         bool use_make_properties{true}; /* Use make_properties instead of Properties constructor */
         bool use_lists{false}; /* Use SectionList/ElementList instead of variadic arguments */
         bool include_main{true}; /* Include a main function and include the necessary headers in the pseudocode */
+        bool include_header{true}; /* Include the necessary headers in the pseudocode */
+        string_type header_path{"bygg/bygg.hpp"}; /* The path to the header file to include */
+        string_type main_function{"main"}; /* The name of the main function */
+        string_type main_return_type{"int"}; /* The return type of the main function */
+        string_type root_name{"root"}; /* The name of the root section */
+        MainArgs main_args{MainArgs::None}; /* The arguments to pass to the main function */
+        NamespaceLevel namespace_level{NamespaceLevel::None}; /* The level of the namespace to use */
         SequenceMode sequence_mode{SequenceMode::Remove}; /* How to handle sequences in strings */
     };
     /**
