@@ -14,6 +14,7 @@ bygg::HTML::Section bygg::HTML::Parser::parse_html_string(const string_type& htm
     TagList list = bygg::parse_html_string(html);
 
     std::stack<Section*> section_stack;
+
     section_stack.push(&container);
 
     for (size_t i = 0; i < list.size(); ++i) {
