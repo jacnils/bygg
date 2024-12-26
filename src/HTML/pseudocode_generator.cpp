@@ -182,7 +182,15 @@ bygg::string_type bygg::HTML::generate_pseudocode(const Section& section, const 
                     } else if (options.use_empty_properties) {
                         pseudocode += options.use_make_properties ? (", " + prefix + "make_properties()") : (", " + prefix + "Properties{}");
                     }
-                    pseudocode += ", \"" + escape_invalid(i_section.at(index).get_data()) + "\"},\n";
+
+                    const auto& data = i_section.at(index).get_data();
+                    if (data.empty() && options.use_empty_data) {
+                        pseudocode += ", \"\"";
+                    } else if (!data.empty()) {
+                        pseudocode += ", \"" + escape_invalid(data) + "\"";
+                    }
+
+                    pseudocode += "},\n";
                 } catch (bygg::invalid_argument&) {
                     const auto& properties{i_section.at(index).get_properties()};
                     pseudocode += prefix + "Element{\"" + i_section.at(index).get_tag() + "\",";

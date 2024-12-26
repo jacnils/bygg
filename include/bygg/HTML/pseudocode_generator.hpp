@@ -41,6 +41,7 @@ namespace bygg::HTML {
     struct GeneratorOptions {
         bool use_tag_enums{true}; /* Use tag enums instead of strings, if available */
         bool use_empty_properties{false}; /* Pass in an empty properties object if no properties are present */
+        bool use_empty_data{false}; /* Pass in an empty data string if no data is present */
         bool use_implicit_property{true}; /* Utilize operator Property() to convert to Properties */
         bool use_make_properties{true}; /* Use make_properties instead of Properties constructor */
         bool use_lists{false}; /* Use SectionList/ElementList instead of variadic arguments */
