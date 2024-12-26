@@ -68,6 +68,7 @@ bool write_default_config(const std::string& file) {
     out << "root_name = root ; the name of the root section\n";
     out << "use_tag_enums = true ; use tag enums instead of strings, if available\n";
     out << "use_empty_properties = false ; pass in an empty properties object if no properties are present\n";
+    out << "use_empty_data = false ; pass in an empty data string if no data is present\n";
     out << "use_implicit_property = true ; utilize operator Property() to convert to Properties\n";
     out << "use_make_properties = true ; use make_properties instead of Properties constructor\n";
     out << "use_lists = false ; use SectionList/ElementList instead of variadic arguments\n";
@@ -151,6 +152,9 @@ void handle_config_file(IniManager& ini, Config& config) {
     const auto& use_empty_properties = get_value("pseudo", "use_empty_properties");
     config.options.use_empty_properties = use_empty_properties != "false";
 
+    const auto& use_empty_data = get_value("pseudo", "use_empty_data");
+    config.options.use_empty_data = use_empty_data != "false";
+
     const auto& use_implicit_property = get_value("pseudo", "use_implicit_property");
     config.options.use_implicit_property = use_implicit_property != "false";
 
@@ -176,7 +180,7 @@ int main(int argc, char** argv) {
     config_file = std::string{std::getenv("APPDATA")} + "/bygg-cli/bygg-cli.ini";
 #endif
 
-    const std::vector<std::string_view> args{argv, argv + argc};
+    static const std::vector<std::string_view> args{argv, argv + argc};
 
     // first check for help, version, copyright and config file
     for (int i{1}; i < args.size(); ++i) {
@@ -242,15 +246,14 @@ int main(int argc, char** argv) {
         }
     }
 
-    IniManager ini;
     try {
+        IniManager ini;
         ini.load(config_file, true);
+        handle_config_file(ini, config);
     } catch (std::exception&) {
         std::cerr << "failed to load configuration file: " << config_file << "\n";
         return 1;
     }
-
-    handle_config_file(ini, config);
 
     // handle the rest of the arguments
     for (int i{1}; i < args.size(); ++i) {
@@ -261,6 +264,8 @@ int main(int argc, char** argv) {
             continue;
         } else if (args.at(i) == "-f" || args.at(i) == "--formatting" || args.at(i) == "/f") {
             if (argc >= i + 1) {
+                config.pseudocode = false;
+
                 if (args.at(i+1) == "none") {
                     config.formatting = bygg::HTML::Formatting::None;
                 } else if (args.at(i+1) == "pretty") {
@@ -282,10 +287,13 @@ int main(int argc, char** argv) {
             ++i;
         } else if (args.at(i) == "-f=none" || args.at(i) == "--formatting=none" || args.at(i) == "/f=none") {
             config.formatting = bygg::HTML::Formatting::None;
+            config.pseudocode = false;
         } else if (args.at(i) == "-f=pretty" || args.at(i) == "--formatting=pretty" || args.at(i) == "/f=pretty") {
             config.formatting = bygg::HTML::Formatting::Pretty;
+            config.pseudocode = false;
         } else if (args.at(i) == "-f=newline" || args.at(i) == "--formatting=newline" || args.at(i) == "/f=newline") {
             config.formatting = bygg::HTML::Formatting::Newline;
+            config.pseudocode = false;
         } else if (args.at(i) == "-f=pseudo" || args.at(i) == "--formatting=pseudo" || args.at(i) == "/f=pseudo") {
             config.pseudocode = true;
         } else if (args.at(i) == "-m" || args.at(i) == "--main" || args.at(i) == "/m") {
