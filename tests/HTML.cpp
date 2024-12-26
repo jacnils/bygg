@@ -671,7 +671,7 @@ void HTML::test_section() {
         Element element;
 
         std::size_t index{0};
-        for (auto it = section.begin(); it != section.end(); ++it) {
+        for (auto it = section.element_begin(); it != section.element_end(); ++it) {
             Element element = *it;
 
             if (index == 0) {
@@ -700,7 +700,7 @@ void HTML::test_section() {
         }
 
         index = 0;
-        for (Section::const_iterator it = section.cbegin(); it != section.cend(); ++it) {
+        for (Section::element_const_iterator it = section.element_cbegin(); it != section.element_cend(); ++it) {
             Element element = *it;
 
             if (index == 0) {
@@ -729,7 +729,7 @@ void HTML::test_section() {
         }
 
         index = 0;
-        for (Section::reverse_iterator it = section.rbegin(); it != section.rend(); ++it) {
+        for (Section::element_reverse_iterator it = section.element_rbegin(); it != section.element_rend(); ++it) {
             Element element = *it;
 
             if (index == 0) {
@@ -758,7 +758,7 @@ void HTML::test_section() {
         }
 
         index = 0;
-        for (Section::const_reverse_iterator it = section.crbegin(); it != section.crend(); ++it) {
+        for (Section::element_const_reverse_iterator it = section.element_crbegin(); it != section.element_crend(); ++it) {
             Element element = *it;
 
             if (index == 0) {
@@ -784,6 +784,109 @@ void HTML::test_section() {
             }
 
             ++index;
+        }
+    };
+
+    const auto test_section_iterators = []() {
+        using namespace bygg::HTML;
+
+        Section section{Tag::Html,
+            Section{Tag::Head,
+                Element{Tag::Title, "Title"},
+                Element{Tag::Meta},
+            },
+            Section{Tag::Body,
+                Element{Tag::H1, "Header"},
+                Element{Tag::H2, "Subheader"},
+                Section{Tag::Div,
+                    Element{Tag::P, "Paragraph"},
+                    Element{Tag::P, "Paragraph 2"},
+                },
+            },
+            Section{Tag::Footer,
+                Element{Tag::P, "Footer"},
+            },
+        };
+
+        for (Section::section_iterator it = section.section_begin(); it != section.section_end(); ++it) {
+            Section _section = *it;
+
+            if (_section.get_tag() == "head") {
+                REQUIRE(_section.get_elements().size() == 2);
+                REQUIRE(_section.get_elements().at(0).get_tag() == "title");
+                REQUIRE(_section.get_elements().at(0).get_data() == "Title");
+                REQUIRE(_section.get_elements().at(1).get_tag() == "meta");
+            } else if (_section.get_tag() == "body") {
+                REQUIRE(_section.size() == 3);
+                REQUIRE(_section.get_elements().at(0).get_tag() == "h1");
+                REQUIRE(_section.get_elements().at(0).get_data() == "Header");
+                REQUIRE(_section.get_elements().at(1).get_tag() == "h2");
+                REQUIRE(_section.get_elements().at(1).get_data() == "Subheader");
+
+                Section _section2 = _section.get_sections().at(0);
+                REQUIRE(_section2.get_tag() == "div");
+                REQUIRE(_section2.get_elements().size() == 2);
+
+                REQUIRE(_section2.get_elements().at(0).get_tag() == "p");
+                REQUIRE(_section2.get_elements().at(0).get_data() == "Paragraph");
+                REQUIRE(_section2.get_elements().at(1).get_tag() == "p");
+                REQUIRE(_section2.get_elements().at(1).get_data() == "Paragraph 2");
+            } else if (_section.get_tag() == "footer") {
+                REQUIRE(_section.get_elements().size() == 1);
+                REQUIRE(_section.get_elements().at(0).get_tag() == "p");
+                REQUIRE(_section.get_elements().at(0).get_data() == "Footer");
+            }
+        }
+    };
+
+    const auto test_variant_iterators = []() {
+        using namespace bygg::HTML;
+
+        Section section{Tag::Html,
+            Element{Tag::H1, "Header"},
+            Element{Tag::H2, "Subheader"},
+            Section{Tag::Div,
+                Element{Tag::P, "Paragraph"},
+                Element{Tag::P, "Paragraph 2"},
+            },
+        };
+
+        std::size_t index{};
+        for (auto it : section) {
+            std::visit([&index](auto&& arg) {
+                using T = std::decay_t<decltype(arg)>;
+
+                if constexpr (std::is_same_v<T, Element> && 0 == 0) {
+                    if (index == 0) {
+                        REQUIRE(arg.get_tag() == "h1");
+                        REQUIRE(arg.get_data() == "Header");
+                    } else if (index == 1) {
+                        REQUIRE(arg.get_tag() == "h2");
+                        REQUIRE(arg.get_data() == "Subheader");
+                    }
+                } else if constexpr (std::is_same_v<T, Section>) {
+                    if (index == 2) {
+                        REQUIRE(arg.get_tag() == "div");
+                        REQUIRE(arg.get_elements().size() == 2);
+
+                        std::size_t _index{};
+                        for (bygg::HTML::Section::element_iterator _it = arg.element_begin(); _it != arg.element_end(); ++_it) {
+                            Element _element = *_it;
+
+                            if (_index == 0) {
+                                REQUIRE(_element.get_tag() == "p");
+                                REQUIRE(_element.get_data() == "Paragraph");
+                            } else if (_index == 1) {
+                                REQUIRE(_element.get_tag() == "p");
+                                REQUIRE(_element.get_data() == "Paragraph 2");
+                            }
+                            ++_index;
+                        }
+                    }
+                }
+
+                ++index;
+            }, it);
         }
     };
 
@@ -1054,6 +1157,8 @@ void HTML::test_section() {
     test_operators();
     test_constructors();
     test_iterators();
+    test_variant_iterators();
+    test_section_iterators();
     test_find();
     test_insert();
     test_swap();
@@ -1275,3 +1380,4 @@ void HTML::test_pseudocode_generator() {
 
     // TODO: More advanced tests
 }
+// NOLINTEND
