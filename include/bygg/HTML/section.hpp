@@ -13,6 +13,7 @@
 #include <variant>
 
 #include <bygg/types.hpp>
+#include <bygg/HTML/find_enum.hpp>
 #include <bygg/HTML/tag.hpp>
 #include <bygg/HTML/properties.hpp>
 #include <bygg/HTML/element.hpp>
@@ -384,21 +385,45 @@ namespace bygg::HTML {
             /**
              * @brief Find an element in the section
              * @param element The element to find
+             * @param params Search parameters
              * @return size_type The index of the element
              */
-            [[nodiscard]] size_type find(const Element& element) const;
+            [[nodiscard]] size_type find(const Element& element, FindParameters params = FindParameters::Search_Tag | FindParameters::Search_Data | FindParameters::Exact) const;
             /**
              * @brief Find a section in the section
              * @param section The section to find
+             * @param params Search parameters
              * @return size_type The index of the section
              */
-            [[nodiscard]] size_type find(const Section& section) const;
+            [[nodiscard]] size_type find(const Section& section, FindParameters params = FindParameters::Search_Tag | FindParameters::Search_Data | FindParameters::Exact) const;
             /**
              * @brief Find an element or section in the section
              * @param str The element or section to find
+             * @param params Search parameters
              * @return size_type The index of the element or section
              */
-            [[nodiscard]] size_type find(const string_type& str) const;
+            [[nodiscard]] size_type find(const string_type& str, FindParameters params = FindParameters::Search_Tag|FindParameters::Search_Data | FindParameters::Exact) const;
+            /**
+             * @brief Find an element or section in the section
+             * @param tag The tag of the element or section to find
+             * @param params Search parameters
+             * @return size_type The index of the element or section
+             */
+            [[nodiscard]] size_type find(Tag tag, FindParameters params = FindParameters::Search_Tag | FindParameters::Search_Data | FindParameters::Exact) const;
+            /**
+             * @brief Find an element or section in the section
+             * @param properties The properties of the element or section to find
+             * @param params Search parameters
+             * @return size_type The index of the element or section
+             */
+            [[nodiscard]] size_type find(const Properties& properties, FindParameters params = FindParameters::Search_Properties | FindParameters::Exact) const;
+            /**
+             * @brief Find an element or section in the section
+             * @param property The property of the element or section to find
+             * @param params Search parameters
+             * @return size_type The index of the element or section
+             */
+            [[nodiscard]] size_type find(const Property& property, FindParameters params = FindParameters::Search_Properties | FindParameters::Exact) const;
             /**
              * @brief Insert an element into the section
              * @param index The index to insert the element

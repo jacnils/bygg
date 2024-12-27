@@ -25,7 +25,7 @@ namespace bygg::HTML {
             string_type tag{};
             Properties properties{};
             string_type data{};
-            Type type{Type::Non_Self_Closing};
+            Type type{Type::Data};
         public:
             /**
              * @brief The npos value
@@ -39,7 +39,7 @@ namespace bygg::HTML {
              * @param data The data of the element
              * @param type The close tag type.
              */
-            explicit Element(string_type tag, const Properties& properties, string_type data = {}, const Type& type = Type::Non_Self_Closing) : tag(std::move(tag)), properties(properties), data(std::move(data)), type(type) {};
+            explicit Element(string_type tag, const Properties& properties, string_type data = {}, const Type& type = Type::Data) : tag(std::move(tag)), properties(properties), data(std::move(data)), type(type) {};
             /**
              * @brief Construct a new Element object
              * @param tag The tag of the element
@@ -53,7 +53,7 @@ namespace bygg::HTML {
              * @param data The data of the element
              * @param type The close tag type.
              */
-            explicit Element(string_type tag, string_type data = {}, const Type& type = Type::Non_Self_Closing) : tag(std::move(tag)), data(std::move(data)), type(type) {};
+            explicit Element(string_type tag, string_type data = {}, const Type& type = Type::Data) : tag(std::move(tag)), data(std::move(data)), type(type) {};
             /**
              * @brief Construct a new Element object
              * @param tag The tag of the element

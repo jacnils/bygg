@@ -402,17 +402,17 @@ void HTML::test_element() {
 
         Element element;
 
-        element.set("my_element", {}, {}, bygg::HTML::Type::Non_Self_Closing);
+        element.set("my_element", {}, {}, bygg::HTML::Type::Data);
 
         REQUIRE(element.get_tag() == "my_element");
         REQUIRE(element.get_data() == "");
         REQUIRE(element.get_properties() == Properties{});
-        REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+        REQUIRE(element.get_type() == bygg::HTML::Type::Data);
 
         element.set_tag("new_element");
         element.set_data("new_data");
         element.set_properties(Properties(std::vector<Property>{{"key", "value"}, {"key2", "value2"}}));
-        element.set_type(bygg::HTML::Type::Self_Closing);
+        element.set_type(bygg::HTML::Type::Standalone);
 
         REQUIRE(element.get_tag() == "new_element");
         REQUIRE(element.get_data() == "new_data");
@@ -420,7 +420,7 @@ void HTML::test_element() {
         REQUIRE(element.get_properties().at(0).get_value() == "value");
         REQUIRE(element.get_properties().at(1).get_key() == "key2");
         REQUIRE(element.get_properties().at(1).get_value() == "value2");
-        REQUIRE(element.get_type() == bygg::HTML::Type::Self_Closing);
+        REQUIRE(element.get_type() == bygg::HTML::Type::Standalone);
     };
 
     const auto test_copy_element = []() {
@@ -428,7 +428,7 @@ void HTML::test_element() {
 
         Element element;
 
-        element.set("my_element", {}, {}, bygg::HTML::Type::Non_Self_Closing);
+        element.set("my_element", {}, {}, bygg::HTML::Type::Data);
 
         Element new_element = element;
 
@@ -450,12 +450,12 @@ void HTML::test_element() {
         Element element1;
         Element element2;
 
-        element1.set("my_element", {}, {}, bygg::HTML::Type::Non_Self_Closing);
-        element2.set("my_element", {}, {}, bygg::HTML::Type::Non_Self_Closing);
+        element1.set("my_element", {}, {}, bygg::HTML::Type::Data);
+        element2.set("my_element", {}, {}, bygg::HTML::Type::Data);
 
         REQUIRE(element1 == element2);
 
-        element2.set("new_element", {}, {}, bygg::HTML::Type::Non_Self_Closing);
+        element2.set("new_element", {}, {}, bygg::HTML::Type::Data);
 
         REQUIRE(element1 != element2);
 
@@ -472,21 +472,21 @@ void HTML::test_element() {
         REQUIRE(elem.get_tag() == "");
         REQUIRE(elem.get_data() == "");
         REQUIRE(elem.get_properties() == Properties{});
-        REQUIRE(elem.get_type() == bygg::HTML::Type::Non_Self_Closing);
+        REQUIRE(elem.get_type() == bygg::HTML::Type::Data);
 
-        Element elem2("my_element", "data", bygg::HTML::Type::Self_Closing);
+        Element elem2("my_element", "data", bygg::HTML::Type::Standalone);
 
         REQUIRE(elem2.get_tag() == "my_element");
         REQUIRE(elem2.get_data() == "data");
         REQUIRE(elem2.get_properties() == Properties{});
-        REQUIRE(elem2.get_type() == bygg::HTML::Type::Self_Closing);
+        REQUIRE(elem2.get_type() == bygg::HTML::Type::Standalone);
 
         Element elem3(bygg::HTML::Tag::H1, "data");
 
         REQUIRE(elem3.get_tag() == "h1");
         REQUIRE(elem3.get_data() == "data");
         REQUIRE(elem3.get_properties() == Properties{});
-        REQUIRE(elem3.get_type() == bygg::HTML::Type::Non_Self_Closing);
+        REQUIRE(elem3.get_type() == bygg::HTML::Type::Data);
     };
 
     const auto test_string_get = []() {
@@ -500,7 +500,7 @@ void HTML::test_element() {
         REQUIRE(element.get<std::string>(bygg::HTML::Formatting::Pretty) == "<h1>data</h1>\n");
         REQUIRE(element.get<std::string>(bygg::HTML::Formatting::Newline) == "<h1>data</h1>\n");
 
-        element.set_type(bygg::HTML::Type::Non_Opened);
+        element.set_type(bygg::HTML::Type::Closing);
         REQUIRE(element.get<std::string>() == "</h1>");
     };
 
@@ -676,23 +676,23 @@ void HTML::test_section() {
 
             if (index == 0) {
                 REQUIRE(element.get_tag() == "h2");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h2></h2>");
             } else if (index == 1) {
                 REQUIRE(element.get_tag() == "h3");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h3></h3>");
             } else if (index == 2) {
                 REQUIRE(element.get_tag() == "h4");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h4></h4>");
             } else if (index == 3) {
                 REQUIRE(element.get_tag() == "h5");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h5></h5>");
             } else if (index == 4) {
                 REQUIRE(element.get_tag() == "h6");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h6></h6>");
             }
 
@@ -705,23 +705,23 @@ void HTML::test_section() {
 
             if (index == 0) {
                 REQUIRE(element.get_tag() == "h2");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h2></h2>");
             } else if (index == 1) {
                 REQUIRE(element.get_tag() == "h3");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h3></h3>");
             } else if (index == 2) {
                 REQUIRE(element.get_tag() == "h4");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h4></h4>");
             } else if (index == 3) {
                 REQUIRE(element.get_tag() == "h5");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h5></h5>");
             } else if (index == 4) {
                 REQUIRE(element.get_tag() == "h6");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h6></h6>");
             }
 
@@ -734,23 +734,23 @@ void HTML::test_section() {
 
             if (index == 0) {
                 REQUIRE(element.get_tag() == "h6");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h6></h6>");
             } else if (index == 1) {
                 REQUIRE(element.get_tag() == "h5");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h5></h5>");
             } else if (index == 2) {
                 REQUIRE(element.get_tag() == "h4");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h4></h4>");
             } else if (index == 3) {
                 REQUIRE(element.get_tag() == "h3");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h3></h3>");
             } else if (index == 4) {
                 REQUIRE(element.get_tag() == "h2");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h2></h2>");
             }
 
@@ -763,23 +763,23 @@ void HTML::test_section() {
 
             if (index == 0) {
                 REQUIRE(element.get_tag() == "h6");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h6></h6>");
             } else if (index == 1) {
                 REQUIRE(element.get_tag() == "h5");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h5></h5>");
             } else if (index == 2) {
                 REQUIRE(element.get_tag() == "h4");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h4></h4>");
             } else if (index == 3) {
                 REQUIRE(element.get_tag() == "h3");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h3></h3>");
             } else if (index == 4) {
                 REQUIRE(element.get_tag() == "h2");
-                REQUIRE(element.get_type() == bygg::HTML::Type::Non_Self_Closing);
+                REQUIRE(element.get_type() == bygg::HTML::Type::Data);
                 REQUIRE(element.get() == "<h2></h2>");
             }
 
@@ -914,11 +914,11 @@ void HTML::test_section() {
         REQUIRE(section.find("h5") == 3);
         REQUIRE(section.find("h6") == 4);
 
-        REQUIRE(section.find("<h2>data</h2>") == 0);
-        REQUIRE(section.find("<h3>data</h3>") == 1);
-        REQUIRE(section.find("<h4>data</h4>") == 2);
-        REQUIRE(section.find("<h5>data</h5>") == 3);
-        REQUIRE(section.find("<h6>data</h6>") == 4);
+        REQUIRE(section.find("<h2>data</h2>", FindParameters::Search_Deserialized) == 0);
+        REQUIRE(section.find("<h3>data</h3>", FindParameters::Search_Deserialized) == 1);
+        REQUIRE(section.find("<h4>data</h4>", FindParameters::Search_Deserialized) == 2);
+        REQUIRE(section.find("<h5>data</h5>", FindParameters::Search_Deserialized) == 3);
+        REQUIRE(section.find("<h6>data</h6>", FindParameters::Search_Deserialized) == 4);
         REQUIRE(section.find("data") == 0);
         REQUIRE(section.find("h1") == Section::npos);
         REQUIRE(section.find("bygg sucks") == Section::npos);

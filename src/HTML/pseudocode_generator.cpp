@@ -39,10 +39,10 @@ bygg::string_type bygg::HTML::generate_pseudocode(const Section& section, const 
     };
 
     static const std::unordered_map<bygg::HTML::Type, string_type> type_map {
-        {Type::Non_Closed, "Type::Non_Closed"},
-        {Type::Non_Opened, "Type::Non_Opened"},
-        {Type::Non_Self_Closing, "Type::Non_Self_Closing"},
-        {Type::Self_Closing, "Type::Self_Closing"},
+        {Type::Opening, "Type::Non_Closed"},
+        {Type::Closing, "Type::Non_Opened"},
+        {Type::Data, "Type::Non_Self_Closing"},
+        {Type::Standalone, "Type::Self_Closing"},
         {Type::Text, "Type::Text"},
         {Type::Text_No_Formatting, "Type::Text_No_Formatting"},
     };

@@ -49,13 +49,13 @@ bygg::HTML::Section bygg::HTML::Parser::parse_html_string(const string_type& htm
                                 list[inner].properties,
                                 list[inner].data,
                                 options.assume_inner_tag_is_non_self_closing ?
-                                Type::Non_Self_Closing : tag_t);
+                                Type::Data : tag_t);
                         } catch (std::exception&) {
                             inner_elem = Element(list[inner].tag,
                                 list[inner].properties,
                                 list[inner].data,
                                 options.assume_inner_tag_is_non_self_closing ?
-                                Type::Non_Self_Closing : list[inner].type);
+                                Type::Data : list[inner].type);
                         }
 
                         size_t pos = data.find("<__bygg_placeholder_tag>");
