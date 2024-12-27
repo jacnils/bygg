@@ -79,7 +79,7 @@ bygg::string_type bygg::HTML::Element::get(const Formatting formatting, const by
         }
     }
 
-    if (this->type == bygg::HTML::Type::Non_Opened) {
+    if (this->type == bygg::HTML::Type::Closing) {
         ret += "</" + this->tag;
     } else {
         ret += "<" + this->tag;
@@ -93,15 +93,15 @@ bygg::string_type bygg::HTML::Element::get(const Formatting formatting, const by
         ret += " " + it.get();
     }
 
-    if (this->type != bygg::HTML::Type::Self_Closing && this->type != bygg::HTML::Type::Non_Opened) {
+    if (this->type != bygg::HTML::Type::Standalone && this->type != bygg::HTML::Type::Closing) {
         ret += ">";
     }
 
-    if (this->type == bygg::HTML::Type::Non_Self_Closing) {
+    if (this->type == bygg::HTML::Type::Data) {
         ret += this->data + "</" + this->tag + ">";
-    } else if (this->type == bygg::HTML::Type::Self_Closing) {
+    } else if (this->type == bygg::HTML::Type::Standalone) {
         ret += this->data + "/>";
-    } else if (this->type == bygg::HTML::Type::Non_Opened) {
+    } else if (this->type == bygg::HTML::Type::Closing) {
         ret += ">";
     }
 

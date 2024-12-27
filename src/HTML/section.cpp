@@ -162,7 +162,7 @@ void bygg::HTML::Section::erase(const size_type index) {
     }
 
     if (!erased) {
-        throw bygg::out_of_range("Index out of range");
+        throw out_of_range("Index out of range");
     }
 }
 
@@ -176,7 +176,7 @@ void bygg::HTML::Section::erase(const Section& section) {
         }
     }
 
-    throw bygg::out_of_range("Section not found");
+    throw out_of_range("Section not found");
 }
 
 void bygg::HTML::Section::erase(const Element& element) {
@@ -189,12 +189,12 @@ void bygg::HTML::Section::erase(const Element& element) {
         }
     }
 
-    throw bygg::out_of_range("Element not found");
+    throw out_of_range("Element not found");
 }
 
 void bygg::HTML::Section::insert(const size_type index, const Element& element) {
     if (this->sections.find(index) != this->sections.end()) {
-        throw bygg::invalid_argument("Index already occupied by a section");
+        throw invalid_argument("Index already occupied by a section");
     } else {
         this->elements[index] = element;
     }
@@ -212,7 +212,7 @@ bygg::HTML::Element bygg::HTML::Section::at(const size_type index) const {
         return this->elements.at(index);
     }
 
-    throw bygg::out_of_range("Index out of range");
+    throw out_of_range("Index out of range");
 }
 
 bygg::HTML::Element& bygg::HTML::Section::at(const size_type index) {
@@ -220,7 +220,7 @@ bygg::HTML::Element& bygg::HTML::Section::at(const size_type index) {
         return this->elements.at(index);
     }
 
-    throw bygg::out_of_range("Index out of range");
+    throw out_of_range("Index out of range");
 }
 
 bygg::HTML::Section bygg::HTML::Section::at_section(const size_type index) const {
@@ -228,7 +228,7 @@ bygg::HTML::Section bygg::HTML::Section::at_section(const size_type index) const
         return this->sections.at(index);
     }
 
-    throw bygg::out_of_range("Index out of range");
+    throw out_of_range("Index out of range");
 }
 
 bygg::HTML::Section& bygg::HTML::Section::at_section(const size_type index) {
@@ -236,59 +236,143 @@ bygg::HTML::Section& bygg::HTML::Section::at_section(const size_type index) {
         return this->sections.at(index);
     }
 
-    throw bygg::out_of_range("Index out of range");
+    throw out_of_range("Index out of range");
 }
 
-bygg::size_type bygg::HTML::Section::find(const Element& element) const {
-    for (size_type i{0}; i < this->size(); i++) {
-        const Element it = this->get_elements().at(i);
+bygg::size_type bygg::HTML::Section::find(const Element& element, const FindParameters params) const {
+    if ((params & FindParameters::Only_Sections)) {
+        throw invalid_argument("Search parameters must not include FindParameters::Only_Sections");
+    }
 
-        if (it.get() == element.get()) {
-            return i;
+    for (const auto& it : this->elements) {
+        if (it.second == element) {
+            return it.first;
         }
     }
 
-    return bygg::HTML::Section::npos;
+    return npos;
 }
 
-bygg::size_type bygg::HTML::Section::find(const Section& section) const {
-    for (size_type i{0}; i < this->size(); i++) {
-        const Section it = this->get_sections().at(i);
+bygg::size_type bygg::HTML::Section::find(const Section& section, const FindParameters params) const {
+    if ((params & FindParameters::Only_Elements)) {
+        throw invalid_argument("Search parameters must not include FindParameters::Only_Elements");
+    }
 
-        if (it.get() == section.get()) {
-            return i;
+    for (const auto& it : this->sections) {
+        if (it.second == section) {
+            return it.first;
         }
     }
 
-    return bygg::HTML::Section::npos;
+    return npos;
 }
 
-bygg::size_type bygg::HTML::Section::find(const bygg::string_type& str) const {
-    const bygg::HTML::ElementList elements{this->get_elements()};
+bygg::size_type bygg::HTML::Section::find(const bygg::string_type& str, const FindParameters params) const {
+    if ((params & FindParameters::Only_Sections) && (params & FindParameters::Only_Elements)) {
+        throw invalid_argument("Search parameters must not include both FindParameters::Only_Sections and FindParameters::Only_Elements");
+    }
 
-    for (size_type i{0}; i < this->size(); i++) {
-        if (elements.size() <= i) {
-            break;
-        }
-
-        if (elements.at(i).get().find(str) != bygg::HTML::Section::npos) {
-            return i;
+    if (!(params & FindParameters::Only_Sections)) {
+        for (const auto& it : this->elements) {
+            if ((it.second.get_tag() == str && (params & FindParameters::Search_Tag)) ||
+                (it.second.get_data() == str && (params & FindParameters::Search_Data)) ||
+                (it.second.get() == str && (params & FindParameters::Search_Deserialized)) ||
+                (it.second.get_tag().find(str) != string_type::npos && !(params & FindParameters::Exact) && (params & FindParameters::Search_Tag)) ||
+                (it.second.get_data().find(str) != string_type::npos && !(params & FindParameters::Exact) && (params & FindParameters::Search_Data)) ||
+                (it.second.get().find(str) != string_type::npos && !(params & FindParameters::Exact) && (params & FindParameters::Search_Deserialized))) {
+                return it.first;
+                }
         }
     }
 
-    const bygg::HTML::SectionList sections{this->get_sections()};
-
-    for (size_type i{0}; i < this->size(); i++) {
-        if (elements.size() <= i) {
-            break;
-        }
-
-        if (elements.at(i).get().find(str) != bygg::HTML::Section::npos) {
-            return i;
+    if (!(params & FindParameters::Only_Elements)) {
+        for (const auto& it : this->sections) {
+            if ((it.second.get_tag() == str && (params & FindParameters::Search_Tag)) ||
+                (it.second.get() == str && (params & FindParameters::Search_Deserialized)) ||
+                (it.second.get_tag().find(str) != string_type::npos && !(params & FindParameters::Exact) && (params & FindParameters::Search_Tag)) ||
+                (it.second.get().find(str) != string_type::npos && !(params & FindParameters::Exact) && (params & FindParameters::Search_Deserialized))) {
+                return it.first;
+            }
         }
     }
 
-    return bygg::HTML::Section::npos;
+    return npos;
+}
+
+bygg::size_type bygg::HTML::Section::find(const bygg::HTML::Tag tag, const FindParameters params) const {
+    if ((params & FindParameters::Only_Sections) && (params & FindParameters::Only_Elements)) {
+        throw invalid_argument("Search parameters must not include both FindParameters::Only_Sections and FindParameters::Only_Elements");
+    }
+
+    if (!(params & FindParameters::Only_Sections)) {
+        for (const auto& it : this->elements) {
+            if (it.second.get_tag() == resolve_tag(tag).first) {
+                return it.first;
+            }
+        }
+    }
+    if (!(params & FindParameters::Only_Elements)) {
+        for (const auto& it : this->sections) {
+            if (it.second.get_tag() == resolve_tag(tag).first) {
+                return it.first;
+            }
+        }
+    }
+
+    return npos;
+}
+
+bygg::size_type bygg::HTML::Section::find(const bygg::HTML::Properties& properties, const FindParameters params) const {
+    if (!(params & FindParameters::Search_Properties)) {
+        throw invalid_argument("Search parameters must include FindParameters::Search_Properties");
+    }
+    if ((params & FindParameters::Only_Sections) && (params & FindParameters::Only_Elements)) {
+        throw invalid_argument("Search parameters must not include both FindParameters::Only_Sections and FindParameters::Only_Elements");
+    }
+
+    if (!(params & FindParameters::Only_Sections)) {
+        for (const auto& it : this->elements) {
+            if (it.second.get_properties() == properties) {
+                return it.first;
+            }
+        }
+    }
+
+    if (!(params & FindParameters::Only_Elements)) {
+        for (const auto& it : this->sections) {
+            if (it.second.get_properties() == properties) {
+                return it.first;
+            }
+        }
+    }
+
+    return npos;
+}
+
+bygg::size_type bygg::HTML::Section::find(const bygg::HTML::Property& property, const FindParameters params) const {
+    if (!(params & FindParameters::Search_Properties)) {
+        throw invalid_argument("Search parameters must include FindParameters::Search_Properties");
+    }
+    if ((params & FindParameters::Only_Sections) && (params & FindParameters::Only_Elements)) {
+        throw invalid_argument("Search parameters must not include both FindParameters::Only_Sections and FindParameters::Only_Elements");
+    }
+
+    if (!(params & FindParameters::Only_Sections)) {
+        for (const auto& it : this->elements) {
+            if (it.second.get_properties().find(property) != Property::npos) {
+                return it.first;
+            }
+        }
+    }
+    if (!(params & FindParameters::Only_Elements)) {
+        for (const auto& it : this->sections) {
+            if (it.second.get_properties().find(property) != Property::npos) {
+                return it.first;
+            }
+        }
+    }
+
+    return npos;
 }
 
 bygg::HTML::Element bygg::HTML::Section::front() const {
@@ -296,7 +380,7 @@ bygg::HTML::Element bygg::HTML::Section::front() const {
         return this->elements.at(0);
     }
 
-    throw bygg::out_of_range("Index out of range");
+    throw out_of_range("Index out of range");
 }
 
 bygg::HTML::Element& bygg::HTML::Section::front() {
@@ -304,7 +388,7 @@ bygg::HTML::Element& bygg::HTML::Section::front() {
         return this->elements.at(0);
     }
 
-    throw bygg::out_of_range("Index out of range");
+    throw out_of_range("Index out of range");
 }
 
 bygg::HTML::Section bygg::HTML::Section::front_section() const {
@@ -312,7 +396,7 @@ bygg::HTML::Section bygg::HTML::Section::front_section() const {
         return this->sections.at(0);
     }
 
-    throw bygg::out_of_range("Index out of range");
+    throw out_of_range("Index out of range");
 }
 
 bygg::HTML::Section& bygg::HTML::Section::front_section() {
@@ -320,7 +404,7 @@ bygg::HTML::Section& bygg::HTML::Section::front_section() {
         return this->sections.at(0);
     }
 
-    throw bygg::out_of_range("Index out of range");
+    throw out_of_range("Index out of range");
 }
 
 bygg::HTML::Element bygg::HTML::Section::back() const {
@@ -328,7 +412,7 @@ bygg::HTML::Element bygg::HTML::Section::back() const {
         return this->elements.at(this->index - 1);
     }
 
-    throw bygg::out_of_range("Index out of range");
+    throw out_of_range("Index out of range");
 }
 
 bygg::HTML::Element& bygg::HTML::Section::back() {
@@ -336,7 +420,7 @@ bygg::HTML::Element& bygg::HTML::Section::back() {
         return this->elements.at(this->index - 1);
     }
 
-    throw bygg::out_of_range("Index out of range");
+    throw out_of_range("Index out of range");
 }
 
 bygg::HTML::Section bygg::HTML::Section::back_section() const {
@@ -344,7 +428,7 @@ bygg::HTML::Section bygg::HTML::Section::back_section() const {
         return this->sections.at(this->index - 1);
     }
 
-    throw bygg::out_of_range("Index out of range");
+    throw out_of_range("Index out of range");
 }
 
 bygg::HTML::Section& bygg::HTML::Section::back_section() {
@@ -352,7 +436,7 @@ bygg::HTML::Section& bygg::HTML::Section::back_section() {
         return this->sections.at(this->index - 1);
     }
 
-    throw bygg::out_of_range("Index out of range");
+    throw out_of_range("Index out of range");
 }
 
 bygg::size_type bygg::HTML::Section::size() const {
@@ -504,7 +588,7 @@ void bygg::HTML::Section::swap(const size_type index1, const size_type index2) {
     } else if (this->sections.find(index1) != this->sections.end() && this->sections.find(index2) != this->sections.end()) {
         std::swap(this->sections[index1], this->sections[index2]);
     } else {
-        throw bygg::out_of_range("Index out of range");
+        throw out_of_range("Index out of range");
     }
 }
 

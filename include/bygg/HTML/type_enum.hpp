@@ -11,11 +11,17 @@ namespace bygg::HTML {
      * @brief Enum for element types.
      */
     enum class Type {
-        Self_Closing, /* Self-closing element (<tag ... /> - Primarily useful for XHTML or HTML written by perfectionists) */
-        Non_Self_Closing, /* Non-self-closing element (<tag></tag>) */
-        Non_Closed, /* Non-closed element (<tag> - Invalid in XHTML) */
-        Non_Opened, /* Non-opened element (</tag>) */
-        Text_No_Formatting, /* Text element with no formatting (my text here). */
         Text, /* Text element with tab characters appropriately prepended (my text here). Note that this does *not* append a newline character. */
+        Text_No_Formatting, /* Text element with no formatting (my text here). */
+        Opening, /* Opening element (<tag>) */
+        Closing, /* Closing element (</tag>) */
+        Data, /* Data element (<tag>data</tag>) */
+        Standalone, /* Standalone element (<tag data="data" />) */
+
+        /* Aliases; for compatibility */
+        Non_Self_Closing [[deprecated("Non_Self_Closing is deprecated; use Data instead.")]] = Data,
+        Self_Closing [[deprecated("Self_Closing is deprecated; use Standalone instead.")]] = Standalone,
+        Non_Closed [[deprecated("Non_Closed is deprecated; use Opening instead.")]] = Opening,
+        Non_Opened [[deprecated("Non_Opened is deprecated; use Closing instead.")]] = Closing
     };
 } // namespace bygg::HTML
