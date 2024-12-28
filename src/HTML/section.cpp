@@ -359,15 +359,24 @@ bygg::size_type bygg::HTML::Section::find(const bygg::HTML::Property& property, 
 
     if (!(params & FindParameters::Only_Sections)) {
         for (const auto& it : this->elements) {
-            if (it.second.get_properties().find(property) != Property::npos) {
-                return it.first;
+            const auto& properties = it.second.get_properties();
+
+            for (const auto& prop : properties) {
+                if (prop.get_key() == property.get_key() && prop.get_value() == property.get_value()) {
+                    return it.first;
+                }
             }
         }
     }
+
     if (!(params & FindParameters::Only_Elements)) {
         for (const auto& it : this->sections) {
-            if (it.second.get_properties().find(property) != Property::npos) {
-                return it.first;
+            const auto& properties = it.second.get_properties();
+
+            for (const auto& prop : properties) {
+                if (prop.get_key() == property.get_key() && prop.get_value() == property.get_value()) {
+                    return it.first;
+                }
             }
         }
     }
