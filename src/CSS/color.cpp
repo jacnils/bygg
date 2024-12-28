@@ -70,13 +70,34 @@ bygg::CSS::ColorStruct bygg::CSS::from_hex(const bygg::string_type& str) {
         return value;
     };
 
-    if (str.length() < 7) {
-        throw bygg::invalid_argument{"Invalid hex color"};
+    if (str.empty()) {
+        throw bygg::invalid_argument{"Empty input string is not allowed"};
     }
 
-    bygg::string_type hr{str.substr(1, 2)};
-    bygg::string_type hg{str.substr(3, 2)};
-    bygg::string_type hb{str.substr(5, 2)};
+    string_type hex = str;
+    if (str.at(0) == '#') {
+        hex = str.substr(1);
+    }
+
+    bygg::string_type hr{};
+    bygg::string_type hg{};
+    bygg::string_type hb{};
+
+    if (hex.length() == 3) {
+        hr = hex.substr(0, 1);
+        hg = hex.substr(1, 1);
+        hb = hex.substr(2, 1);
+
+        hr += hr;
+        hg += hg;
+        hb += hb;
+    } else if (hex.length() == 6 || hex.length() == 8) {
+        hr = hex.substr(0, 2);
+        hg = hex.substr(2, 2);
+        hb = hex.substr(4, 2);
+    } else {
+        throw bygg::invalid_argument{"Invalid hex color"};
+    }
 
     bygg::CSS::ColorStruct color;
 
@@ -85,8 +106,8 @@ bygg::CSS::ColorStruct bygg::CSS::from_hex(const bygg::string_type& str) {
     color.b = convert_to_int(hb) / 255.0;
     color.a = 1;
 
-    if (str.length() == 9) {
-        std::string ha{str.substr(7, 2)};
+    if (hex.length() == 8) {
+        std::string ha{hex.substr(6, 2)};
         color.a = convert_to_int(ha) / 255.0;
     }
 
