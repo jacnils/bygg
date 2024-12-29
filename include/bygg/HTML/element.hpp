@@ -123,7 +123,7 @@ namespace bygg::HTML {
              * @brief Get the element in the form of a specific type.
              * @return T The element in the form of a specific type
              */
-            template <typename T> T get(const Formatting formatting = Formatting::None, const integer_type tabc = 0) const {
+            template <typename T> [[nodiscard]] T get(const Formatting formatting = Formatting::None, const integer_type tabc = 0) const {
                 if (std::is_same_v<T, string_type>) {
                     return this->get(formatting, tabc);
                 }
@@ -139,7 +139,7 @@ namespace bygg::HTML {
              * @brief Get the tag of the element in a specific type
              * @return T The tag of the element
              */
-            template <typename T> T get_tag() const {
+            template <typename T> [[nodiscard]] T get_tag() const {
                 if (std::is_same_v<T, string_type>) {
                     return this->tag;
                 }
@@ -155,7 +155,7 @@ namespace bygg::HTML {
              * @brief Get the data of the element in a specific type
              * @return T The data of the element
              */
-            template <typename T> T get_data() const {
+            template <typename T> [[nodiscard]] T get_data() const {
                 if (std::is_same_v<T, string_type>) {
                     return this->data;
                 }

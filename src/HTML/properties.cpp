@@ -114,26 +114,26 @@ void bygg::HTML::Properties::push_back(const bygg::HTML::Property& property) {
     this->properties.push_back(property);
 }
 
-bygg::size_type bygg::HTML::Properties::find(const bygg::HTML::Property& property) const {
+bygg::size_type bygg::HTML::Properties::find(const bygg::HTML::Property& property, const size_type begin) const {
     for (size_type i{0}; i < this->properties.size(); i++) {
-        if (this->properties.at(i).get_value().find(property.get_value()) != bygg::string_type::npos
-            || this->properties.at(i).get_key().find(property.get_key()) != bygg::string_type::npos) {
+        if ((this->properties.at(i).get_value().find(property.get_value()) != bygg::string_type::npos
+            || this->properties.at(i).get_key().find(property.get_key()) != bygg::string_type::npos) && i >= begin) {
             return i;
         }
     }
 
-    return bygg::HTML::Properties::npos;
+    return npos;
 }
 
-bygg::size_type bygg::HTML::Properties::find(const bygg::string_type& str) const {
+bygg::size_type bygg::HTML::Properties::find(const bygg::string_type& str, const size_type begin) const {
     for (size_type i{0}; i < this->properties.size(); i++) {
-        if (this->properties.at(i).get_key().find(str) != bygg::string_type::npos ||
-            this->properties.at(i).get_value().find(str) != bygg::string_type::npos) {
+        if ((this->properties.at(i).get_key().find(str) != bygg::string_type::npos ||
+            this->properties.at(i).get_value().find(str) != bygg::string_type::npos) && i >= begin) {
             return i;
         }
     }
 
-    return bygg::HTML::Properties::npos;
+    return npos;
 }
 
 bygg::HTML::Property bygg::HTML::Properties::front() const {

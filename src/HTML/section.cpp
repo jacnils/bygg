@@ -25,40 +25,22 @@ bygg::HTML::Section& bygg::HTML::Section::operator+=(const bygg::HTML::Section& 
     return *this;
 }
 
-bygg::HTML::Element bygg::HTML::Section::operator[](const bygg::integer_type& index) const {
-    return this->at(index);
-}
-
-bygg::HTML::Element& bygg::HTML::Section::operator[](const bygg::integer_type& index) {
-    return this->at(index);
-}
-
-std::unordered_map<bygg::string_type, bygg::HTML::Element> bygg::HTML::Section::operator[](const bygg::string_type& tag) const {
-    std::unordered_map<bygg::string_type, bygg::HTML::Element> ret{};
-
-    for (const Element& it : this->get_elements()) {
-        if (it.get_tag() == tag) {
-            ret[it.get_data()] = it;
-        }
+bygg::HTML::Section::variant_t bygg::HTML::Section::operator[](const bygg::integer_type& index) const {
+    if (this->members.size() <= index) {
+        throw out_of_range("Index out of range");
     }
 
-    return ret;
+    return this->members.at(index);
 }
 
-std::unordered_map<bygg::string_type, bygg::HTML::Element> bygg::HTML::Section::operator[](const Tag tag) const {
-    std::unordered_map<bygg::string_type, bygg::HTML::Element> ret{};
-
-    for (const Element& it : this->get_elements()) {
-        if (it.get_tag() == resolve_tag(tag).first) {
-            ret[it.get_data()] = it;
-        }
-    }
-
-    return ret;
+bygg::HTML::Section::variant_t& bygg::HTML::Section::operator[](const bygg::integer_type& index) {
+    return this->get_any(index);
 }
 
 bool bygg::HTML::Section::operator==(const bygg::HTML::Section& section) const {
-    return this->tag == section.tag && this->properties == section.properties && this->elements == section.elements && this->sections == section.sections && this->index == section.index;
+    return this->tag == section.tag &&
+        this->properties == section.properties &&
+        this->members == section.members;
 }
 
 bool bygg::HTML::Section::operator==(const bygg::HTML::Element& element) const {
@@ -69,7 +51,7 @@ bool bygg::HTML::Section::operator==(const bygg::HTML::Element& element) const {
 }
 
 bool bygg::HTML::Section::operator!=(const bygg::HTML::Section& section) const {
-    return this->tag != section.tag || this->properties != section.properties || this->elements != section.elements || this->sections != section.sections || this->index != section.index;
+    return this->tag != section.tag || this->properties != section.properties || this->members != section.members;
 }
 
 bool bygg::HTML::Section::operator!=(const bygg::HTML::Element& element) const {
@@ -102,29 +84,19 @@ void bygg::HTML::Section::set(const Tag tag, const Properties& properties) {
 }
 
 void bygg::HTML::Section::push_front(const Element& element) {
-    for (size_type i{this->index}; i > 0; i--) {
-        this->elements[i] = this->elements.at(i - 1);
-    }
-
-    this->elements[0] = element;
-    this->index++;
+    this->members.insert(this->members.begin(), element);
 }
 
 void bygg::HTML::Section::push_front(const Section& section) {
-    for (size_type i{this->index}; i > 0; i--) {
-        this->sections.at(i) = this->sections.at(i - 1);
-    }
-
-    this->sections[0] = section;
-    this->index++;
+    this->members.insert(this->members.begin(), section);
 }
 
 void bygg::HTML::Section::push_back(const Element& element) {
-    this->elements[this->index++] = element;
+    this->members.push_back(element);
 }
 
 void bygg::HTML::Section::push_back(const Section& section) {
-    this->sections[this->index++] = section;
+    this->members.push_back(section);
 }
 
 void bygg::HTML::Section::push_back(const Properties& properties) {
@@ -137,13 +109,13 @@ void bygg::HTML::Section::push_back(const Property &property) {
     this->properties.push_back(property);
 }
 
-void bygg::HTML::Section::push_back(const ElementList &elements) {
+void bygg::HTML::Section::push_back(const ElementList& elements) {
     for (const auto& it : elements) {
         this->push_back(it);
     }
 }
 
-void bygg::HTML::Section::push_back(const SectionList &sections) {
+void bygg::HTML::Section::push_back(const SectionList& sections) {
     for (const auto& it : sections) {
         this->push_back(it);
     }
@@ -151,19 +123,11 @@ void bygg::HTML::Section::push_back(const SectionList &sections) {
 
 
 void bygg::HTML::Section::erase(const size_type index) {
-    bool erased{false};
-
-    if (this->elements.find(index) != this->elements.end()) {
-        this->elements.erase(index);
-        erased = true;
-    } else if (this->sections.find(index) != this->sections.end()) {
-        this->sections.erase(index);
-        erased = true;
-    }
-
-    if (!erased) {
+    if (this->members.size() <= index) {
         throw out_of_range("Index out of range");
     }
+
+    this->members.erase(this->members.begin() + static_cast<long>(index));
 }
 
 void bygg::HTML::Section::erase(const Section& section) {
@@ -193,136 +157,224 @@ void bygg::HTML::Section::erase(const Element& element) {
 }
 
 void bygg::HTML::Section::insert(const size_type index, const Element& element) {
-    if (this->sections.find(index) != this->sections.end()) {
-        throw invalid_argument("Index already occupied by a section");
-    } else {
-        this->elements[index] = element;
+    std::size_t i{0};
+    for (const auto& it : this->members) {
+        if (std::holds_alternative<Section>(it) && i == index) {
+            throw invalid_argument("Index already occupied by a section");
+        }
+        ++i;
     }
 
-    this->index = std::max(this->index, index) + 1;
+    this->members.push_back(element);
 }
 
 void bygg::HTML::Section::insert(const size_type index, const Section& section) {
-    this->sections[index] = section;
-    this->index = std::max(this->index, index) + 1;
+    this->members.insert(this->members.begin() + static_cast<long>(index), section);
 }
 
 bygg::HTML::Element bygg::HTML::Section::at(const size_type index) const {
-    if (this->elements.find(index) != this->elements.end()) {
-        return this->elements.at(index);
+    if (this->members.size() <= index) {
+        throw out_of_range("Index out of range");
     }
 
-    throw out_of_range("Index out of range");
+    for (size_type i{0}; i < this->members.size(); i++) {
+        if (i == index) {
+            if (std::holds_alternative<Element>(this->members.at(i))) {
+                return std::get<Element>(this->members.at(i));
+            }
+        }
+    }
+
+    throw out_of_range("Index does not contain an element");
 }
 
 bygg::HTML::Element& bygg::HTML::Section::at(const size_type index) {
-    if (this->elements.find(index) != this->elements.end()) {
-        return this->elements.at(index);
+    if (this->members.size() <= index) {
+        throw out_of_range("Index out of range");
     }
 
-    throw out_of_range("Index out of range");
+    for (size_type i{0}; i < this->members.size(); i++) {
+        if (i == index) {
+            if (std::holds_alternative<Element>(this->members.at(i))) {
+                return std::get<Element>(this->members.at(i));
+            }
+        }
+    }
+
+    throw out_of_range("Index does not contain an element");
 }
 
 bygg::HTML::Section bygg::HTML::Section::at_section(const size_type index) const {
-    if (this->sections.find(index) != this->sections.end()) {
-        return this->sections.at(index);
+    if (this->members.size() <= index) {
+        throw out_of_range("Index out of range");
     }
 
-    throw out_of_range("Index out of range");
+    for (size_type i{0}; i < this->members.size(); i++) {
+        if (i == index) {
+            if (std::holds_alternative<Section>(this->members.at(i))) {
+                return std::get<Section>(this->members.at(i));
+            }
+        }
+    }
+
+    throw out_of_range("Index does not contain a section");
 }
 
 bygg::HTML::Section& bygg::HTML::Section::at_section(const size_type index) {
-    if (this->sections.find(index) != this->sections.end()) {
-        return this->sections.at(index);
+    if (this->members.size() <= index) {
+        throw out_of_range("Index out of range");
     }
 
-    throw out_of_range("Index out of range");
+    for (size_type i{0}; i < this->members.size(); i++) {
+        if (i == index) {
+            if (std::holds_alternative<Section>(this->members.at(i))) {
+                return std::get<Section>(this->members.at(i));
+            }
+        }
+    }
+
+    throw out_of_range("Index does not contain a section");
 }
 
-bygg::size_type bygg::HTML::Section::find(const Element& element, const FindParameters params) const {
+bygg::size_type bygg::HTML::Section::find(const Element& element, const size_type begin, const FindParameters params) const {
     if ((params & FindParameters::Only_Sections)) {
         throw invalid_argument("Search parameters must not include FindParameters::Only_Sections");
     }
 
-    for (const auto& it : this->elements) {
-        if (it.second == element) {
-            return it.first;
+    size_type index{0};
+    for (const auto& it : this->members) {
+        if (std::holds_alternative<Element>(it) && std::get<Element>(it) == element && index >= begin) {
+            return index;
         }
+        ++index;
     }
 
     return npos;
 }
 
-bygg::size_type bygg::HTML::Section::find(const Section& section, const FindParameters params) const {
+bygg::size_type bygg::HTML::Section::find(const Section& section, const size_type begin, const FindParameters params) const {
     if ((params & FindParameters::Only_Elements)) {
         throw invalid_argument("Search parameters must not include FindParameters::Only_Elements");
     }
 
-    for (const auto& it : this->sections) {
-        if (it.second == section) {
-            return it.first;
+    size_type index{0};
+    for (const auto& it : this->members) {
+        if (std::holds_alternative<Section>(it) && std::get<Section>(it) == section && index >= begin) {
+            return index;
         }
+        ++index;
     }
 
     return npos;
 }
 
-bygg::size_type bygg::HTML::Section::find(const bygg::string_type& str, const FindParameters params) const {
+bygg::size_type bygg::HTML::Section::find(const bygg::string_type& str, const size_type begin, const FindParameters params) const {
     if ((params & FindParameters::Only_Sections) && (params & FindParameters::Only_Elements)) {
         throw invalid_argument("Search parameters must not include both FindParameters::Only_Sections and FindParameters::Only_Elements");
     }
 
     if (!(params & FindParameters::Only_Sections)) {
-        for (const auto& it : this->elements) {
-            if ((it.second.get_tag() == str && (params & FindParameters::Search_Tag)) ||
-                (it.second.get_data() == str && (params & FindParameters::Search_Data)) ||
-                (it.second.get() == str && (params & FindParameters::Search_Deserialized)) ||
-                (it.second.get_tag().find(str) != string_type::npos && !(params & FindParameters::Exact) && (params & FindParameters::Search_Tag)) ||
-                (it.second.get_data().find(str) != string_type::npos && !(params & FindParameters::Exact) && (params & FindParameters::Search_Data)) ||
-                (it.second.get().find(str) != string_type::npos && !(params & FindParameters::Exact) && (params & FindParameters::Search_Deserialized))) {
-                return it.first;
+        size_type index{};
+        for (const auto& it : this->members) {
+            if (!std::holds_alternative<Element>(it)) {
+                ++index;
+                continue;
+            }
+
+            if (index >= begin) {
+                const Element element = std::get<Element>(it);
+
+                if (((element.get_tag() == str && (params & FindParameters::Search_Tag)) ||
+                    (element.get_data() == str && (params & FindParameters::Search_Data)) ||
+                    (element.get() == str && (params & FindParameters::Search_Deserialized)) ||
+                    (element.get_tag().find(str) != string_type::npos && !(params & FindParameters::Exact) && (params & FindParameters::Search_Tag)) ||
+                    (element.get_data().find(str) != string_type::npos && !(params & FindParameters::Exact) && (params & FindParameters::Search_Data)) ||
+                    (element.get().find(str) != string_type::npos && !(params & FindParameters::Exact) && (params & FindParameters::Search_Deserialized)))) {
+                    return index;
                 }
+            }
+
+            ++index;
         }
     }
 
     if (!(params & FindParameters::Only_Elements)) {
-        for (const auto& it : this->sections) {
-            if ((it.second.get_tag() == str && (params & FindParameters::Search_Tag)) ||
-                (it.second.get() == str && (params & FindParameters::Search_Deserialized)) ||
-                (it.second.get_tag().find(str) != string_type::npos && !(params & FindParameters::Exact) && (params & FindParameters::Search_Tag)) ||
-                (it.second.get().find(str) != string_type::npos && !(params & FindParameters::Exact) && (params & FindParameters::Search_Deserialized))) {
-                return it.first;
+        size_type index{};
+        for (const auto& it : this->members) {
+            if (!std::holds_alternative<Section>(it)) {
+                ++index;
+                continue;
             }
+
+            if (index >= begin) {
+                const Section section = std::get<Section>(it);
+
+                if (((section.get_tag() == str && (params & FindParameters::Search_Tag)) ||
+                    (section.get() == str && (params & FindParameters::Search_Deserialized)) ||
+                    (section.get_tag().find(str) != string_type::npos && !(params & FindParameters::Exact) && (params & FindParameters::Search_Tag)) ||
+                    (section.get().find(str) != string_type::npos && !(params & FindParameters::Exact) && (params & FindParameters::Search_Deserialized)))) {
+                    return index;
+                }
+            }
+
+            ++index;
         }
     }
 
     return npos;
 }
 
-bygg::size_type bygg::HTML::Section::find(const bygg::HTML::Tag tag, const FindParameters params) const {
+bygg::size_type bygg::HTML::Section::find(const bygg::HTML::Tag tag, const size_type begin, const FindParameters params) const {
     if ((params & FindParameters::Only_Sections) && (params & FindParameters::Only_Elements)) {
         throw invalid_argument("Search parameters must not include both FindParameters::Only_Sections and FindParameters::Only_Elements");
     }
 
     if (!(params & FindParameters::Only_Sections)) {
-        for (const auto& it : this->elements) {
-            if (it.second.get_tag() == resolve_tag(tag).first) {
-                return it.first;
+        size_type index{};
+
+        for (const auto& it : this->members) {
+            if (!std::holds_alternative<Element>(it)) {
+                ++index;
+                continue;
             }
+
+            if (index >= begin) {
+                const Element element = std::get<Element>(it);
+
+                if (element.get_tag() == resolve_tag(tag).first) {
+                    return index;
+                }
+            }
+
+            ++index;
         }
     }
+
     if (!(params & FindParameters::Only_Elements)) {
-        for (const auto& it : this->sections) {
-            if (it.second.get_tag() == resolve_tag(tag).first) {
-                return it.first;
+        size_type index{};
+
+        for (const auto& it : this->members) {
+            if (!std::holds_alternative<Section>(it)) {
+                ++index;
+                continue;
             }
+
+            if (index >= begin) {
+                const Section section = std::get<Section>(it);
+
+                if (section.get_tag() == resolve_tag(tag).first) {
+                    return index;
+                }
+            }
+
+            ++index;
         }
     }
 
     return npos;
 }
 
-bygg::size_type bygg::HTML::Section::find(const bygg::HTML::Properties& properties, const FindParameters params) const {
+bygg::size_type bygg::HTML::Section::find(const bygg::HTML::Properties& properties, const size_type begin, const FindParameters params) const {
     if (!(params & FindParameters::Search_Properties)) {
         throw invalid_argument("Search parameters must include FindParameters::Search_Properties");
     }
@@ -331,25 +383,51 @@ bygg::size_type bygg::HTML::Section::find(const bygg::HTML::Properties& properti
     }
 
     if (!(params & FindParameters::Only_Sections)) {
-        for (const auto& it : this->elements) {
-            if (it.second.get_properties() == properties) {
-                return it.first;
+        size_type index{0};
+
+        for (const auto& it : this->members) {
+            if (!std::holds_alternative<Element>(it)) {
+                ++index;
+                continue;
             }
+
+            if (index >= begin) {
+                const Element element = std::get<Element>(it);
+
+                if (element.get_properties() == properties) {
+                    return index;
+                }
+            }
+
+            ++index;
         }
     }
 
     if (!(params & FindParameters::Only_Elements)) {
-        for (const auto& it : this->sections) {
-            if (it.second.get_properties() == properties) {
-                return it.first;
+        size_type index{};
+
+        for (const auto& it : this->members) {
+            if (!std::holds_alternative<Section>(it)) {
+                ++index;
+                continue;
             }
+
+            if (index >= begin) {
+                const Section section = std::get<Section>(it);
+
+                if (section.get_properties() == properties) {
+                    return index;
+                }
+            }
+
+            ++index;
         }
     }
 
     return npos;
 }
 
-bygg::size_type bygg::HTML::Section::find(const bygg::HTML::Property& property, const FindParameters params) const {
+bygg::size_type bygg::HTML::Section::find(const bygg::HTML::Property& property, const size_type begin, const FindParameters params) const {
     if (!(params & FindParameters::Search_Properties)) {
         throw invalid_argument("Search parameters must include FindParameters::Search_Properties");
     }
@@ -358,24 +436,37 @@ bygg::size_type bygg::HTML::Section::find(const bygg::HTML::Property& property, 
     }
 
     if (!(params & FindParameters::Only_Sections)) {
-        for (const auto& it : this->elements) {
-            const auto& properties = it.second.get_properties();
+        size_type index{};
+        for (const auto& it : this->members) {
+            if (!std::holds_alternative<Element>(it)) {
+                ++index;
+                continue;
+            }
 
-            for (const auto& prop : properties) {
-                if (prop.get_key() == property.get_key() && prop.get_value() == property.get_value()) {
-                    return it.first;
+            if (index >= begin) {
+                const Element element = std::get<Element>(it);
+
+                if (element.get_properties().find(property) != npos) {
+                    return index;
                 }
             }
+
+            ++index;
         }
     }
 
     if (!(params & FindParameters::Only_Elements)) {
-        for (const auto& it : this->sections) {
-            const auto& properties = it.second.get_properties();
+        for (size_type i{0}; i < this->members.size(); i++) {
+            if (!std::holds_alternative<Section>(this->members.at(i))) {
+                ++i;
+                continue;
+            }
 
-            for (const auto& prop : properties) {
-                if (prop.get_key() == property.get_key() && prop.get_value() == property.get_value()) {
-                    return it.first;
+            if (i >= begin) {
+                const Section section = std::get<Section>(this->members.at(i));
+
+                if (section.get_properties().find(property) != npos) {
+                    return i;
                 }
             }
         }
@@ -385,91 +476,124 @@ bygg::size_type bygg::HTML::Section::find(const bygg::HTML::Property& property, 
 }
 
 bygg::HTML::Element bygg::HTML::Section::front() const {
-    if (this->elements.find(0) != this->elements.end()) {
-        return this->elements.at(0);
+    if (this->members.empty()) {
+        throw out_of_range("Index out of range");
     }
 
-    throw out_of_range("Index out of range");
+    if (std::holds_alternative<Element>(this->members.front())) {
+        return std::get<Element>(this->members.front());
+    }
+
+    throw out_of_range("Front does not contain an element");
 }
 
 bygg::HTML::Element& bygg::HTML::Section::front() {
-    if (this->elements.find(0) != this->elements.end()) {
-        return this->elements.at(0);
+    if (this->members.empty()) {
+        throw out_of_range("Index out of range");
     }
 
-    throw out_of_range("Index out of range");
+    if (std::holds_alternative<Element>(this->members.front())) {
+        return std::get<Element>(this->members.front());
+    }
+
+    throw out_of_range("Front does not contain an element");
 }
 
 bygg::HTML::Section bygg::HTML::Section::front_section() const {
-    if (this->sections.find(0) != this->sections.end()) {
-        return this->sections.at(0);
+    if (this->members.empty()) {
+        throw out_of_range("Index out of range");
     }
 
-    throw out_of_range("Index out of range");
+    if (std::holds_alternative<Section>(this->members.front())) {
+        return std::get<Section>(this->members.front());
+    }
+
+    throw out_of_range("Front does not contain a section");
 }
 
 bygg::HTML::Section& bygg::HTML::Section::front_section() {
-    if (this->sections.find(0) != this->sections.end()) {
-        return this->sections.at(0);
+    if (this->members.empty()) {
+        throw out_of_range("Index out of range");
     }
 
-    throw out_of_range("Index out of range");
+    if (std::holds_alternative<Section>(this->members.front())) {
+        return std::get<Section>(this->members.front());
+    }
+
+    throw out_of_range("Front does not contain a section");
 }
 
 bygg::HTML::Element bygg::HTML::Section::back() const {
-    if (this->elements.find(this->index - 1) != this->elements.end()) {
-        return this->elements.at(this->index - 1);
+    if (this->members.empty()) {
+        throw out_of_range("Index out of range");
     }
 
-    throw out_of_range("Index out of range");
+    if (std::holds_alternative<Element>(this->members.back())) {
+        return std::get<Element>(this->members.back());
+    }
+
+    if (std::holds_alternative<Section>(this->members.back())) {
+        throw out_of_range("Back does not contain an element");
+    }
 }
 
 bygg::HTML::Element& bygg::HTML::Section::back() {
-    if (this->elements.find(this->index - 1) != this->elements.end()) {
-        return this->elements.at(this->index - 1);
+    if (this->members.empty()) {
+        throw out_of_range("Index out of range");
     }
 
-    throw out_of_range("Index out of range");
+    if (std::holds_alternative<Element>(this->members.back())) {
+        return std::get<Element>(this->members.back());
+    }
+
+    throw out_of_range("Back does not contain an element");
 }
 
 bygg::HTML::Section bygg::HTML::Section::back_section() const {
-    if (this->sections.find(this->index - 1) != this->sections.end()) {
-        return this->sections.at(this->index - 1);
+    if (this->members.empty()) {
+        throw out_of_range("Index out of range");
     }
 
-    throw out_of_range("Index out of range");
+    if (std::holds_alternative<Section>(this->members.back())) {
+        return std::get<Section>(this->members.back());
+    }
+
+    throw out_of_range("Back does not contain a section");
 }
 
 bygg::HTML::Section& bygg::HTML::Section::back_section() {
-    if (this->sections.find(this->index - 1) != this->sections.end()) {
-        return this->sections.at(this->index - 1);
+    if (this->members.empty()) {
+        throw out_of_range("Index out of range");
     }
 
-    throw out_of_range("Index out of range");
+    if (std::holds_alternative<Section>(this->members.back())) {
+        return std::get<Section>(this->members.back());
+    }
+
+    throw out_of_range("Back does not contain a section");
 }
 
 bygg::size_type bygg::HTML::Section::size() const {
-    return this->index;
+    return this->members.size();
 }
 
 void bygg::HTML::Section::clear() {
     this->tag.clear();
     this->properties.clear();
-    this->elements.clear();
+    this->members.clear();
     this->sections.clear();
-    this->index = 0;
+    this->elements.clear();
 }
 
 bool bygg::HTML::Section::empty() const {
-    return this->index == 0;
+    return this->members.empty();
 }
 
 bygg::HTML::ElementList bygg::HTML::Section::get_elements() const {
     bygg::HTML::ElementList ret{};
-    ret.reserve(this->index);
-    for (size_type i{0}; i < this->index; i++) {
-        if (this->elements.find(i) != this->elements.end()) {
-            ret.push_back(this->elements.at(i));
+    for (const auto& it : this->members) {
+        if (std::holds_alternative<Element>(it)) {
+            ret.push_back(std::get<Element>(it));
         }
     }
     return ret;
@@ -477,11 +601,10 @@ bygg::HTML::ElementList bygg::HTML::Section::get_elements() const {
 
 bygg::HTML::SectionList bygg::HTML::Section::get_sections() const {
     bygg::HTML::SectionList ret{};
-    ret.reserve(this->index);
 
-    for (size_type i{0}; i < this->index; i++) {
-        if (this->sections.find(i) != this->sections.end()) {
-            ret.push_back(this->sections.at(i));
+    for (const auto& it : this->members) {
+        if (std::holds_alternative<Section>(it)) {
+            ret.push_back(std::get<Section>(it));
         }
     }
 
@@ -507,7 +630,7 @@ bygg::string_type bygg::HTML::Section::get(const Formatting formatting, const by
         bygg::integer_type c_tabc{c_entry.tabc};
 
         if (!c_entry.processed) {
-            if (c_sect->tag.empty() && c_sect->properties.empty() && c_sect->sections.empty() && c_sect->elements.empty()) {
+            if (c_sect->tag.empty() && c_sect->properties.empty() && c_sect->members.empty()) {
                 s_stack.pop();
                 continue;
             }
@@ -539,16 +662,18 @@ bygg::string_type bygg::HTML::Section::get(const Formatting formatting, const by
 
         bool processed = false;
 
-        while (c_entry.index < c_sect->index) {
-            if (c_sect->elements.find(c_entry.index) != c_sect->elements.end()) {
+        while (c_entry.index < c_sect->members.size()) {
+            const auto& member = c_sect->members[c_entry.index];
 
-                ret << c_sect->elements.at(c_entry.index).get(formatting, c_sect->tag.empty() ? c_tabc : ++c_tabc);
-
+            if (std::holds_alternative<Element>(member)) {
+                const auto& element = std::get<Element>(member);
+                ret << element.get(formatting, c_sect->tag.empty() ? c_tabc : ++c_tabc);
                 c_entry.index++;
                 processed = true;
                 break;
-            } else if (c_sect->sections.find(c_entry.index) != c_sect->sections.end()) {
-                s_stack.push({&c_sect->sections.at(c_entry.index), c_sect->tag.empty() ? c_tabc : ++c_tabc, false, 0});
+            } else if (std::holds_alternative<Section>(member)) {
+                const auto& section = std::get<Section>(member);
+                s_stack.push({&section, c_sect->tag.empty() ? c_tabc : ++c_tabc, false, 0});
                 c_entry.index++;
                 processed = true;
                 break;
@@ -592,13 +717,11 @@ bygg::HTML::Properties bygg::HTML::Section::get_properties() const {
 }
 
 void bygg::HTML::Section::swap(const size_type index1, const size_type index2) {
-    if (this->elements.find(index1) != this->elements.end() && this->elements.find(index2) != this->elements.end()) {
-        std::swap(this->elements[index1], this->elements[index2]);
-    } else if (this->sections.find(index1) != this->sections.end() && this->sections.find(index2) != this->sections.end()) {
-        std::swap(this->sections[index1], this->sections[index2]);
-    } else {
+    if (this->members.size() <= index1 || this->members.size() <= index2) {
         throw out_of_range("Index out of range");
     }
+
+    std::swap(this->members[index1], this->members[index2]);
 }
 
 void bygg::HTML::Section::swap(const Element& element1, const Element& element2) {

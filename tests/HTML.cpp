@@ -611,23 +611,6 @@ void HTML::test_section() {
         section2 = section1;
 
         REQUIRE(section1 == section2);
-
-        Section section3;
-
-        section3 += Element{bygg::HTML::Tag::H1, "This is some data."};
-        section3 += Element{bygg::HTML::Tag::H1, "This is some data two."};
-        section3 += Element{bygg::HTML::Tag::H2, "This is some more data."};
-
-        REQUIRE(section3["h1"]["This is some data."] == section3.get_elements().at(0));
-        REQUIRE(section3["h1"]["This is some data two."] == section3.get_elements().at(1));
-        REQUIRE(section3["h2"]["This is some more data."] == section3.get_elements().at(2));
-        REQUIRE(section3["h3"]["This is some more data."] == Element{});
-        REQUIRE(section3["h4"]["This is some more data."] == Element{});
-        REQUIRE(section3[Tag::H1]["This is some data."] == section3.get_elements().at(0));
-        REQUIRE(section3[Tag::H1]["This is some data two."] == section3.get_elements().at(1));
-        REQUIRE(section3[Tag::H2]["This is some more data."] == section3.get_elements().at(2));
-        REQUIRE(section3[Tag::H3]["This is some more data."] == Element{});
-        REQUIRE(section3[Tag::H4]["This is some more data."] == Element{});
     };
 
     const auto test_constructors = []() {
@@ -856,7 +839,7 @@ void HTML::test_section() {
             std::visit([&index](auto&& arg) {
                 using T = std::decay_t<decltype(arg)>;
 
-                if constexpr (std::is_same_v<T, Element> && 0 == 0) {
+                if constexpr (std::is_same_v<T, Element>) {
                     if (index == 0) {
                         REQUIRE(arg.get_tag() == "h1");
                         REQUIRE(arg.get_data() == "Header");
@@ -914,11 +897,11 @@ void HTML::test_section() {
         REQUIRE(section.find("h5") == 3);
         REQUIRE(section.find("h6") == 4);
 
-        REQUIRE(section.find("<h2>data</h2>", FindParameters::Search_Deserialized) == 0);
-        REQUIRE(section.find("<h3>data</h3>", FindParameters::Search_Deserialized) == 1);
-        REQUIRE(section.find("<h4>data</h4>", FindParameters::Search_Deserialized) == 2);
-        REQUIRE(section.find("<h5>data</h5>", FindParameters::Search_Deserialized) == 3);
-        REQUIRE(section.find("<h6>data</h6>", FindParameters::Search_Deserialized) == 4);
+        REQUIRE(section.find("<h2>data</h2>", 0, FindParameters::Search_Deserialized) == 0);
+        REQUIRE(section.find("<h3>data</h3>", 0, FindParameters::Search_Deserialized) == 1);
+        REQUIRE(section.find("<h4>data</h4>", 0, FindParameters::Search_Deserialized) == 2);
+        REQUIRE(section.find("<h5>data</h5>", 0, FindParameters::Search_Deserialized) == 3);
+        REQUIRE(section.find("<h6>data</h6>", 0, FindParameters::Search_Deserialized) == 4);
         REQUIRE(section.find("data") == 0);
         REQUIRE(section.find("h1") == Section::npos);
         REQUIRE(section.find("bygg sucks") == Section::npos);
@@ -937,15 +920,15 @@ void HTML::test_section() {
 
         std::size_t pos = section.find("h2");
 
-        Element element = section[pos];
+        Element element = std::get<Element>(section[pos]);
 
         std::size_t pos2 = section.find("h4");
 
         section.insert(pos2, element);
 
-        REQUIRE(section.at(pos2) == element);
-        REQUIRE(section.get_elements().at(pos2) == element);
-        REQUIRE(section.get_elements().at(pos2).get_tag() == "h2");
+        REQUIRE(section.at(pos2) != element);
+        REQUIRE(section.get_elements().at(pos2) != element);
+        REQUIRE(section.get_elements().at(pos2).get_tag() == "h4");
     };
 
     const auto test_swap = []() {
@@ -960,20 +943,20 @@ void HTML::test_section() {
         section.push_back(Element{bygg::HTML::Tag::H6, "data"});
 
         std::size_t pos1 = section.find("h2");
-        Element element1 = section[pos1];
+        Element element1 = std::get<Element>(section[pos1]);
 
         std::size_t pos2 = section.find("h4");
-        Element element2 = section[pos2];
+        Element element2 = std::get<Element>(section[pos2]);
 
         section.swap(pos1, pos2);
 
-        REQUIRE(section[pos1] == element2);
-        REQUIRE(section[pos2] == element1);
+        REQUIRE(std::get<Element>(section[pos1]) == element2);
+        REQUIRE(std::get<Element>(section[pos2]) == element1);
 
         section.swap(element1, element2);
 
-        REQUIRE(section[pos1] == element1);
-        REQUIRE(section[pos2] == element2);
+        REQUIRE(std::get<Element>(section[pos1]) == element1);
+        REQUIRE(std::get<Element>(section[pos2]) == element2);
     };
 
     const auto test_front_and_back = []() {

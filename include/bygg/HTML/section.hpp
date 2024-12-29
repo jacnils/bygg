@@ -8,8 +8,6 @@
 
 #include <string>
 #include <vector>
-#include <unordered_map>
-#include <map>
 #include <variant>
 
 #include <bygg/types.hpp>
@@ -49,8 +47,8 @@ namespace bygg::HTML {
                         return *this;
                     }
 
-                    auto operator*() const -> decltype(element->second) {
-                        return element->second;
+                    auto operator*() const -> decltype(element) {
+                        return element;
                     }
 
                     bool operator==(const sect_iterator& other) const {
@@ -65,43 +63,43 @@ namespace bygg::HTML {
             /**
              * @brief Map of elements with an index as key.
              */
-            using element_map = std::map<size_type, Element>;
+            using element_map = std::vector<Element>;
             /**
              * @brief Iterator for elements.
              */
-            using element_iterator = sect_iterator<element_map::iterator>;
+            using element_iterator = element_map::iterator;
             /**
              * @brief Const iterator for elements.
              */
-            using element_const_iterator = sect_iterator<element_map::const_iterator>;
+            using element_const_iterator = element_map::const_iterator;
             /**
              * @brief Reverse iterator for elements.
              */
-            using element_reverse_iterator = sect_iterator<element_map::reverse_iterator>;
+            using element_reverse_iterator = element_map::reverse_iterator;
             /**
              * @brief Const reverse iterator for elements.
              */
-            using element_const_reverse_iterator = sect_iterator<element_map::const_reverse_iterator>;
+            using element_const_reverse_iterator = element_map::const_reverse_iterator;
             /**
              * @brief Map of sections with an index as key.
              */
-            using section_map = std::map<size_type, Section>;
+            using section_map = std::vector<Section>;
             /**
              * @brief Iterator for sections.
              */
-            using section_iterator = sect_iterator<section_map::iterator>;
+            using section_iterator = section_map::iterator;
             /**
              * @brief Const iterator for sections.
              */
-            using section_const_iterator = sect_iterator<section_map::const_iterator>;
+            using section_const_iterator = section_map::const_iterator;
             /**
              * @brief Reverse iterator for sections.
              */
-            using section_reverse_iterator = sect_iterator<section_map::reverse_iterator>;
+            using section_reverse_iterator = section_map::reverse_iterator;
             /**
              * @brief Const reverse iterator for sections.
              */
-            using section_const_reverse_iterator = sect_iterator<section_map::const_reverse_iterator>;
+            using section_const_reverse_iterator = section_map::const_reverse_iterator;
             /**
              * @brief Variant type holding either an Element or a Section.
              */
@@ -130,172 +128,333 @@ namespace bygg::HTML {
             /**
              * @brief Return a variant_list of all elements and sections.
              * @note To use the result, you must use std::visit.
-             * @example std::visit([](auto&& arg) { if constexpr (std::is_same_v<decltype(arg), Element>) {}}, section.get_any());
+             * @example std::visit([](auto&& arg) { if constexpr (std::is_same_v<decltype(arg), Element>) {}}, section.get_all());
              */
-            [[nodiscard]] variant_list& get_any() const {
-                cache.clear();
-
-                for (size_type i{}; i < this->index; ++i) {
-                    if (this->elements.find(i) != this->elements.end()) {
-                        cache.emplace_back(this->elements.at(i));
-                    } else if (this->sections.find(i) != this->sections.end()) {
-                        cache.emplace_back(this->sections.at(i));
+            [[nodiscard]] variant_list& get_all() const {
+                return members;
+            }
+            [[nodiscard]] variant_t& get_any(size_type index) {
+                for (size_type i{}; i < members.size(); ++i) {
+                    if (i == index) {
+                        return members.at(i);
                     }
                 }
-
-                return cache;
             }
 
             /**
              * @brief Return an iterator to the beginning.
              * @return element_iterator The iterator to the beginning.
              */
-            element_iterator element_begin() { return element_iterator(elements.begin()); }
+            element_iterator element_begin() {
+                elements.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Element>(it)) {
+                        elements.push_back(std::get<Element>(it));
+                    }
+                }
+                return element_iterator(elements.begin());
+            }
             /**
              * @brief Return an iterator to the end.
              * @return element_iterator The iterator to the end.
              */
-            element_iterator element_end() { return element_iterator(elements.end()); }
+            element_iterator element_end() {
+                elements.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Element>(it)) {
+                        elements.push_back(std::get<Element>(it));
+                    }
+                }
+                return element_iterator(elements.end());
+            }
             /**
              * @brief Return an iterator to the beginning.
              * @return element_const_iterator The iterator to the beginning.
              */
-            [[nodiscard]] element_const_iterator element_begin() const { return element_const_iterator(elements.begin()); }
+            [[nodiscard]] element_const_iterator element_begin() const {
+                elements.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Element>(it)) {
+                        elements.push_back(std::get<Element>(it));
+                    }
+                }
+                return element_const_iterator(elements.cbegin());
+            }
             /**
              * @brief Return an iterator to the end.
              * @return element_const_iterator The iterator to the end.
              */
-            [[nodiscard]] element_const_iterator element_end() const { return element_const_iterator(elements.end()); }
+            [[nodiscard]] element_const_iterator element_end() const {
+                elements.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Element>(it)) {
+                        elements.push_back(std::get<Element>(it));
+                    }
+                }
+                return element_const_iterator(elements.cend());
+            }
             /**
              * @brief Return a const iterator to the beginning.
              * @return element_const_iterator The const iterator to the beginning.
              */
-            [[nodiscard]] element_const_iterator element_cbegin() const { return element_const_iterator(elements.cbegin()); }
+            [[nodiscard]] element_const_iterator element_cbegin() const {
+                elements.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Element>(it)) {
+                        elements.push_back(std::get<Element>(it));
+                    }
+                }
+                return element_const_iterator(elements.cbegin());
+            }
             /**
              * @brief Return a const iterator to the end.
              * @return element_const_iterator The const iterator to the end.
              */
-            [[nodiscard]] element_const_iterator element_cend() const { return element_const_iterator(elements.cend()); }
+            [[nodiscard]] element_const_iterator element_cend() const {
+                elements.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Element>(it)) {
+                        elements.push_back(std::get<Element>(it));
+                    }
+                }
+                return element_const_iterator(elements.cend());
+            }
             /**
              * @brief Return a reverse iterator to the beginning.
              * @return element_reverse_iterator The reverse iterator to the beginning.
              */
-            [[nodiscard]] element_reverse_iterator element_rbegin() { return element_reverse_iterator(elements.rbegin()); }
+            [[nodiscard]] element_reverse_iterator element_rbegin() {
+                elements.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Element>(it)) {
+                        elements.push_back(std::get<Element>(it));
+                    }
+                }
+
+                return element_reverse_iterator(elements.rbegin());
+            }
             /**
              * @brief Return a reverse iterator to the end.
              * @return element_reverse_iterator The reverse iterator to the end.
              */
-            [[nodiscard]] element_reverse_iterator element_rend() { return element_reverse_iterator(elements.rend()); }
+            [[nodiscard]] element_reverse_iterator element_rend() {
+                elements.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Element>(it)) {
+                        elements.push_back(std::get<Element>(it));
+                    }
+                }
+
+                return element_reverse_iterator(elements.rbegin());
+            }
             /**
              * @brief Return a const reverse iterator to the beginning.
              * @return element_const_reverse_iterator The const reverse iterator to the beginning.
              */
-            [[nodiscard]] element_const_reverse_iterator element_crbegin() const { return element_const_reverse_iterator(elements.crbegin()); }
+            [[nodiscard]] element_const_reverse_iterator element_crbegin() const {
+                elements.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Element>(it)) {
+                        elements.push_back(std::get<Element>(it));
+                    }
+                }
+
+                return element_const_reverse_iterator(elements.crbegin());
+            }
             /**
              * @brief Return a const reverse iterator to the end.
              * @return element_const_reverse_iterator The const reverse iterator to the end.
              */
-            [[nodiscard]] element_const_reverse_iterator element_crend() const { return element_const_reverse_iterator(elements.crend()); }
+            [[nodiscard]] element_const_reverse_iterator element_crend() const {
+                elements.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Element>(it)) {
+                        elements.push_back(std::get<Element>(it));
+                    }
+                }
+
+                return element_const_reverse_iterator(elements.crend());
+            }
             /**
              * @brief Return an iterator to the beginning.
              * @return section_iterator The iterator to the beginning.
              */
-            section_iterator section_begin() { return section_iterator(sections.begin()); }
+            section_iterator section_begin() {
+                sections.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Section>(it)) {
+                        sections.push_back(std::get<Section>(it));
+                    }
+                }
+                return section_iterator(sections.begin());
+            }
             /**
              * @brief Return an iterator to the end.
              * @return section_iterator The iterator to the end.
              */
-            section_iterator section_end() { return section_iterator(sections.end()); }
+            section_iterator section_end() {
+                sections.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Section>(it)) {
+                        sections.push_back(std::get<Section>(it));
+                    }
+                }
+                return section_iterator(sections.end());
+            }
             /**
              * @brief Return an iterator to the beginning.
              * @return section_const_iterator The iterator to the beginning.
              */
-            [[nodiscard]] section_const_iterator section_begin() const { return section_const_iterator(sections.begin()); }
+            [[nodiscard]] section_const_iterator section_begin() const {
+                sections.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Section>(it)) {
+                        sections.push_back(std::get<Section>(it));
+                    }
+                }
+                return section_const_iterator(sections.begin());
+            }
             /**
              * @brief Return an iterator to the end.
              * @return section_const_iterator The iterator to the end.
              */
-            [[nodiscard]] section_const_iterator section_end() const { return section_const_iterator(sections.end()); }
+            [[nodiscard]] section_const_iterator section_end() const {
+                sections.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Section>(it)) {
+                        sections.push_back(std::get<Section>(it));
+                    }
+                }
+                return section_const_iterator(sections.end());
+            }
             /**
              * @brief Return a const iterator to the beginning.
              * @return section_const_iterator The const iterator to the beginning.
              */
-            [[nodiscard]] section_const_iterator section_cbegin() const { return section_const_iterator(sections.cbegin()); }
+            [[nodiscard]] section_const_iterator section_cbegin() const {
+                sections.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Section>(it)) {
+                        sections.push_back(std::get<Section>(it));
+                    }
+                }
+                return section_const_iterator(sections.cbegin());
+            }
             /**
              * @brief Return a const iterator to the end.
              * @return section_const_iterator The const iterator to the end.
              */
-            [[nodiscard]] section_const_iterator section_cend() const { return section_const_iterator(sections.cend()); }
+            [[nodiscard]] section_const_iterator section_cend() const {
+                sections.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Section>(it)) {
+                        sections.push_back(std::get<Section>(it));
+                    }
+                }
+                return section_const_iterator(sections.cend());
+            }
             /**
              * @brief Return a reverse iterator to the beginning.
              * @return section_reverse_iterator The reverse iterator to the beginning.
              */
-            [[nodiscard]] section_reverse_iterator section_rbegin() { return section_reverse_iterator(sections.rbegin()); }
+            [[nodiscard]] section_reverse_iterator section_rbegin() {
+                sections.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Section>(it)) {
+                        sections.push_back(std::get<Section>(it));
+                    }
+                }
+                return section_reverse_iterator(sections.rbegin());
+            }
             /**
              * @brief Return a reverse iterator to the end.
              * @return section_reverse_iterator The reverse iterator to the end.
              */
-            [[nodiscard]] section_reverse_iterator section_rend() { return section_reverse_iterator(sections.rend()); }
+            [[nodiscard]] section_reverse_iterator section_rend() {
+                sections.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Section>(it)) {
+                        sections.push_back(std::get<Section>(it));
+                    }
+                }
+                return section_reverse_iterator(sections.rend());
+            }
             /**
              * @brief Return a const reverse iterator to the beginning.
              * @return section_const_reverse_iterator The const reverse iterator to the beginning.
              */
-            [[nodiscard]] section_const_reverse_iterator section_crbegin() const { return section_const_reverse_iterator(sections.crbegin()); }
+            [[nodiscard]] section_const_reverse_iterator section_crbegin() const {
+                sections.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Section>(it)) {
+                        sections.push_back(std::get<Section>(it));
+                    }
+                }
+                return section_const_reverse_iterator(sections.crbegin());
+            }
             /**
              * @brief Return a const reverse iterator to the end.
              * @return section_const_reverse_iterator The const reverse iterator to the end.
              */
-            [[nodiscard]] section_const_reverse_iterator section_crend() const { return section_const_reverse_iterator(sections.crend()); }
+            [[nodiscard]] section_const_reverse_iterator section_crend() const {
+                sections.clear();
+                for (const auto& it : members) {
+                    if (std::holds_alternative<Section>(it)) {
+                        sections.push_back(std::get<Section>(it));
+                    }
+                }
+                return section_const_reverse_iterator(sections.crend());
+            }
             /**
              * @brief Return an iterator to the beginning.
              * @return iterator The iterator to the beginning.
              */
-            [[nodiscard]] iterator begin() { return get_any().begin(); }
+            [[nodiscard]] iterator begin() { return get_all().begin(); }
             /**
              * @brief Return an iterator to the end.
              * @return iterator The iterator to the end.
              */
-            [[nodiscard]] iterator end() { return get_any().end(); }
+            [[nodiscard]] iterator end() { return get_all().end(); }
             /**
              * @brief Return an iterator to the beginning.
              * @return const_iterator The iterator to the beginning.
              */
-            [[nodiscard]] const_iterator begin() const { return get_any().cbegin(); }
+            [[nodiscard]] const_iterator begin() const { return get_all().cbegin(); }
             /**
              * @brief Return an iterator to the end.
              * @return const_iterator The iterator to the end.
              */
-            [[nodiscard]] const_iterator end() const { return get_any().cend(); }
+            [[nodiscard]] const_iterator end() const { return get_all().cend(); }
             /**
              * @brief Return a const iterator to the beginning.
              * @return const_iterator The const iterator to the beginning.
              */
-            [[nodiscard]] const_iterator cbegin() const { return get_any().cbegin(); }
+            [[nodiscard]] const_iterator cbegin() const { return get_all().cbegin(); }
             /**
              * @brief Return a const iterator to the end.
              * @return const_iterator The const iterator to the end.
              */
-            [[nodiscard]] const_iterator cend() const { return get_any().cend(); }
+            [[nodiscard]] const_iterator cend() const { return get_all().cend(); }
             /**
              * @brief Return a reverse iterator to the beginning.
              * @return reverse_iterator The reverse iterator to the beginning.
              */
-            [[nodiscard]] reverse_iterator rbegin() { return get_any().rbegin(); }
+            [[nodiscard]] reverse_iterator rbegin() { return get_all().rbegin(); }
             /**
              * @brief Return a reverse iterator to the end.
              * @return reverse_iterator The reverse iterator to the end.
              */
-            [[nodiscard]] reverse_iterator rend() { return get_any().rend(); }
+            [[nodiscard]] reverse_iterator rend() { return get_all().rend(); }
             /**
              * @brief Return a const reverse iterator to the beginning.
              * @return const_reverse_iterator The const reverse iterator to the beginning.
              */
-            [[nodiscard]] const_reverse_iterator crbegin() const { return get_any().crbegin(); }
+            [[nodiscard]] const_reverse_iterator crbegin() const { return get_all().crbegin(); }
             /**
              * @brief Return a const reverse iterator to the end.
              * @return const_reverse_iterator The const reverse iterator to the end.
              */
-            [[nodiscard]] const_reverse_iterator crend() const { return get_any().crend(); }
+            [[nodiscard]] const_reverse_iterator crend() const { return get_all().crend(); }
 
             /**
              * @brief The npos value
@@ -385,45 +544,51 @@ namespace bygg::HTML {
             /**
              * @brief Find an element in the section
              * @param element The element to find
+             * @param begin The index to start searching from
              * @param params Search parameters
              * @return size_type The index of the element
              */
-            [[nodiscard]] size_type find(const Element& element, FindParameters params = FindParameters::Search_Tag | FindParameters::Search_Data | FindParameters::Exact) const;
+            [[nodiscard]] size_type find(const Element& element, size_type begin = 0, FindParameters params = FindParameters::Search_Tag | FindParameters::Search_Data | FindParameters::Exact) const;
             /**
              * @brief Find a section in the section
              * @param section The section to find
+             * @param begin The index to start searching from
              * @param params Search parameters
              * @return size_type The index of the section
              */
-            [[nodiscard]] size_type find(const Section& section, FindParameters params = FindParameters::Search_Tag | FindParameters::Search_Data | FindParameters::Exact) const;
+            [[nodiscard]] size_type find(const Section& section, size_type begin = 0, FindParameters params = FindParameters::Search_Tag | FindParameters::Search_Data | FindParameters::Exact) const;
             /**
              * @brief Find an element or section in the section
              * @param str The element or section to find
+             * @param begin The index to start searching from
              * @param params Search parameters
              * @return size_type The index of the element or section
              */
-            [[nodiscard]] size_type find(const string_type& str, FindParameters params = FindParameters::Search_Tag|FindParameters::Search_Data | FindParameters::Exact) const;
+            [[nodiscard]] size_type find(const string_type& str, size_type begin = 0, FindParameters params = FindParameters::Search_Tag|FindParameters::Search_Data | FindParameters::Exact) const;
             /**
              * @brief Find an element or section in the section
              * @param tag The tag of the element or section to find
+             * @param begin The index to start searching from
              * @param params Search parameters
              * @return size_type The index of the element or section
              */
-            [[nodiscard]] size_type find(Tag tag, FindParameters params = FindParameters::Search_Tag | FindParameters::Search_Data | FindParameters::Exact) const;
+            [[nodiscard]] size_type find(Tag tag, size_type begin = 0, FindParameters params = FindParameters::Search_Tag | FindParameters::Search_Data | FindParameters::Exact) const;
             /**
              * @brief Find an element or section in the section
              * @param properties The properties of the element or section to find
+             * @param begin The index to start searching from
              * @param params Search parameters
              * @return size_type The index of the element or section
              */
-            [[nodiscard]] size_type find(const Properties& properties, FindParameters params = FindParameters::Search_Properties | FindParameters::Exact) const;
+            [[nodiscard]] size_type find(const Properties& properties, size_type begin = 0, FindParameters params = FindParameters::Search_Properties | FindParameters::Exact) const;
             /**
              * @brief Find an element or section in the section
              * @param property The property of the element or section to find
+             * @param begin The index to start searching from
              * @param params Search parameters
              * @return size_type The index of the element or section
              */
-            [[nodiscard]] size_type find(const Property& property, FindParameters params = FindParameters::Search_Properties | FindParameters::Exact) const;
+            [[nodiscard]] size_type find(const Property& property, size_type begin = 0, FindParameters params = FindParameters::Search_Properties | FindParameters::Exact) const;
             /**
              * @brief Insert an element into the section
              * @param index The index to insert the element
@@ -615,9 +780,7 @@ namespace bygg::HTML {
             Section(const Section& section) {
                 this->tag = section.tag;
                 this->properties = section.properties;
-                this->elements = section.elements;
-                this->sections = section.sections;
-                this->index = section.index;
+                this->members = section.members;
             }
             /**
              * @brief Construct a new Section object
@@ -727,18 +890,15 @@ namespace bygg::HTML {
             bool operator==(const Section& section) const;
             bool operator!=(const Element& element) const;
             bool operator!=(const Section& section) const;
-            Element operator[](const int& index) const;
-            Element& operator[](const int& index);
-            std::unordered_map<string_type, Element> operator[](const string_type& tag) const;
-            std::unordered_map<string_type, Element> operator[](Tag tag) const;
+            variant_t operator[](const int& index) const;
+            variant_t& operator[](const int& index);
         private:
-            size_type index{};
             string_type tag{};
             Properties properties{};
 
-            std::map<size_type, Element> elements{};
-            std::map<size_type, Section> sections{};
-            mutable variant_list cache{};
+            mutable variant_list members{};
+            mutable element_map elements{};
+            mutable section_map sections{};
     };
 
     /**
