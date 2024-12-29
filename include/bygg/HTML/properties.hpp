@@ -114,15 +114,17 @@ namespace bygg::HTML {
             /**
              * @brief Find a property in the element
              * @param property The property to find
+             * @param begin The index to start searching from
              * @return size_type The index of the property
              */
-            [[nodiscard]] size_type find(const bygg::HTML::Property &property) const;
+            [[nodiscard]] size_type find(const bygg::HTML::Property &property, size_type begin = 0) const;
             /**
              * @brief Find a property in the element
              * @param str The property to find
+             * @param begin The index to start searching from
              * @return size_type The index of the property
              */
-            [[nodiscard]] size_type find(const string_type& str) const;
+            [[nodiscard]] size_type find(const string_type& str, size_type begin = 0) const;
             /**
              * @brief Swap two properties in the element
              * @param index1 The index of the first property
