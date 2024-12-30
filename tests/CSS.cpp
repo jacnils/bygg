@@ -7,7 +7,6 @@
 
 #include <iostream>
 #include <string>
-#include <unordered_map>
 #include <bygg/bygg.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include "test.hpp"
@@ -100,6 +99,21 @@ void CSS::test_element() {
         REQUIRE(element.get_properties().at(0).get_value() == "value3");
         REQUIRE(element.get_properties().at(1).get_key() == "key4");
         REQUIRE(element.get_properties().at(1).get_value() == "value4");
+
+        Element element2;
+
+        element2.set_tag("p");
+        element2.set_properties(make_properties(Property{"key", "value"}, Property{"key2", "value2"}));
+        element2.set_type(Type::Class);
+        element2.set_pseudo("hover");
+
+        REQUIRE(element2.get_tag() == "p");
+        REQUIRE(element2.get_properties().at(0).get_key() == "key");
+        REQUIRE(element2.get_properties().at(0).get_value() == "value");
+        REQUIRE(element2.get_properties().at(1).get_key() == "key2");
+        REQUIRE(element2.get_properties().at(1).get_value() == "value2");
+        REQUIRE(element2.get_type() == Type::Class);
+        REQUIRE(element2.get_pseudo() == "hover");
     };
 
     const auto test_operators = []() {
@@ -146,6 +160,35 @@ void CSS::test_element() {
         REQUIRE(element3.get_properties().at(0).get_value() == "value");
         REQUIRE(element3.get_properties().at(1).get_key() == "key2");
         REQUIRE(element3.get_properties().at(1).get_value() == "value2");
+
+        Element element4{bygg::HTML::Tag::P, make_properties(Property{"key", "value"}, Property{"key2", "value2"})};
+
+        REQUIRE(element4.get_tag() == "p");
+        REQUIRE(element4.get_properties().at(0).get_key() == "key");
+        REQUIRE(element4.get_properties().at(0).get_value() == "value");
+        REQUIRE(element4.get_properties().at(1).get_key() == "key2");
+        REQUIRE(element4.get_properties().at(1).get_value() == "value2");
+
+        Element element5{bygg::HTML::Tag::P, Type::Class, "hover", make_properties()};
+
+        REQUIRE(element5.get_tag() == "p");
+        REQUIRE(element5.get_properties().empty());
+        REQUIRE(element5.get_type() == Type::Class);
+        REQUIRE(element5.get_pseudo() == "hover");
+        REQUIRE(element5.get() == ".p:hover {}");
+        REQUIRE(element5.empty());
+
+        Element element6{"random_element", Type::Class, "hover", make_properties(Property{"key", "value"}, Property{"key2", "value2"})};
+
+        REQUIRE(element6.get_tag() == "random_element");
+        REQUIRE(element6.get_properties().at(0).get_key() == "key");
+        REQUIRE(element6.get_properties().at(0).get_value() == "value");
+        REQUIRE(element6.get_properties().at(1).get_key() == "key2");
+        REQUIRE(element6.get_properties().at(1).get_value() == "value2");
+        REQUIRE(element6.get_type() == Type::Class);
+        REQUIRE(element6.get_pseudo() == "hover");
+        REQUIRE(element6.get() == ".random_element:hover {key: value;key2: value2;}");
+
     };
 
     const auto test_copy_section = []() {

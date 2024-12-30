@@ -205,6 +205,15 @@ namespace bygg::CSS {
              * @param property The property to add
              */
             void push_back(const Property& property);
+            /**
+             * @brief Append a set of properties to the element
+             * @param properties The properties to set
+             */
+            void push_back(const Properties& properties);
+            /**
+             * @brief Construct a new Properties object
+             * @param args The properties to set
+             */
             template <typename... Args> explicit Properties(Args... args) { (this->push_back(args), ...); }
             /**
              * @brief Construct a new Properties object

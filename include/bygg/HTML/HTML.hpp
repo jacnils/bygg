@@ -12,6 +12,7 @@
 #include <bygg/HTML/tag.hpp>
 #include <bygg/HTML/type_enum.hpp>
 #include <bygg/HTML/formatting_enum.hpp>
+#include <bygg/HTML/find_enum.hpp>
 #include <bygg/HTML/property.hpp>
 #include <bygg/HTML/properties.hpp>
 #include <bygg/HTML/element.hpp>

@@ -47,4 +47,6 @@ int main() {
               // Success! We found the paragraph.
          }
     }
+
+    // TIP: You can strategically use Property objects to find specific elements.
 }

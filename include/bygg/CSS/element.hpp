@@ -12,13 +12,18 @@
 #include <bygg/CSS/property.hpp>
 #include <bygg/CSS/properties.hpp>
 #include <bygg/CSS/formatting_enum.hpp>
+#include <bygg/CSS/type_enum.hpp>
 
 namespace bygg::CSS {
+    using PseudoClass = string_type;
+
     /**
      * @brief A class to represent the properties of a CSS element
      */
     class Element {
             std::pair<string_type, bygg::CSS::Properties> element{};
+            Type type{Type::Selector};
+            PseudoClass pseudo{};
         public:
             using iterator = bygg::CSS::Properties::iterator;
             using const_iterator = bygg::CSS::Properties::const_iterator;
@@ -85,30 +90,73 @@ namespace bygg::CSS {
              * @brief Construct a new Element object
              * @param tag The tag of the element
              * @param properties The properties of the element
+             * @param type The type of the element
+             * @param p The pseudo class of the element
              */
-            Element(const string_type& tag, const bygg::CSS::Properties& properties) : element(std::make_pair(tag, properties)) {};
-            Element(HTML::Tag tag, const bygg::CSS::Properties& properties) : element(std::make_pair(resolve_tag(tag).first, properties)) {};
+            Element(const string_type& tag, const bygg::CSS::Properties& properties, Type type = Type::Selector, const PseudoClass& p = {}) : element(std::make_pair(tag, properties)), type(type), pseudo(p) {};
+            /**
+             * @brief Construct a new Element object
+             * @param tag The tag of the element
+             * @param properties The properties of the element
+             * @param type The type of the element
+             * @param p The pseudo class of the element
+             */
+            Element(HTML::Tag tag, const bygg::CSS::Properties& properties, Type type = Type::Selector, const PseudoClass& p = {}) : element(std::make_pair(resolve_tag(tag).first, properties)), type(type), pseudo(p) {};
+            /**
+             * @brief Construct a new Element object
+             * @param tag The tag of the element
+             * @param type The type of the element
+             * @param p The pseudo class of the element
+             * @param properties The properties of the element
+             */
+            Element(const string_type& tag, Type type, const PseudoClass& p, const Properties& properties) : element(std::make_pair(tag, properties)), type(type), pseudo(p) {};
+            /**
+             * @brief Construct a new Element object
+             * @param tag The tag of the element
+             * @param type The type of the element
+             * @param p The pseudo class of the element
+             * @param properties The properties of the element
+             */
+            Element(HTML::Tag tag, Type type, const PseudoClass& p, const Properties& properties) : element(std::make_pair(resolve_tag(tag).first, properties)), type(type), pseudo(p) {};
             /**
              * @brief Construct a new Element object
              * @param element The element to set
              */
             Element(const Element& element) = default;
-
             /**             *
              * @brief Construct a new Element object
              * @param tag The tag of the element
              * @param args The properties of the element
              */
-            template <typename... Args> explicit Element(const string_type& tag, Args&&... args) :
+            template <typename... Args, typename = std::enable_if_t<std::conjunction_v<std::is_same<Args, Property>...>>>
+            explicit Element(const string_type& tag, Args&&... args) :
                 element(std::make_pair(tag, bygg::CSS::Properties(std::forward<Args>(args)...))) {};
-
             /**
              * @brief Construct a new Element object
              * @param tag The tag of the element
              * @param args The properties of the element
              */
-            template <typename... Args> explicit Element(HTML::Tag tag, Args&&... args) :
+            template <typename... Args, typename = std::enable_if_t<std::conjunction_v<std::is_same<Args, Property>...>>>
+            explicit Element(HTML::Tag tag, Args&&... args) :
                 element(std::make_pair(resolve_tag(tag).first, bygg::CSS::Properties(std::forward<Args>(args)...))) {};
+            /**             *
+             * @brief Construct a new Element object
+             * @param tag The tag of the element
+             * @param type The type of the element
+             * @param p The pseudo class of the element
+             * @param args The properties of the element
+             */
+            template <typename... Args> explicit Element(const string_type& tag, Type type, const PseudoClass& p, Args&&... args) :
+                element(std::make_pair(tag, bygg::CSS::Properties(std::forward<Args>(args)...))), type(type), pseudo(p) {};
+            /**
+             * @brief Construct a new Element object
+             * @param tag The tag of the element
+             * @param type The type of the element
+             * @param p The pseudo class of the element
+             * @param args The properties of the element
+             */
+            template <typename... Args> explicit Element(HTML::Tag tag, Type type, const PseudoClass& p, Args&&... args) :
+                element(std::make_pair(resolve_tag(tag).first, bygg::CSS::Properties(std::forward<Args>(args)...))), type(type), pseudo(p) {};
             /**
              * @brief Construct a new Element object
              */
@@ -213,14 +261,18 @@ namespace bygg::CSS {
              * @brief Set the properties of the element
              * @param tag The tag of the element
              * @param properties The properties to set
+             * @param type The type of the element
+             * @param pseudo The pseudo class of the element
              */
-            void set(const string_type& tag, const bygg::CSS::Properties& properties);
+            void set(const string_type& tag, const bygg::CSS::Properties& properties, Type type = Type::Selector, const PseudoClass& pseudo = {});
             /**
              * @brief Set the properties of the element
              * @param tag The tag of the element
              * @param properties The properties to set
+             * @param type The type of the element
+             * @param pseudo The pseudo class of the element
              */
-            void set(HTML::Tag tag, const bygg::CSS::Properties& properties);
+            void set(HTML::Tag tag, const bygg::CSS::Properties& properties, Type type = Type::Selector, const PseudoClass& pseudo = {});
             /**
              * @brief Set the tag of the element
              * @param tag The tag to set
@@ -236,6 +288,16 @@ namespace bygg::CSS {
              * @param properties The properties to set
              */
             void set_properties(const bygg::CSS::Properties& properties);
+            /**
+             * @brief Set the type of the element
+             * @param type The type to set
+             */
+            void set_type(Type type);
+            /**
+             * @brief Set the pseudo class of the element
+             * @param pseudo The pseudo class to set
+             */
+            void set_pseudo(const PseudoClass& pseudo);
             /**
              * @brief Get the element
              * @return std::pair<string_type, bygg::CSS::Properties> The element
@@ -271,6 +333,16 @@ namespace bygg::CSS {
              * @return bygg::CSS::Properties The properties of the element
              */
             [[nodiscard]] bygg::CSS::Properties get_properties() const;
+            /**
+             * @brief Get the type of the element
+             * @return Type The type of the element
+             */
+            [[nodiscard]] Type get_type() const;
+            /**
+             * @brief Get the pseudo class of the element
+             * @return PseudoClass The pseudo class of the element
+             */
+            [[nodiscard]] PseudoClass get_pseudo() const;
 
             Element& operator=(const Element& element);
             Element& operator=(const std::pair<string_type, bygg::CSS::Properties>& element);

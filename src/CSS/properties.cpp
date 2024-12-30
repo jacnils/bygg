@@ -126,6 +126,12 @@ void bygg::CSS::Properties::push_back(const bygg::CSS::Property& property) {
     this->properties.push_back(property);
 }
 
+void bygg::CSS::Properties::push_back(const bygg::CSS::Properties& properties) {
+    for (const bygg::CSS::Property& it : properties) {
+        this->push_back(it);
+    }
+}
+
 bygg::size_type bygg::CSS::Properties::find(const bygg::CSS::Property& property) const {
     for (size_type i{0}; i < this->properties.size(); i++) {
         if (this->properties.at(i).get_value().find(property.get_value()) != bygg::string_type::npos
