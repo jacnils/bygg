@@ -535,6 +535,8 @@ bygg::HTML::Element bygg::HTML::Section::back() const {
     if (std::holds_alternative<Section>(this->members.back())) {
         throw out_of_range("Back does not contain an element");
     }
+
+    throw out_of_range("Back does not contain an element");
 }
 
 bygg::HTML::Element& bygg::HTML::Section::back() {
