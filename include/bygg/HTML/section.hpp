@@ -11,6 +11,7 @@
 #include <variant>
 
 #include <bygg/types.hpp>
+#include <bygg/except.hpp>
 #include <bygg/HTML/find_enum.hpp>
 #include <bygg/HTML/tag.hpp>
 #include <bygg/HTML/properties.hpp>
@@ -139,6 +140,8 @@ namespace bygg::HTML {
                         return members.at(i);
                     }
                 }
+
+                throw bygg::out_of_range("Index out of range");
             }
 
             /**
