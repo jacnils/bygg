@@ -9,6 +9,7 @@
 #include <bygg/types.hpp>
 #include <bygg/except.hpp>
 
+#include <bygg/CSS/type_enum.hpp>
 #include <bygg/CSS/formatting_enum.hpp>
 #include <bygg/CSS/property.hpp>
 #include <bygg/CSS/properties.hpp>

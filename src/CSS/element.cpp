@@ -9,7 +9,7 @@
 #include <bygg/CSS/element.hpp>
 
 bygg::CSS::Element& bygg::CSS::Element::operator=(const bygg::CSS::Element& element) {
-    this->set(element.get_tag(), element.get_properties());
+    this->set(element.get_tag(), element.get_properties(), element.get_type(), element.get_pseudo());
     return *this;
 }
 
@@ -35,9 +35,11 @@ bool bygg::CSS::Element::operator!=(const bygg::CSS::Element& element) const {
     return this->get() != element.get();
 }
 
-void bygg::CSS::Element::set(const bygg::string_type& tag, const bygg::CSS::Properties& properties) {
+void bygg::CSS::Element::set(const bygg::string_type& tag, const bygg::CSS::Properties& properties, const Type type, const PseudoClass& pseudo) {
     this->element.first = tag;
     this->element.second = properties;
+    this->type = type;
+    this->pseudo = pseudo;
 }
 
 void bygg::CSS::Element::set_tag(const bygg::string_type& tag) {
@@ -52,9 +54,16 @@ void bygg::CSS::Element::set_properties(const bygg::CSS::Properties& properties)
     this->element.second = properties;
 }
 
-void bygg::CSS::Element::set(HTML::Tag tag, const bygg::CSS::Properties& properties) {
-    this->set_tag(tag);
-    this->set_properties(properties);
+void bygg::CSS::Element::set_pseudo(const PseudoClass &pseudo) {
+    this->pseudo = pseudo;
+}
+
+void bygg::CSS::Element::set_type(const Type type) {
+    this->type = type;
+}
+
+void bygg::CSS::Element::set(HTML::Tag tag, const bygg::CSS::Properties& properties, const Type type, const PseudoClass& pseudo) {
+    this->set(resolve_tag(tag).first, properties, type, pseudo);
 }
 
 void bygg::CSS::Element::push_front(const Property& property) {
@@ -168,7 +177,24 @@ bygg::string_type bygg::CSS::Element::get(const Formatting formatting, const byg
         }
     }
 
-    ret += !this->element.first.empty() ? (this->element.first + " {") : "";
+    switch (this->type) {
+        case Type::Selector:
+            break;
+        case Type::Class:
+            ret += ".";
+            break;
+        case Type::Id:
+            ret += "#";
+            break;
+        case Type::Property:
+            ret += "@";
+            break;
+        default:
+            break;
+    }
+
+    ret += !this->element.first.empty() ? (this->element.first) : "";
+    ret += !this->pseudo.empty() ? (":" + this->pseudo + " {") : this->element.first.empty() ? "" : " {";
 
     if (formatting == bygg::CSS::Formatting::Pretty || formatting == bygg::CSS::Formatting::Newline) {
         ret += "\n";
@@ -189,4 +215,12 @@ bygg::string_type bygg::CSS::Element::get_tag() const {
 
 bygg::CSS::Properties bygg::CSS::Element::get_properties() const {
     return this->element.second;
+}
+
+bygg::CSS::PseudoClass bygg::CSS::Element::get_pseudo() const {
+    return this->pseudo;
+}
+
+bygg::CSS::Type bygg::CSS::Element::get_type() const {
+    return this->type;
 }

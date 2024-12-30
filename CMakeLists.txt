@@ -61,6 +61,7 @@ set(PUBLIC_HEADERS
         include/bygg/CSS/CSS.hpp
         include/bygg/CSS/element.hpp
         include/bygg/CSS/formatting_enum.hpp
+        include/bygg/CSS/type_enum.hpp
         include/bygg/CSS/property.hpp
         include/bygg/CSS/properties.hpp
         include/bygg/CSS/stylesheet.hpp
