@@ -1,7 +1,7 @@
 /*
  * bygg - Component-based HTML/CSS builder for C++
  *
- * Copyright 2024 - Jacob Nilsson & contributors
+ * Copyright 2024-2025 - Jacob Nilsson & contributors
  * SPDX-License-Identifier: MIT
  */
 #pragma once

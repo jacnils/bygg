@@ -2,7 +2,7 @@
  * IniManager - INI configuration file management for C++
  * ===============================
  * Licensed under the MIT license
- * Copyright(c) 2024 Jacob Nilsson
+ * Copyright(c) 2024-2025 Jacob Nilsson
  */
 
 #pragma once

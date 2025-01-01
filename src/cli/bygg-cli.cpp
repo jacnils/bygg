@@ -1,7 +1,7 @@
 /*
  * bygg - Component-based HTML/CSS builder for C++
  *
- * Copyright 2024 - Jacob Nilsson & contributors
+ * Copyright 2024-2025 - Jacob Nilsson & contributors
  * SPDX-License-Identifier: MIT
  */
 
@@ -205,7 +205,7 @@ int main(int argc, char** argv) {
             return 0;
         } else if (args.at(i) == "-c" || args.at(i) == "--copyright" || args.at(i) == "/c") {
             std::cout << "bygg-cli - a command-line interface for bygg\n";
-            std::cout << "Copyright(c) 2024 - Jacob Nilsson & contributors\n";
+            std::cout << "Copyright(c) 2024-2025 - Jacob Nilsson & contributors\n";
             std::cout << "SPDX-License-Identifier: MIT\n";
             std::cout << "See https://jacobnilsson.com/bygg and the license document for copyright and licensing details.\n";
             return 0;
