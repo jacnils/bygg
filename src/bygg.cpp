@@ -13,6 +13,7 @@
 #include <src/CSS/stylesheet.cpp>
 #include <src/CSS/color.cpp>
 #include <src/CSS/impl/color_conversions.cpp>
+#include <src/CSS/function.cpp>
 #include <src/HTML/document.cpp>
 #include <src/HTML/element.cpp>
 #include <src/HTML/properties.cpp>

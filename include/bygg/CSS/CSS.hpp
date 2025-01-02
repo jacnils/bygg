@@ -15,6 +15,7 @@
 #include <bygg/CSS/properties.hpp>
 #include <bygg/CSS/element.hpp>
 #include <bygg/CSS/stylesheet.hpp>
+#include <bygg/CSS/function.hpp>
 #include <bygg/CSS/color_type_enum.hpp>
 #include <bygg/CSS/color_struct.hpp>
 #include <bygg/CSS/color.hpp>
