@@ -186,7 +186,7 @@ bygg::string_type bygg::CSS::Element::get(const Formatting formatting, const byg
         case Type::Id:
             ret += "#";
             break;
-        case Type::Property:
+        case Type::Rule:
             ret += "@";
             break;
         default:

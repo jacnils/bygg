@@ -14,6 +14,6 @@ namespace bygg::CSS {
         Selector, /* element { } */
         Class, /* .element { } */
         Id, /* #element { } */
-        Property, /* @property: value; */
+        Rule, /* @rule { }; */
     };
 } // namespace bygg::CSS
