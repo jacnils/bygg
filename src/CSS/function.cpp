@@ -174,7 +174,7 @@ bygg::CSS::Function& bygg::CSS::Function::operator=(const Function& other) {
     return *this;
 }
 
-bygg::CSS::Function::operator string_type() const { // NOLINT
+bygg::CSS::Function::operator bygg::string_type() const { // NOLINT
     return get();
 }
 
