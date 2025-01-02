@@ -68,6 +68,7 @@ set(PUBLIC_HEADERS
         include/bygg/CSS/color.hpp
         include/bygg/CSS/color_type_enum.hpp
         include/bygg/CSS/color_struct.hpp
+        include/bygg/CSS/function.hpp
         include/bygg/HTML/document.hpp
         include/bygg/HTML/element.hpp
         include/bygg/HTML/formatting_enum.hpp
@@ -103,6 +104,7 @@ set(SOURCE_FILES
         src/CSS/properties.cpp
         src/CSS/stylesheet.cpp
         src/CSS/color.cpp
+        src/CSS/function.cpp
         src/HTML/document.cpp
         src/HTML/element.cpp
         src/HTML/properties.cpp

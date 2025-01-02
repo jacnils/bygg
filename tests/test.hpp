@@ -25,6 +25,7 @@ namespace CSS {
     void test_stylesheet();
     void test_color_conversions();
     void test_color_formatter();
+    void test_function();
 } // namespace CSS
 
 inline namespace General {

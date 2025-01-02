@@ -46,6 +46,7 @@ SCENARIO("Test CSS", "[CSS]") {
     CSS::test_stylesheet();
     CSS::test_color_conversions();
     CSS::test_color_formatter();
+    CSS::test_function();
 }
 
 #ifdef BYGG_USE_LIBXML2

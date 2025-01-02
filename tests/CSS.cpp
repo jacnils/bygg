@@ -775,3 +775,47 @@ void CSS::test_color_formatter() {
     REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Hsl) == "hsl(0, 100%, 50%)");
     REQUIRE(formatter.get<std::string>(bygg::CSS::ColorFormatting::Hsl_A) == "hsla(0, 100%, 50%, 0.58)");
 }
+
+void CSS::test_function() {
+    using namespace bygg::CSS;
+
+    Function function{"my_function", "param1", "param2", "param3", 4};
+    REQUIRE(function == "my_function(param1, param2, param3, 4)");
+    REQUIRE(function.get_name() == "my_function");
+    REQUIRE(function.get_parameters().at(0) == "param1");
+    REQUIRE(function.get_parameters().at(1) == "param2");
+    REQUIRE(function.get_parameters().at(2) == "param3");
+    REQUIRE(function.get_parameters().at(3) == "4");
+
+    REQUIRE(function.find("param1") == 0);
+    REQUIRE(function.find("param2") == 1);
+    REQUIRE(function.find("param3") == 2);
+    REQUIRE(function.find("4") == 3);
+    REQUIRE(function.find("param4") == std::string::npos);
+
+    int index{};
+    for (const auto& it : function) {
+        if (index == 0) {
+            REQUIRE(it == "param1");
+        } else if (index == 1) {
+            REQUIRE(it == "param2");
+        } else if (index == 2) {
+            REQUIRE(it == "param3");
+        } else if (index == 3) {
+            REQUIRE(it == "4");
+        }
+
+        ++index;
+    }
+
+    Stylesheet s{
+        Element{"my_element",
+            Properties{
+                Property{"key", Function("function", "param1", 2, "param3")},
+            },
+        },
+    };
+
+    REQUIRE(s.get<std::string>() == "my_element {key: function(param1, 2, param3);}");
+}
+//NOLINTEND
