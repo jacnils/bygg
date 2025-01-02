@@ -23,7 +23,6 @@ namespace bygg::CSS {
     class Properties {
             PropertyList properties{};
         public:
-            using PropertyList = PropertyList;
             using iterator = PropertyList::iterator;
             using const_iterator = PropertyList::const_iterator;
             using reverse_iterator = PropertyList::reverse_iterator;

@@ -21,65 +21,257 @@ namespace bygg::CSS {
      * @brief A class to represent the properties of a CSS element
      */
     class Element {
-            std::pair<string_type, bygg::CSS::Properties> element{};
+            string_type selector{};
+            mutable std::vector<std::variant<Properties, Element>> children{};
+            mutable Properties properties{};
+            mutable std::vector<Element> elements{};
             Type type{Type::Selector};
             PseudoClass pseudo{};
-        public:
-            using iterator = bygg::CSS::Properties::iterator;
-            using const_iterator = bygg::CSS::Properties::const_iterator;
-            using reverse_iterator = bygg::CSS::Properties::reverse_iterator;
-            using const_reverse_iterator = bygg::CSS::Properties::const_reverse_iterator;
 
+            void ensure_has_properties() const {
+                for (const auto& it : children) {
+                    if (std::holds_alternative<Properties>(it)) {
+                        return;
+                    }
+                }
+
+                children.emplace_back(Properties());
+            }
+        public:
+            using variant_t = std::variant<Properties, Element>;
+            using variant_list = std::vector<variant_t>;
+
+            using iterator = Properties::iterator;
+            using const_iterator = Properties::const_iterator;
+            using reverse_iterator = Properties::reverse_iterator;
+            using const_reverse_iterator = Properties::const_reverse_iterator;
+            using variant_iterator = variant_list::iterator;
+            using variant_const_iterator = variant_list::const_iterator;
+            using variant_reverse_iterator = variant_list::reverse_iterator;
+            using variant_const_reverse_iterator = variant_list::const_reverse_iterator;
+
+            /**
+             * @brief Return a variant_list of all elements and properties.
+             * @note To use the result, you must use std::visit.
+             */
+            [[nodiscard]] variant_list& get_all() const {
+                return children;
+            }
+
+            /**
+             * @brief Get a variant_t at a specific index.
+             * @param index The index to get the variant_t from.
+             * @return variant_t The variant_t at the index.
+             */
+            [[nodiscard]] variant_t& get_any(size_type index) {
+                for (size_type i{}; i < children.size(); ++i) {
+                    if (i == index) {
+                        return children.at(i);
+                    }
+                }
+
+                throw out_of_range("Index out of range");
+            }
             /**
              * @brief Return an iterator to the beginning.
              * @return iterator The iterator to the beginning.
              */
-            iterator begin() { return element.second.begin(); }
+            iterator begin() {
+                properties.clear();
+                for (const auto& it : children) {
+                    if (std::holds_alternative<Properties>(it)) {
+                        properties.push_back(std::get<Properties>(it));
+                    }
+                }
+                return properties.begin();
+            }
             /**
              * @brief Return an iterator to the end.
              * @return iterator The iterator to the end.
              */
-            iterator end() { return element.second.end(); }
+            iterator end() {
+                properties.clear();
+                for (const auto& it : children) {
+                    if (std::holds_alternative<Properties>(it)) {
+                        properties.push_back(std::get<Properties>(it));
+                    }
+                }
+                return properties.end();
+            }
             /**
              * @brief Return a const_iterator to the beginning.
              * @return const_iterator The const_iterator to the beginning.
              */
-            [[nodiscard]] const_iterator begin() const { return element.second.begin(); }
+            [[nodiscard]] const_iterator begin() const {
+                properties.clear();
+                for (const auto& it : children) {
+                    if (std::holds_alternative<Properties>(it)) {
+                        properties.push_back(std::get<Properties>(it));
+                    }
+                }
+                return properties.begin();
+            }
             /**
              * @brief Return a const_iterator to the end.
              * @return const_iterator The const_iterator to the end.
              */
-            [[nodiscard]] const_iterator end() const { return element.second.end(); }
+            [[nodiscard]] const_iterator end() const {
+                properties.clear();
+                for (const auto& it : children) {
+                    if (std::holds_alternative<Properties>(it)) {
+                        properties.push_back(std::get<Properties>(it));
+                    }
+                }
+                return properties.end();
+            }
             /**
              * @brief Return a const iterator to the beginning.
              * @return const_iterator The const iterator to the beginning.
              */
-            [[nodiscard]] const_iterator cbegin() const { return element.second.cbegin(); }
+            [[nodiscard]] const_iterator cbegin() const {
+                properties.clear();
+                for (const auto& it : children) {
+                    if (std::holds_alternative<Properties>(it)) {
+                        properties.push_back(std::get<Properties>(it));
+                    }
+                }
+                return properties.cbegin();
+            }
             /**
              * @brief Return a const iterator to the end.
              * @return const_iterator The const iterator to the end.
              */
-            [[nodiscard]] const_iterator cend() const { return element.second.cend(); }
+            [[nodiscard]] const_iterator cend() const {
+                properties.clear();
+                for (const auto& it : children) {
+                    if (std::holds_alternative<Properties>(it)) {
+                        properties.push_back(std::get<Properties>(it));
+                    }
+                }
+                return properties.cend();
+            }
             /**
              * @brief Return a reverse iterator to the beginning.
              * @return reverse_iterator The reverse iterator to the beginning.
              */
-            reverse_iterator rbegin() { return element.second.rbegin(); }
+            reverse_iterator rbegin() {
+                properties.clear();
+                for (const auto& it : children) {
+                    if (std::holds_alternative<Properties>(it)) {
+                        properties.push_back(std::get<Properties>(it));
+                    }
+                }
+                return properties.rbegin();
+            }
             /**
              * @brief Return a reverse iterator to the end.
              * @return reverse_iterator The reverse iterator to the end.
              */
-            reverse_iterator rend() { return element.second.rend(); }
+            reverse_iterator rend() {
+                properties.clear();
+                for (const auto& it : children) {
+                    if (std::holds_alternative<Properties>(it)) {
+                        properties.push_back(std::get<Properties>(it));
+                    }
+                }
+                return properties.rend();
+            }
             /**
              * @brief Return a const reverse iterator to the beginning.
              * @return const_reverse_iterator The const reverse iterator to the beginning.
              */
-            [[nodiscard]] const_reverse_iterator crbegin() const { return element.second.crbegin(); }
+            [[nodiscard]] const_reverse_iterator crbegin() const {
+                properties.clear();
+                for (const auto& it : children) {
+                    if (std::holds_alternative<Properties>(it)) {
+                        properties.push_back(std::get<Properties>(it));
+                    }
+                }
+                return properties.crbegin();
+            }
             /**
              * @brief Return a const reverse iterator to the end.
              * @return const_reverse_iterator The const reverse iterator to the end.
              */
-            [[nodiscard]] const_reverse_iterator crend() const { return element.second.crend(); }
+            [[nodiscard]] const_reverse_iterator crend() const {
+                properties.clear();
+                for (const auto& it : children) {
+                    if (std::holds_alternative<Properties>(it)) {
+                        properties.push_back(std::get<Properties>(it));
+                    }
+                }
+                return properties.crend();
+            }
+            /**
+             * @brief Return an iterator to the beginning.
+             * @return variant_iterator The iterator to the beginning.
+             */
+            [[nodiscard]] variant_iterator variant_begin() {
+                return children.begin();
+            }
+            /**
+             * @brief Return an iterator to the end.
+             * @return variant_iterator The iterator to the end.
+             */
+            [[nodiscard]] variant_iterator variant_end() {
+                return children.end();
+            }
+            /**
+             * @brief Return a const iterator to the beginning.
+             * @return variant_const_iterator The const iterator to the beginning.
+             */
+            [[nodiscard]] variant_const_iterator variant_begin() const {
+                return children.begin();
+            }
+            /**
+             * @brief Return a const iterator to the end.
+             * @return variant_const_iterator The const iterator to the end.
+             */
+            [[nodiscard]] variant_const_iterator variant_end() const {
+                return children.end();
+            }
+            /**
+             * @brief Return a const iterator to the beginning.
+             * @return variant_const_iterator The const iterator to the beginning.
+             */
+            [[nodiscard]] variant_const_iterator variant_cbegin() const {
+                return children.cbegin();
+            }
+            /**
+             * @brief Return a const iterator to the end.
+             * @return variant_const_iterator The const iterator to the end.
+             */
+            [[nodiscard]] variant_const_iterator variant_cend() const {
+                return children.cend();
+            }
+            /**
+             * @brief Return a reverse iterator to the beginning.
+             * @return variant_reverse_iterator The reverse iterator to the beginning.
+             */
+            [[nodiscard]] variant_reverse_iterator variant_rbegin() {
+                return children.rbegin();
+            }
+            /**
+             * @brief Return a reverse iterator to the end.
+             * @return variant_reverse_iterator The reverse iterator to the end.
+             */
+            [[nodiscard]] variant_reverse_iterator variant_rend() {
+                return children.rend();
+            }
+            /**
+             * @brief Return a const reverse iterator to the beginning.
+             * @return variant_const_reverse_iterator The const reverse iterator to the beginning.
+             */
+            [[nodiscard]] variant_const_reverse_iterator variant_crbegin() const {
+                return children.crbegin();
+            }
+            /**
+             * @brief Return a const reverse iterator to the end.
+             * @return variant_const_reverse_iterator The const reverse iterator to the end.
+             */
+            [[nodiscard]] variant_const_reverse_iterator variant_crend() const {
+                return children.crend();
+            }
 
             /**
              * @brief The npos value
@@ -93,7 +285,7 @@ namespace bygg::CSS {
              * @param type The type of the element
              * @param p The pseudo class of the element
              */
-            Element(const string_type& tag, const bygg::CSS::Properties& properties, Type type = Type::Selector, const PseudoClass& p = {}) : element(std::make_pair(tag, properties)), type(type), pseudo(p) {};
+            Element(string_type tag, const bygg::CSS::Properties& properties, Type type = Type::Selector, PseudoClass p = {}) : selector(std::move(tag)), children({properties}), type(type), pseudo(std::move(p)) {};
             /**
              * @brief Construct a new Element object
              * @param tag The tag of the element
@@ -101,7 +293,7 @@ namespace bygg::CSS {
              * @param type The type of the element
              * @param p The pseudo class of the element
              */
-            Element(HTML::Tag tag, const bygg::CSS::Properties& properties, Type type = Type::Selector, const PseudoClass& p = {}) : element(std::make_pair(resolve_tag(tag).first, properties)), type(type), pseudo(p) {};
+            Element(HTML::Tag tag, const Properties& properties, Type type = Type::Selector, PseudoClass p = {}) : selector(resolve_tag(tag).first), children({properties}), type(type), pseudo(std::move(p)) {};
             /**
              * @brief Construct a new Element object
              * @param tag The tag of the element
@@ -109,7 +301,7 @@ namespace bygg::CSS {
              * @param p The pseudo class of the element
              * @param properties The properties of the element
              */
-            Element(const string_type& tag, Type type, const PseudoClass& p, const Properties& properties) : element(std::make_pair(tag, properties)), type(type), pseudo(p) {};
+            Element(string_type tag, Type type, PseudoClass p, const Properties& properties) : selector(std::move(tag)), children({properties}), type(type), pseudo(std::move(p)) {};
             /**
              * @brief Construct a new Element object
              * @param tag The tag of the element
@@ -117,37 +309,44 @@ namespace bygg::CSS {
              * @param p The pseudo class of the element
              * @param properties The properties of the element
              */
-            Element(HTML::Tag tag, Type type, const PseudoClass& p, const Properties& properties) : element(std::make_pair(resolve_tag(tag).first, properties)), type(type), pseudo(p) {};
+            Element(HTML::Tag tag, Type type, PseudoClass p, const Properties& properties) : selector(resolve_tag(tag).first), children({properties}), type(type), pseudo(std::move(p)) {};
+            /**
+             * @brief Construct a new Element object
+             * @param tag The tag of the element
+             * @param type The type of the element
+             * @param properties The properties of the element
+             */
+            Element(string_type tag, Type type, const Properties& properties) : selector(std::move(tag)), children({properties}), type(type) {};
+            /**
+             * @brief Construct a new Element object
+             * @param tag The tag of the element
+             * @param type The type of the element
+             * @param properties The properties of the element
+             */
+            Element(HTML::Tag tag, Type type, const Properties& properties) : selector(resolve_tag(tag).first), children({properties}), type(type) {};
             /**
              * @brief Construct a new Element object
              * @param element The element to set
              */
             Element(const Element& element) = default;
-            /**             *
-             * @brief Construct a new Element object
-             * @param tag The tag of the element
-             * @param args The properties of the element
-             */
-            template <typename... Args, typename = std::enable_if_t<std::conjunction_v<std::is_same<Args, Property>...>>>
-            explicit Element(const string_type& tag, Args&&... args) :
-                element(std::make_pair(tag, bygg::CSS::Properties(std::forward<Args>(args)...))) {};
             /**
              * @brief Construct a new Element object
              * @param tag The tag of the element
              * @param args The properties of the element
              */
-            template <typename... Args, typename = std::enable_if_t<std::conjunction_v<std::is_same<Args, Property>...>>>
+            template <typename... Args, typename = std::enable_if_t<std::conjunction_v<std::disjunction<std::is_same<Args, Property>, std::is_same<Args, Element>, std::is_same<Args, Properties>>...>>>
+            explicit Element(string_type tag, Args&&... args) :
+                selector(std::move(tag)),
+                children({bygg::CSS::Properties(std::forward<Args>(args)...)}) {};
+            /**
+             * @brief Construct a new Element object
+             * @param tag The tag of the element
+             * @param args The properties of the element
+             */
+            template <typename... Args, typename = std::enable_if_t<std::conjunction_v<std::disjunction<std::is_same<Args, Property>, std::is_same<Args, Element>, std::is_same<Args, Properties>>...>>>
             explicit Element(HTML::Tag tag, Args&&... args) :
-                element(std::make_pair(resolve_tag(tag).first, bygg::CSS::Properties(std::forward<Args>(args)...))) {};
-            /**             *
-             * @brief Construct a new Element object
-             * @param tag The tag of the element
-             * @param type The type of the element
-             * @param p The pseudo class of the element
-             * @param args The properties of the element
-             */
-            template <typename... Args> explicit Element(const string_type& tag, Type type, const PseudoClass& p, Args&&... args) :
-                element(std::make_pair(tag, bygg::CSS::Properties(std::forward<Args>(args)...))), type(type), pseudo(p) {};
+                selector(resolve_tag(tag).first),
+                children({bygg::CSS::Properties(std::forward<Args>(args)...)}) {};
             /**
              * @brief Construct a new Element object
              * @param tag The tag of the element
@@ -155,8 +354,49 @@ namespace bygg::CSS {
              * @param p The pseudo class of the element
              * @param args The properties of the element
              */
-            template <typename... Args> explicit Element(HTML::Tag tag, Type type, const PseudoClass& p, Args&&... args) :
-                element(std::make_pair(resolve_tag(tag).first, bygg::CSS::Properties(std::forward<Args>(args)...))), type(type), pseudo(p) {};
+            template <typename... Args> explicit Element(string_type tag, Type type, PseudoClass p, Args&&... args) :
+                selector(std::move(tag)),
+                type(type),
+                pseudo(std::move(p)) {
+                (push_back(std::forward<Args>(args)), ...);
+            }
+            /**
+             * @brief Construct a new Element object
+             * @param tag The tag of the element
+             * @param type The type of the element
+             * @param p The pseudo class of the element
+             * @param args The properties of the element
+             */
+            template <typename... Args> explicit Element(HTML::Tag tag, Type type, PseudoClass p, Args&&... args) :
+                selector(resolve_tag(tag).first),
+                type(type),
+                pseudo(std::move(p)) {
+                (push_back(std::forward<Args>(args)), ...);
+            }
+            /**
+             * @brief Construct a new Element object
+             * @param tag The tag of the element
+             * @param type The type of the element
+             * @param args The properties of the element
+             */
+            template <typename... Args, typename = std::enable_if_t<std::conjunction_v<std::disjunction<std::is_same<Args, Property>, std::is_same<Args, Element>, std::is_same<Args, Properties>>...>>>
+            explicit Element(string_type tag, Type type, Args&&... args) :
+                selector(std::move(tag)),
+                type(type) {
+                (push_back(std::forward<Args>(args)), ...);
+            }
+            /**
+             * @brief Construct a new Element object
+             * @param tag The tag of the element
+             * @param type The type of the element
+             * @param args The properties of the element
+             */
+            template <typename... Args, typename = std::enable_if_t<std::conjunction_v<std::disjunction<std::is_same<Args, Property>, std::is_same<Args, Element>, std::is_same<Args, Properties>>...>>>
+            explicit Element(HTML::Tag tag, Type type, Args&&... args) :
+                selector(resolve_tag(tag).first),
+                type(type) {
+                (push_back(std::forward<Args>(args)), ...);
+            }
             /**
              * @brief Construct a new Element object
              */
@@ -176,6 +416,26 @@ namespace bygg::CSS {
              * @param property The property to push
              */
             void push_back(const Property& property);
+            /**
+             * @brief Prepend properties to the element
+             * @param properties The properties to push
+             */
+            void push_front(const Properties& properties);
+            /**
+             * @brief Append properties to the element
+             * @param properties The properties to push
+             */
+            void push_back(const Properties& properties);
+            /**
+             * @brief Prepend an element to the element
+             * @param element The property to push
+             */
+            void push_front(const Element& element);
+            /**
+             * @brief Append an element to the element
+             * @param element The element to push
+             */
+            void push_back(const Element& element);
             /**
              * @brief Insert a property into the element
              * @param index The index to insert the property
@@ -323,10 +583,7 @@ namespace bygg::CSS {
              * @return T The tag of the element
              */
             template <typename T> T get_tag() const {
-                if (std::is_same_v<T, string_type>) {
-                    return this->element.first;
-                }
-                return T(this->element.first);
+                return T(this->selector);
             }
             /**
              * @brief Get the properties of the element
