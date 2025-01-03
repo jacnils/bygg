@@ -35,72 +35,37 @@ namespace bygg::HTML {
     class Section {
         public:
             /**
-             * @brief A class to represent an iterator for the Section class
-             */
-            template <typename T>
-            class sect_iterator {
-                private:
-                    T element{};
-                public:
-                    explicit sect_iterator(const T& element) : element(element) {}
-                    sect_iterator& operator++() {
-                        ++element;
-                        return *this;
-                    }
-
-                    auto operator*() const -> decltype(element) {
-                        return element;
-                    }
-
-                    bool operator==(const sect_iterator& other) const {
-                         return element == other.element;
-                    }
-
-                    bool operator!=(const sect_iterator& other) const {
-                         return element != other.element;
-                    }
-            };
-
-            /**
-             * @brief Map of elements with an index as key.
-             */
-            using element_map = std::vector<Element>;
-            /**
              * @brief Iterator for elements.
              */
-            using element_iterator = element_map::iterator;
+            using element_iterator = ElementList::iterator;
             /**
              * @brief Const iterator for elements.
              */
-            using element_const_iterator = element_map::const_iterator;
+            using element_const_iterator = ElementList::const_iterator;
             /**
              * @brief Reverse iterator for elements.
              */
-            using element_reverse_iterator = element_map::reverse_iterator;
+            using element_reverse_iterator = ElementList::reverse_iterator;
             /**
              * @brief Const reverse iterator for elements.
              */
-            using element_const_reverse_iterator = element_map::const_reverse_iterator;
-            /**
-             * @brief Map of sections with an index as key.
-             */
-            using section_map = std::vector<Section>;
+            using element_const_reverse_iterator = ElementList::const_reverse_iterator;
             /**
              * @brief Iterator for sections.
              */
-            using section_iterator = section_map::iterator;
+            using section_iterator = SectionList::iterator;
             /**
              * @brief Const iterator for sections.
              */
-            using section_const_iterator = section_map::const_iterator;
+            using section_const_iterator = SectionList::const_iterator;
             /**
              * @brief Reverse iterator for sections.
              */
-            using section_reverse_iterator = section_map::reverse_iterator;
+            using section_reverse_iterator = SectionList::reverse_iterator;
             /**
              * @brief Const reverse iterator for sections.
              */
-            using section_const_reverse_iterator = section_map::const_reverse_iterator;
+            using section_const_reverse_iterator = SectionList::const_reverse_iterator;
             /**
              * @brief Variant type holding either an Element or a Section.
              */
@@ -134,6 +99,11 @@ namespace bygg::HTML {
             [[nodiscard]] variant_list& get_all() const {
                 return members;
             }
+            /**
+             * @brief Get a variant_t at a specific index.
+             * @param index The index to get the variant_t from.
+             * @return variant_t The variant_t at the index.
+             */
             [[nodiscard]] variant_t& get_any(size_type index) {
                 for (size_type i{}; i < members.size(); ++i) {
                     if (i == index) {
@@ -141,7 +111,7 @@ namespace bygg::HTML {
                     }
                 }
 
-                throw bygg::out_of_range("Index out of range");
+                throw out_of_range("Index out of range");
             }
 
             /**
@@ -315,7 +285,7 @@ namespace bygg::HTML {
                         sections.push_back(std::get<Section>(it));
                     }
                 }
-                return section_const_iterator(sections.begin());
+                return {sections.begin()};
             }
             /**
              * @brief Return an iterator to the end.
@@ -328,7 +298,7 @@ namespace bygg::HTML {
                         sections.push_back(std::get<Section>(it));
                     }
                 }
-                return section_const_iterator(sections.end());
+                return {sections.end()};
             }
             /**
              * @brief Return a const iterator to the beginning.
@@ -900,8 +870,8 @@ namespace bygg::HTML {
             Properties properties{};
 
             mutable variant_list members{};
-            mutable element_map elements{};
-            mutable section_map sections{};
+            mutable ElementList elements{};
+            mutable SectionList sections{};
     };
 
     /**

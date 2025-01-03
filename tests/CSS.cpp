@@ -410,6 +410,17 @@ void CSS::test_element() {
         REQUIRE(retrieved_prop2.get_value() == "value2");
     };
 
+    const auto test_container = []() {
+        using namespace bygg::CSS;
+
+        Element element{"my_element", Type::Class, "hover", Properties{Property{"test", "value"}},
+            Element{"my_element2", Type::Id, "active", Properties{Property{"test2", "value2"}}}
+        };
+
+        REQUIRE(element.get() == ".my_element:hover {test: value;#my_element2:active {test2: value2;}}");
+        REQUIRE(element.get(Formatting::Pretty) == ".my_element:hover {\n\ttest: value;\n\t#my_element2:active {\n\t\ttest2: value2;\n\t}\n}\n");
+    };
+
     test_get_and_set();
     test_operators();
     test_get_and_set();
@@ -424,6 +435,7 @@ void CSS::test_element() {
     test_push_front_and_back();
     test_string_get();
     test_handle_elements();
+    test_container();
 }
 
 void CSS::test_stylesheet() {

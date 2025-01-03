@@ -14,7 +14,7 @@ bygg::CSS::Element& bygg::CSS::Element::operator=(const bygg::CSS::Element& elem
 }
 
 bygg::CSS::Element& bygg::CSS::Element::operator=(const std::pair<string_type, bygg::CSS::Properties>& element) {
-    this->element = element;
+    this->children = {element.second};
     return *this;
 }
 
@@ -24,7 +24,15 @@ bygg::CSS::Element& bygg::CSS::Element::operator+=(const Property& property) {
 }
 
 bygg::CSS::Property& bygg::CSS::Element::operator[](const size_type& index) {
-    return this->element.second[index];
+    ensure_has_properties();
+
+    for (size_type i{0}; i < this->children.size(); i++) {
+        if (std::holds_alternative<Properties>(this->children.at(i))) {
+            return std::get<Properties>(this->children.at(i)).at(index);
+        }
+    }
+
+    throw out_of_range("Index out of range");
 }
 
 bool bygg::CSS::Element::operator==(const bygg::CSS::Element& element) const {
@@ -36,22 +44,22 @@ bool bygg::CSS::Element::operator!=(const bygg::CSS::Element& element) const {
 }
 
 void bygg::CSS::Element::set(const bygg::string_type& tag, const bygg::CSS::Properties& properties, const Type type, const PseudoClass& pseudo) {
-    this->element.first = tag;
-    this->element.second = properties;
+    this->selector = tag;
+    this->children = {properties};
     this->type = type;
     this->pseudo = pseudo;
 }
 
 void bygg::CSS::Element::set_tag(const bygg::string_type& tag) {
-    this->element.first = tag;
+    this->selector = tag;
 }
 
 void bygg::CSS::Element::set_tag(const HTML::Tag tag) {
-    this->element.first = resolve_tag(tag).first;
+    this->selector = resolve_tag(tag).first;
 }
 
 void bygg::CSS::Element::set_properties(const bygg::CSS::Properties& properties) {
-    this->element.second = properties;
+    this->children = {properties};
 }
 
 void bygg::CSS::Element::set_pseudo(const PseudoClass &pseudo) {
@@ -67,50 +75,143 @@ void bygg::CSS::Element::set(HTML::Tag tag, const bygg::CSS::Properties& propert
 }
 
 void bygg::CSS::Element::push_front(const Property& property) {
-    this->element.second.push_front(property);
+    ensure_has_properties();
+
+    for (size_type i{0}; i < this->children.size(); i++) {
+        if (std::holds_alternative<Properties>(this->children.at(i))) {
+            std::get<Properties>(this->children.at(i)).push_front(property);
+            return;
+        }
+    }
+
+    throw internal_error("Failed to push property to front");
 }
 
 void bygg::CSS::Element::push_back(const Property& property) {
-    this->element.second.push_back(property);
+    ensure_has_properties();
+
+    for (size_type i{0}; i < this->children.size(); i++) {
+        if (std::holds_alternative<Properties>(this->children.at(i))) {
+            std::get<Properties>(this->children.at(i)).push_back(property);
+            return;
+        }
+    }
+
+    throw internal_error("Failed to push property to back");
+}
+
+void bygg::CSS::Element::push_front(const Properties& properties) {
+    ensure_has_properties();
+
+    for (size_type i{0}; i < this->children.size(); i++) {
+        if (std::holds_alternative<Properties>(this->children.at(i))) {
+            auto& ref = std::get<Properties>(this->children.at(i));
+
+            for (const auto& property : properties) {
+                ref.push_front(property);
+            }
+
+            return;
+        }
+    }
+
+    throw internal_error("Failed to push properties to front");
+}
+
+void bygg::CSS::Element::push_back(const Properties& properties) {
+    ensure_has_properties();
+
+    for (size_type i{0}; i < this->children.size(); i++) {
+        if (std::holds_alternative<Properties>(this->children.at(i))) {
+            auto& ref = std::get<Properties>(this->children.at(i));
+
+            for (const auto& property : properties) {
+                ref.push_back(property);
+            }
+
+            return;
+        }
+    }
+
+    throw internal_error("Failed to push property to back");
+}
+
+void bygg::CSS::Element::push_front(const Element& element) {
+    this->children.insert(this->children.begin(), element);
+}
+
+void bygg::CSS::Element::push_back(const Element& element) {
+    this->children.emplace_back(element);
 }
 
 void bygg::CSS::Element::insert(const size_type index, const Property& property) {
-    if (index >= this->element.second.size()) {
-        throw bygg::out_of_range("Index out of range");
+    ensure_has_properties();
+
+    for (size_type i{0}; i < this->children.size(); i++) {
+        if (std::holds_alternative<Properties>(this->children.at(i))) {
+            auto& ref = std::get<Properties>(this->children.at(i));
+
+            if (index >= ref.size()) {
+                throw out_of_range("Index out of range");
+            }
+
+            ref.insert(static_cast<long>(index), property);
+            return;
+        }
     }
 
-    this->element.second.insert(static_cast<long>(index), property);
+    throw internal_error("Failed to insert property");
 }
 
 void bygg::CSS::Element::erase(const size_type index) {
-    if (index >= this->element.second.size()) {
-        throw bygg::out_of_range("Index out of range");
+    ensure_has_properties();
+
+    for (size_type i{0}; i < this->children.size(); i++) {
+        if (std::holds_alternative<Properties>(this->children.at(i))) {
+            auto& ref = std::get<Properties>(this->children.at(i));
+
+            if (index >= ref.size()) {
+                throw bygg::out_of_range("Index out of range");
+            }
+
+            ref.erase(static_cast<long>(index));
+            return;
+        }
     }
 
-    this->element.second.erase(static_cast<long>(index));
+    throw internal_error("Failed to erase property");
 }
 
 bygg::CSS::Property& bygg::CSS::Element::at(const size_type index) {
-    if (index >= this->element.second.size()) {
-        throw bygg::out_of_range("Index out of range");
+    ensure_has_properties();
+
+    for (size_type i{0}; i < this->children.size(); i++) {
+        if (std::holds_alternative<Properties>(this->children.at(i))) {
+            return std::get<Properties>(this->children.at(i)).at(index);
+        }
     }
 
-    return this->element.second.at(index);
+    throw out_of_range("Index out of range");
 }
 
 bygg::CSS::Property bygg::CSS::Element::at(const size_type index) const {
-    if (index >= this->element.second.size()) {
-        throw bygg::out_of_range("Index out of range");
+    ensure_has_properties();
+
+    for (size_type i{0}; i < this->children.size(); i++) {
+        if (std::holds_alternative<Properties>(this->children.at(i))) {
+            return std::get<Properties>(this->children.at(i)).at(index);
+        }
     }
 
-    return this->element.second.at(index);
+    throw out_of_range("Index out of range");
 }
 
 bygg::size_type bygg::CSS::Element::find(const Property& property) const {
-    for (size_type i{0}; i < this->element.second.size(); i++) {
-        if (this->element.second.at(i).get_key() == property.get_key() ||
-            this->element.second.at(i).get_value() == property.get_value()) {
-            return i;
+    ensure_has_properties();
+
+    for (size_type i{0}; i < this->children.size(); i++) {
+        if (std::holds_alternative<Properties>(this->children.at(i))) {
+            return std::get<Properties>(this->children.at(i)).find(property);
         }
     }
 
@@ -118,9 +219,11 @@ bygg::size_type bygg::CSS::Element::find(const Property& property) const {
 }
 
 bygg::size_type bygg::CSS::Element::find(const bygg::string_type& str) const {
-    for (size_type i{0}; i < this->element.second.size(); i++) {
-        if (this->element.second.at(i).get_key() == str || this->element.second.at(i).get_value() == str) {
-            return i;
+    ensure_has_properties();
+
+    for (size_type i{0}; i < this->children.size(); i++) {
+        if (std::holds_alternative<Properties>(this->children.at(i))) {
+            return std::get<Properties>(this->children.at(i)).find(str);
         }
     }
 
@@ -128,40 +231,94 @@ bygg::size_type bygg::CSS::Element::find(const bygg::string_type& str) const {
 }
 
 bygg::CSS::Property& bygg::CSS::Element::front() {
-    return this->element.second.front();
+    ensure_has_properties();
+
+    for (size_type i{0}; i < this->children.size(); i++) {
+        if (std::holds_alternative<Properties>(this->children.at(i))) {
+            return std::get<Properties>(this->children.at(i)).front();
+        }
+    }
+
+    throw internal_error{"Failed to get front property"};
 }
 
 bygg::CSS::Property& bygg::CSS::Element::back() {
-    return this->element.second.back();
+    ensure_has_properties();
+
+    for (size_type i{0}; i < this->children.size(); i++) {
+        if (std::holds_alternative<Properties>(this->children.at(i))) {
+            return std::get<Properties>(this->children.at(i)).back();
+        }
+    }
+
+    throw internal_error{"Failed to get back property"};
 }
 
 bygg::CSS::Property bygg::CSS::Element::front() const {
-    return this->element.second.front();
+    ensure_has_properties();
+
+    for (size_type i{0}; i < this->children.size(); i++) {
+        if (std::holds_alternative<Properties>(this->children.at(i))) {
+            return std::get<Properties>(this->children.at(i)).front();
+        }
+    }
+
+    throw internal_error{"Failed to get front property"};
 }
 
 bygg::CSS::Property bygg::CSS::Element::back() const {
-    return this->element.second.back();
+    ensure_has_properties();
+
+    for (size_type i{0}; i < this->children.size(); i++) {
+        if (std::holds_alternative<Properties>(this->children.at(i))) {
+            return std::get<Properties>(this->children.at(i)).back();
+        }
+    }
+
+    throw internal_error{"Failed to get back property"};
 }
 
 bygg::size_type bygg::CSS::Element::size() const {
-    return this->element.second.size();
+    ensure_has_properties();
+
+    for (size_type i{0}; i < this->children.size(); i++) {
+        if (std::holds_alternative<Properties>(this->children.at(i))) {
+            return this->children.size() + std::get<Properties>(this->children.at(i)).size() - 1;
+        }
+    }
+
+    throw internal_error{"Failed to get size of properties"};
 }
 
 bool bygg::CSS::Element::empty() const {
-    return this->element.second.empty();
+    ensure_has_properties();
+
+    for (size_type i{0}; i < this->children.size(); i++) {
+        if (std::holds_alternative<Properties>(this->children.at(i))) {
+            return std::get<Properties>(this->children.at(i)).empty() && this->children.size() == 1;
+        }
+    }
+
+    throw internal_error{"Failed to check if properties are empty"};
 }
 
 void bygg::CSS::Element::clear() {
-    this->element.first.clear();
-    this->element.second.clear();
+    this->children.clear();
+    this->properties.clear();
+    this->elements.clear();
 }
 
 void bygg::CSS::Element::swap(const size_type index1, const size_type index2) {
-    if (index1 >= this->element.second.size() || index2 >= this->element.second.size()) {
-        throw bygg::out_of_range("Index out of range");
+    ensure_has_properties();
+
+    for (size_type i{0}; i < this->children.size(); i++) {
+        if (std::holds_alternative<Properties>(this->children.at(i))) {
+            std::get<Properties>(this->children.at(i)).swap(index1, index2);
+            return;
+        }
     }
 
-    std::swap(this->element.second[index1], this->element.second[index2]);
+    throw internal_error("Failed to swap properties");
 }
 
 void bygg::CSS::Element::swap(const Property& property1, const Property& property2) {
@@ -171,7 +328,7 @@ void bygg::CSS::Element::swap(const Property& property1, const Property& propert
 bygg::string_type bygg::CSS::Element::get(const Formatting formatting, const bygg::integer_type tabc) const {
     string_type ret{};
 
-    if (formatting == bygg::CSS::Formatting::Pretty && !this->element.first.empty()) {
+    if (formatting == bygg::CSS::Formatting::Pretty && !this->selector.empty()) {
         for (size_type i{0}; i < tabc; i++) {
             ret += "\t";
         }
@@ -193,14 +350,36 @@ bygg::string_type bygg::CSS::Element::get(const Formatting formatting, const byg
             break;
     }
 
-    ret += !this->element.first.empty() ? (this->element.first) : "";
-    ret += !this->pseudo.empty() ? (":" + this->pseudo + " {") : this->element.first.empty() ? "" : " {";
+    ret += !this->selector.empty() ? (this->selector) : "";
+    ret += !this->pseudo.empty() ? (":" + this->pseudo + " {") : this->selector.empty() ? "" : " {";
 
     if (formatting == bygg::CSS::Formatting::Pretty || formatting == bygg::CSS::Formatting::Newline) {
         ret += "\n";
     }
 
-    ret += this->element.second.get(formatting, tabc + 1) + (!this->element.first.empty() ? "}" : "");
+    for (const auto& it : this->children) {
+        if (!std::holds_alternative<Properties>(it)) {
+            continue;
+        }
+
+        ret += std::get<Properties>(it).get(formatting, tabc + 1);
+    }
+
+    for (const auto& it : this->children) {
+        if (!std::holds_alternative<Element>(it)) {
+            continue;
+        }
+
+        ret += std::get<Element>(it).get(formatting, tabc + 1);
+    }
+
+    if (formatting == bygg::CSS::Formatting::Pretty && !this->selector.empty()) {
+        for (size_type i{0}; i < tabc; i++) {
+            ret += "\t";
+        }
+    }
+
+    ret += (!this->selector.empty() ? "}" : "");
 
     if (formatting == bygg::CSS::Formatting::Pretty || formatting == bygg::CSS::Formatting::Newline) {
         ret += "\n";
@@ -210,11 +389,19 @@ bygg::string_type bygg::CSS::Element::get(const Formatting formatting, const byg
 }
 
 bygg::string_type bygg::CSS::Element::get_tag() const {
-    return this->element.first;
+    return this->selector;
 }
 
 bygg::CSS::Properties bygg::CSS::Element::get_properties() const {
-    return this->element.second;
+    ensure_has_properties();
+
+    for (size_type i{0}; i < this->children.size(); i++) {
+        if (std::holds_alternative<Properties>(this->children.at(i))) {
+            return std::get<Properties>(this->children.at(i));
+        }
+    }
+
+    throw internal_error("Failed to get properties");
 }
 
 bygg::CSS::PseudoClass bygg::CSS::Element::get_pseudo() const {

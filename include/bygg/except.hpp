@@ -36,4 +36,18 @@ namespace bygg {
             invalid_argument() = default;
             explicit invalid_argument(const char* message) : message(message) {};
     };
+
+    /**
+     * @brief A class to represent an exception when an internal error occurs
+     */
+    class internal_error : public exception_type {
+        private:
+            const char* message{"Internal error"};
+        public:
+            [[nodiscard]] const char* what() const noexcept override {
+                return message;
+            }
+            internal_error() = default;
+            explicit internal_error(const char* message) : message(message) {};
+    };
 } // namespace bygg
