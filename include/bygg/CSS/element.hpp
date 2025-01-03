@@ -7,6 +7,7 @@
 #pragma once
 
 #include <string>
+#include <variant>
 #include <bygg/types.hpp>
 #include <bygg/HTML/tag.hpp>
 #include <bygg/CSS/property.hpp>
