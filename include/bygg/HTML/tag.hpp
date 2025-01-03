@@ -65,6 +65,10 @@ namespace bygg::HTML {
         Div, /* <div></div> */
         Dl, /* <dl></dl> */
         Dt, /* <dt></dt> */
+        Ul, /* <ul></ul> */
+        UnorderedList, /* <ul></ul> */
+        Ol, /* <ol></ol> */
+        OrderedList, /* <ol></ol> */
         Embed, /* <embed></embed> */
         Em, /* <em></em> */
         Emphasis, /* <em></em> */
