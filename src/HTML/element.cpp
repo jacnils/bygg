@@ -63,6 +63,10 @@ void bygg::HTML::Element::set_properties(const Properties& properties) {
 bygg::string_type bygg::HTML::Element::get(const Formatting formatting, const bygg::integer_type tabc) const {
     bygg::string_type ret{};
 
+    if (this->tag.empty()) {
+        return ret;
+    }
+
     if (this->type == bygg::HTML::Type::Text_No_Formatting) {
         return this->data;
     } else if (this->type == bygg::HTML::Type::Text) {
