@@ -63,10 +63,6 @@ void bygg::HTML::Element::set_properties(const Properties& properties) {
 bygg::string_type bygg::HTML::Element::get(const Formatting formatting, const bygg::integer_type tabc) const {
     bygg::string_type ret{};
 
-    if (this->tag.empty()) {
-        return ret;
-    }
-
     if (this->type == bygg::HTML::Type::Text_No_Formatting) {
         return this->data;
     } else if (this->type == bygg::HTML::Type::Text) {
@@ -83,29 +79,29 @@ bygg::string_type bygg::HTML::Element::get(const Formatting formatting, const by
         }
     }
 
-    if (this->type == bygg::HTML::Type::Closing) {
+    if (this->type == bygg::HTML::Type::Closing && !this->tag.empty()) {
         ret += "</" + this->tag;
-    } else {
+    } else if (!this->tag.empty()) {
         ret += "<" + this->tag;
     }
 
     for (const Property& it : this->properties.get_properties()) {
-        if (it.get_key().empty() || it.get_value().empty()) {
+        if (it.get_key().empty() || it.get_value().empty() || this->tag.empty()) {
             continue;
         }
 
         ret += " " + it.get();
     }
 
-    if (this->type != bygg::HTML::Type::Standalone && this->type != bygg::HTML::Type::Closing) {
+    if (this->type != bygg::HTML::Type::Standalone && this->type != bygg::HTML::Type::Closing && !this->tag.empty()) {
         ret += ">";
     }
 
-    if (this->type == bygg::HTML::Type::Data) {
+    if (this->type == bygg::HTML::Type::Data && !this->tag.empty()) {
         ret += this->data + "</" + this->tag + ">";
-    } else if (this->type == bygg::HTML::Type::Standalone) {
+    } else if (this->type == bygg::HTML::Type::Standalone && !this->tag.empty()) {
         ret += this->data + "/>";
-    } else if (this->type == bygg::HTML::Type::Closing) {
+    } else if (this->type == bygg::HTML::Type::Closing && !this->tag.empty()) {
         ret += ">";
     }
 
