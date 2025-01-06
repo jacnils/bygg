@@ -145,6 +145,7 @@ namespace bygg::HTML {
         Strike, /* <strike></strike> */
         Strong, /* <strong></strong> */
         Style, /* <style></style> */
+        Select, /* <select></select> */
         Sub, /* <sub></sub> */
         Subscript, /* <sub></sub> */
         Sup, /* <sup></sup> */
