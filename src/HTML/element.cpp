@@ -25,17 +25,19 @@ bool bygg::HTML::Element::operator!=(const bygg::HTML::Element& element) const {
     return this->tag != element.get_tag() || this->properties != element.properties || this->data != element.get_data() || this->type != element.type;
 }
 
-void bygg::HTML::Element::set(const bygg::string_type& tag, const Properties& properties, const bygg::string_type& data, const Type type) {
+void bygg::HTML::Element::set(const bygg::string_type& tag, const Properties& properties, const bygg::string_type& data, const Type type, ElementParameters params) {
     this->set_tag(tag);
     this->set_properties(properties);
     this->set_data(data);
     this->set_type(type);
+    this->set_params(params);
 }
 
-void bygg::HTML::Element::set(const Tag tag, const Properties& properties, const bygg::string_type& data) {
+void bygg::HTML::Element::set(const Tag tag, const Properties& properties, const bygg::string_type& data, ElementParameters params) {
     this->set_tag(tag);
     this->set_properties(properties);
     this->set_data(data);
+    this->set_params(params);
 }
 
 void bygg::HTML::Element::set_tag(const bygg::string_type& tag) {
@@ -60,17 +62,62 @@ void bygg::HTML::Element::set_properties(const Properties& properties) {
     this->properties = properties;
 }
 
+void bygg::HTML::Element::set_params(ElementParameters params) {
+    this->params = params;
+}
+
 bygg::string_type bygg::HTML::Element::get(const Formatting formatting, const bygg::integer_type tabc) const {
     bygg::string_type ret{};
 
+    const auto remove_necessary = [this](string_type str) -> string_type {
+        string_type string = std::move(str);
+
+        for (const auto& it :
+            {
+                std::make_pair<std::string, bool>(std::string("\t"), this->params & ElementParameters::Erase_Tabs),
+                std::make_pair<std::string, bool>(std::string(" "), this->params & ElementParameters::Erase_Spaces),
+                std::make_pair<std::string, bool>(std::string("\n"), this->params & ElementParameters::Erase_Newlines),
+            })
+        {
+            if (it.second) {
+                size_type pos{};
+                while ((pos = string.find(it.first, pos)) != string_type::npos) {
+                    string.erase(pos, it.first.length());
+                }
+            }
+        }
+
+        if (this->params & ElementParameters::Erase_Multi_Spaces) {
+            for (size_type i{0}; i < string.length(); i++) {
+                if (string[i] == ' ') {
+                    size_type j{i + 1};
+                    while (j < string.length() && string[j] == ' ') {
+                        string.erase(j, 1);
+                    }
+                }
+            }
+
+            if (string.front() == ' ') {
+                string.erase(0, 1);
+            }
+            if (string.back() == ' ') {
+                string.pop_back();
+            }
+        }
+
+        return string;
+    };
+
+    string_type data_string = remove_necessary(this->data);
+
     if (this->type == bygg::HTML::Type::Text_No_Formatting) {
-        return this->data;
+        return data_string;
     } else if (this->type == bygg::HTML::Type::Text) {
         for (size_type i{0}; i < tabc; i++) {
             ret += "\t";
         }
 
-        return ret + this->data;
+        return ret + data_string;
     }
 
     if (formatting == bygg::HTML::Formatting::Pretty) {
@@ -98,9 +145,9 @@ bygg::string_type bygg::HTML::Element::get(const Formatting formatting, const by
     }
 
     if (this->type == bygg::HTML::Type::Data && !this->tag.empty()) {
-        ret += this->data + "</" + this->tag + ">";
+        ret += data_string + "</" + this->tag + ">";
     } else if (this->type == bygg::HTML::Type::Standalone && !this->tag.empty()) {
-        ret += this->data + "/>";
+        ret += data_string + "/>";
     } else if (this->type == bygg::HTML::Type::Closing && !this->tag.empty()) {
         ret += ">";
     }
@@ -124,6 +171,11 @@ bygg::HTML::Type bygg::HTML::Element::get_type() const {
     return this->type;
 }
 
+bygg::HTML::ElementParameters bygg::HTML::Element::get_params() const {
+    return this->params;
+}
+
+
 bygg::HTML::Properties bygg::HTML::Element::get_properties() const {
     return this->properties;
 }
@@ -136,4 +188,5 @@ void bygg::HTML::Element::clear() {
     this->tag.clear();
     this->data.clear();
     this->properties.clear();
+    this->params = _default_element_parameters;
 }
