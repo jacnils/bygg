@@ -502,6 +502,17 @@ void HTML::test_element() {
 
         element.set_type(bygg::HTML::Type::Closing);
         REQUIRE(element.get<std::string>() == "</h1>");
+
+        Element element2(bygg::HTML::Tag::H1, R"(
+            This string has a lot of whitespace
+            and should be formatted as such
+        )", ElementParameters::Erase_None);
+
+        REQUIRE(element2.get<std::string>() == "<h1>\n            This string has a lot of whitespace\n            and should be formatted as such\n        </h1>");
+
+        element2.set_params(_default_element_parameters);
+
+        REQUIRE(element2.get<std::string>() == "<h1>This string has a lot of whitespace and should be formatted as such</h1>");
     };
 
     const auto test_builder = []() {

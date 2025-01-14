@@ -79,6 +79,7 @@ set(PUBLIC_HEADERS
         include/bygg/HTML/tag.hpp
         include/bygg/HTML/type_enum.hpp
         include/bygg/HTML/find_enum.hpp
+        include/bygg/HTML/element_enum.hpp
         include/bygg/HTML/pseudocode_generator.hpp
         include/bygg/HTML/content_formatter.hpp
         include/bygg/bygg.hpp

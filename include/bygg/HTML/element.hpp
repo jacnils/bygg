@@ -12,6 +12,7 @@
 #include <bygg/HTML/type_enum.hpp>
 #include <bygg/HTML/tag.hpp>
 #include <bygg/HTML/properties.hpp>
+#include <bygg/HTML/element_enum.hpp>
 
 /**
  * @brief A namespace to represent HTML elements and documents
@@ -26,6 +27,7 @@ namespace bygg::HTML {
             Properties properties{};
             string_type data{};
             Type type{Type::Data};
+            ElementParameters params{_default_element_parameters};
         public:
             /**
              * @brief The npos value
@@ -38,28 +40,32 @@ namespace bygg::HTML {
              * @param properties The properties of the element
              * @param data The data of the element
              * @param type The close tag type.
+             * @param params The parameters of the element
              */
-            explicit Element(string_type tag, const Properties& properties, string_type data = {}, const Type& type = Type::Data) : tag(std::move(tag)), properties(properties), data(std::move(data)), type(type) {};
+            explicit Element(string_type tag, const Properties& properties, string_type data = {}, const Type& type = Type::Data, ElementParameters params = _default_element_parameters) : tag(std::move(tag)), properties(properties), data(std::move(data)), type(type), params(params) {};
             /**
              * @brief Construct a new Element object
              * @param tag The tag of the element
              * @param properties The properties of the element
              * @param data The data of the element
+             * @param params The parameters of the element
              */
-            explicit Element(const Tag tag, const Properties& properties, string_type data = {}) : tag(resolve_tag(tag).first), properties(properties), data(std::move(data)), type(resolve_tag(tag).second) {};
+            explicit Element(const Tag tag, const Properties& properties, string_type data = {}, ElementParameters params = _default_element_parameters) : tag(resolve_tag(tag).first), properties(properties), data(std::move(data)), type(resolve_tag(tag).second), params(params) {};
             /**
              * @brief Construct a new Element object
              * @param tag The tag of the element
              * @param data The data of the element
              * @param type The close tag type.
+             * @param params The parameters of the element
              */
-            explicit Element(string_type tag, string_type data = {}, const Type& type = Type::Data) : tag(std::move(tag)), data(std::move(data)), type(type) {};
+            explicit Element(string_type tag, string_type data = {}, const Type& type = Type::Data, ElementParameters params = _default_element_parameters) : tag(std::move(tag)), data(std::move(data)), type(type), params(params) {};
             /**
              * @brief Construct a new Element object
              * @param tag The tag of the element
              * @param data The data of the element
+             * @param params The parameters of the element
              */
-            explicit Element(const Tag tag, string_type data = {}) : tag(resolve_tag(tag).first), data(std::move(data)), type(resolve_tag(tag).second) {};
+            explicit Element(const Tag tag, string_type data = {}, ElementParameters params = _default_element_parameters) : tag(resolve_tag(tag).first), data(std::move(data)), type(resolve_tag(tag).second), params(params) {};
             /**
              * @brief Construct a new Element object
              * @param element The element to set
@@ -79,15 +85,17 @@ namespace bygg::HTML {
              * @param properties The properties of the element
              * @param data The data of the element
              * @param type The close tag type.
+             * @param params The parameters of the element
              */
-            void set(const string_type& tag, const Properties& properties, const string_type& data, Type type);
+            void set(const string_type& tag, const Properties& properties, const string_type& data, Type type, ElementParameters params = _default_element_parameters);
             /**
              * @brief Set the tag, properties, and data of the element
              * @param tag The tag of the element
              * @param properties The properties of the element
              * @param data The data of the element
+             * @param params The parameters of the element
              */
-            void set(Tag tag, const Properties& properties, const string_type& data);
+            void set(Tag tag, const Properties& properties, const string_type& data, ElementParameters params = _default_element_parameters);
             /**
              * @brief Set the tag of the element
              * @param tag The tag of the element
@@ -113,7 +121,11 @@ namespace bygg::HTML {
              * @param type The type of the element
              */
             void set_type(Type type);
-
+            /**
+             * @brief Set the parameters of the element
+             * @param params The parameters of the element
+             */
+            void set_params(ElementParameters params);
             /**
              * @brief Get the element in the form of an HTML tag.
              * @return string_type The tag of the element
@@ -171,6 +183,11 @@ namespace bygg::HTML {
              * @return Type The type of the element
              */
             [[nodiscard]] Type get_type() const;
+            /**
+             * @brief Get the parameters of the element
+             * @return ElementParameters The parameters of the element
+             */
+            [[nodiscard]] ElementParameters get_params() const;
             /**
              * @brief Clear the element
              */
