@@ -5,6 +5,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include <bygg/except.hpp>
 #include <bygg/HTML/element.hpp>
 
 bygg::HTML::Element& bygg::HTML::Element::operator=(const bygg::HTML::Element& element) {
@@ -69,6 +70,23 @@ void bygg::HTML::Element::set_params(ElementParameters params) {
 bygg::string_type bygg::HTML::Element::get(const Formatting formatting, const bygg::integer_type tabc) const {
     bygg::string_type ret{};
 
+    static const std::vector<std::pair<ElementParameters, ElementParameters>> invalid_combinations{
+        std::make_pair<ElementParameters, ElementParameters>(ElementParameters::Replace_Newlines, ElementParameters::Erase_Newlines),
+        std::make_pair<ElementParameters, ElementParameters>(ElementParameters::Replace_Tabs, ElementParameters::Erase_Tabs),
+        std::make_pair<ElementParameters, ElementParameters>(ElementParameters::Replace_Spaces, ElementParameters::Erase_Spaces),
+        std::make_pair<ElementParameters, ElementParameters>(ElementParameters::Erase_Spaces, ElementParameters::Erase_Multi_Spaces),
+        std::make_pair<ElementParameters, ElementParameters>(ElementParameters::Replace_Left_Brackets, ElementParameters::Erase_Left_Brackets),
+        std::make_pair<ElementParameters, ElementParameters>(ElementParameters::Replace_Right_Brackets, ElementParameters::Erase_Right_Brackets),
+        std::make_pair<ElementParameters, ElementParameters>(ElementParameters::Replace_Single_Quotes, ElementParameters::Erase_Single_Quotes),
+        std::make_pair<ElementParameters, ElementParameters>(ElementParameters::Replace_Double_Quotes, ElementParameters::Erase_Double_Quotes)
+    };
+
+    for (const auto& it : invalid_combinations) {
+        if (this->params & it.first && this->params & it.second) {
+            throw bygg::invalid_argument("You cannot both erase and replace the same character.");
+        }
+    }
+
     const auto remove_necessary = [this](string_type str) -> string_type {
         string_type string = std::move(str);
 
@@ -77,6 +95,10 @@ bygg::string_type bygg::HTML::Element::get(const Formatting formatting, const by
                 std::make_pair<std::string, bool>(std::string("\t"), this->params & ElementParameters::Erase_Tabs),
                 std::make_pair<std::string, bool>(std::string(" "), this->params & ElementParameters::Erase_Spaces),
                 std::make_pair<std::string, bool>(std::string("\n"), this->params & ElementParameters::Erase_Newlines),
+                std::make_pair<std::string, bool>(std::string("<"), this->params & ElementParameters::Erase_Left_Brackets),
+                std::make_pair<std::string, bool>(std::string(">"), this->params & ElementParameters::Erase_Right_Brackets),
+                std::make_pair<std::string, bool>(std::string("'"), this->params & ElementParameters::Erase_Single_Quotes),
+                std::make_pair<std::string, bool>(std::string("\""), this->params & ElementParameters::Erase_Double_Quotes)
             })
         {
             if (it.second) {
@@ -102,6 +124,24 @@ bygg::string_type bygg::HTML::Element::get(const Formatting formatting, const by
             }
             if (string.back() == ' ') {
                 string.pop_back();
+            }
+        }
+
+        for (const auto& it : {
+                std::make_tuple(std::string("\n"), std::string("&#10;"), this->params & ElementParameters::Replace_Newlines),
+                std::make_tuple(std::string("\t"), std::string("&#9;"), this->params & ElementParameters::Replace_Tabs),
+                std::make_tuple(std::string("<"), std::string("&lt;"), this->params & ElementParameters::Replace_Left_Brackets),
+                std::make_tuple(std::string(">"), std::string("&gt;"), this->params & ElementParameters::Replace_Right_Brackets),
+                std::make_tuple(std::string("'"), std::string("&apos;"), this->params & ElementParameters::Replace_Single_Quotes),
+                std::make_tuple(std::string("\""), std::string("&quot;"), this->params & ElementParameters::Replace_Double_Quotes),
+                std::make_tuple(std::string(" "), std::string("&nbsp;"), this->params & ElementParameters::Replace_Spaces),
+            })
+        {
+            size_type pos{};
+            if (std::get<2>(it)) {
+                while ((pos = string.find(std::get<0>(it), pos)) != string_type::npos) {
+                    string.replace(pos, std::get<0>(it).length(), std::get<1>(it));
+                }
             }
         }
 
