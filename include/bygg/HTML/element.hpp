@@ -141,7 +141,6 @@ namespace bygg::HTML {
                 }
                 return T(this->get(formatting, tabc));
             }
-
             /**
              * @brief Get the tag of the element
              * @return string_type The data of the element
@@ -157,7 +156,6 @@ namespace bygg::HTML {
                 }
                 return T(this->tag);
             }
-
             /**
              * @brief Get the data of the element
              * @return string_type The data of the element

@@ -182,6 +182,13 @@ bool bygg::CSS::Properties::empty() const {
     return this->properties.empty();
 }
 
+void bygg::CSS::Properties::resize(const size_type size) {
+    if (size < this->properties.size()) {
+        throw invalid_argument{"Size cannot be less than the current size"};
+    }
+    this->properties.resize(size);
+}
+
 void bygg::CSS::Properties::swap(const size_type index1, const size_type index2) {
     if (index1 >= this->properties.size() || index2 >= this->properties.size()) {
         throw bygg::out_of_range("Index out of range");

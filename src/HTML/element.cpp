@@ -92,13 +92,13 @@ bygg::string_type bygg::HTML::Element::get(const Formatting formatting, const by
 
         for (const auto& it :
             {
-                std::make_pair<std::string, bool>(std::string("\t"), this->params & ElementParameters::Erase_Tabs),
-                std::make_pair<std::string, bool>(std::string(" "), this->params & ElementParameters::Erase_Spaces),
-                std::make_pair<std::string, bool>(std::string("\n"), this->params & ElementParameters::Erase_Newlines),
-                std::make_pair<std::string, bool>(std::string("<"), this->params & ElementParameters::Erase_Left_Brackets),
-                std::make_pair<std::string, bool>(std::string(">"), this->params & ElementParameters::Erase_Right_Brackets),
-                std::make_pair<std::string, bool>(std::string("'"), this->params & ElementParameters::Erase_Single_Quotes),
-                std::make_pair<std::string, bool>(std::string("\""), this->params & ElementParameters::Erase_Double_Quotes)
+                std::make_pair<string_type, bool>(string_type("\t"), this->params & ElementParameters::Erase_Tabs),
+                std::make_pair<string_type, bool>(string_type(" "), this->params & ElementParameters::Erase_Spaces),
+                std::make_pair<string_type, bool>(string_type("\n"), this->params & ElementParameters::Erase_Newlines),
+                std::make_pair<string_type, bool>(string_type("<"), this->params & ElementParameters::Erase_Left_Brackets),
+                std::make_pair<string_type, bool>(string_type(">"), this->params & ElementParameters::Erase_Right_Brackets),
+                std::make_pair<string_type, bool>(string_type("'"), this->params & ElementParameters::Erase_Single_Quotes),
+                std::make_pair<string_type, bool>(string_type("\""), this->params & ElementParameters::Erase_Double_Quotes)
             })
         {
             if (it.second) {
@@ -128,13 +128,13 @@ bygg::string_type bygg::HTML::Element::get(const Formatting formatting, const by
         }
 
         for (const auto& it : {
-                std::make_tuple(std::string("\n"), std::string("&#10;"), this->params & ElementParameters::Replace_Newlines),
-                std::make_tuple(std::string("\t"), std::string("&#9;"), this->params & ElementParameters::Replace_Tabs),
-                std::make_tuple(std::string("<"), std::string("&lt;"), this->params & ElementParameters::Replace_Left_Brackets),
-                std::make_tuple(std::string(">"), std::string("&gt;"), this->params & ElementParameters::Replace_Right_Brackets),
-                std::make_tuple(std::string("'"), std::string("&apos;"), this->params & ElementParameters::Replace_Single_Quotes),
-                std::make_tuple(std::string("\""), std::string("&quot;"), this->params & ElementParameters::Replace_Double_Quotes),
-                std::make_tuple(std::string(" "), std::string("&nbsp;"), this->params & ElementParameters::Replace_Spaces),
+                std::make_tuple(string_type("\n"), string_type("&#10;"), this->params & ElementParameters::Replace_Newlines),
+                std::make_tuple(string_type("\t"), string_type("&#9;"), this->params & ElementParameters::Replace_Tabs),
+                std::make_tuple(string_type("<"), string_type("&lt;"), this->params & ElementParameters::Replace_Left_Brackets),
+                std::make_tuple(string_type(">"), string_type("&gt;"), this->params & ElementParameters::Replace_Right_Brackets),
+                std::make_tuple(string_type("'"), string_type("&apos;"), this->params & ElementParameters::Replace_Single_Quotes),
+                std::make_tuple(string_type("\""), string_type("&quot;"), this->params & ElementParameters::Replace_Double_Quotes),
+                std::make_tuple(string_type(" "), string_type("&nbsp;"), this->params & ElementParameters::Replace_Spaces),
             })
         {
             size_type pos{};
