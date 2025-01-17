@@ -172,6 +172,11 @@ namespace bygg::HTML {
              */
             [[nodiscard]] bool empty() const;
             /**
+             * @brief Resize the properties
+             * @param size The size to resize to
+             */
+            void resize(size_type size);
+            /**
              * @brief Prepend a property to the element
              * @param property The property to add
              */

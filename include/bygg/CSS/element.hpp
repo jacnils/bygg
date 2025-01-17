@@ -444,6 +444,12 @@ namespace bygg::CSS {
              */
             void insert(size_type index, const Property& property);
             /**
+             * @brief Insert an element into the element
+             * @param index The index to insert the element
+             * @param element The element to insert
+             */
+            void insert(size_type index, const Element& element);
+            /**
              * @brief Erase a property from the element
              * @param index The index of the property to erase
              */
@@ -454,6 +460,18 @@ namespace bygg::CSS {
              * @return size_type The index of the property
              */
             [[nodiscard]] bygg::size_type find(const Property &property) const;
+            /**
+             * @brief Find a property in the element
+             * @param str The property to find
+             * @return size_type The index of the property
+             */
+            [[nodiscard]] size_type find(const string_type& str) const;
+            /**
+             * @brief Find an element in the element
+             * @param element The element to find
+             * @return size_type The index of the element
+             */
+            [[nodiscard]] bygg::size_type find_element(const Element& element) const;
             /**
              * @brief Get the property at an index
              * @param index The index of the property
@@ -467,11 +485,17 @@ namespace bygg::CSS {
              */
             [[nodiscard]] Property at(size_type index) const;
             /**
-             * @brief Find a property in the element
-             * @param str The property to find
-             * @return size_type The index of the property
+             * @brief Get the element at an index
+             * @param index The index of the element
+             * @return Element The element at the index
              */
-            [[nodiscard]] size_type find(const string_type& str) const;
+            [[nodiscard]] Element& at_element(size_type index);
+            /**
+             * @brief Get the element at an index
+             * @param index The index of the element
+             * @return Element The element at the index
+             */
+            [[nodiscard]] Element at_element(size_type index) const;
             /**
              * @brief Swap two properties in the element
              * @param index1 The index of the first property
@@ -484,6 +508,12 @@ namespace bygg::CSS {
              * @param property2 The second property
              */
             void swap(const Property& property1, const Property& property2);
+            /**
+             * @brief Swap two elements in the element
+             * @param element1 The first element
+             * @param element2 The second element
+             */
+            void swap(const Element& element1, const Element& element2);
             /**
              * @brief Get the first property of the element
              * @return Property The first property of the element
@@ -504,6 +534,26 @@ namespace bygg::CSS {
              * @return Property The last property of the element
              */
             [[nodiscard]] Property back() const;
+            /**
+             * @brief Get the first element of the element
+             * @return Element The first element of the element
+             */
+            [[nodiscard]] Element& front_element();
+            /**
+             * @brief Get the last element of the element
+             * @return Element The last element of the element
+             */
+            [[nodiscard]] Element& back_element();
+            /**
+             * @brief Get the first element of the element
+             * @return Element The first element of the element
+             */
+            [[nodiscard]] Element front_element() const;
+            /**
+             * @brief Get the last element of the element
+             * @return Element The last element of the element
+             */
+            [[nodiscard]] Element back_element() const;
             /**
              * @brief Get the size of the element
              * @return size_type The size of the element
@@ -590,7 +640,7 @@ namespace bygg::CSS {
              * @brief Get the properties of the element
              * @return bygg::CSS::Properties The properties of the element
              */
-            [[nodiscard]] bygg::CSS::Properties get_properties() const;
+            [[nodiscard]] Properties get_properties() const;
             /**
              * @brief Get the type of the element
              * @return Type The type of the element
