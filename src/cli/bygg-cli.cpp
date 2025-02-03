@@ -70,7 +70,7 @@ bool write_default_config(const std::string& file) {
     out << "use_empty_properties = false ; pass in an empty properties object if no properties are present\n";
     out << "use_empty_data = false ; pass in an empty data string if no data is present\n";
     out << "use_implicit_property = true ; utilize operator Property() to convert to Properties\n";
-    out << "use_make_properties = true ; use make_properties instead of Properties constructor\n";
+    out << "use_make_properties = false ; use make_properties instead of Properties constructor\n";
     out << "use_lists = false ; use SectionList/ElementList instead of variadic arguments\n";
 
     out.close();
@@ -113,10 +113,10 @@ void handle_config_file(IniManager& ini, Config& config) {
     }
 
     const auto& include_header = get_value("pseudo", "include_header");
-    config.options.include_header = include_header == "false";
+    config.options.include_header = include_header == "true";
 
     const auto& main = get_value("pseudo", "main");
-    config.options.include_main = main == "true" ? true : false;
+    config.options.include_main = main == "true";
 
     const auto& header_path = get_value("pseudo", "header_path");
     if (!header_path.empty()) config.options.header_path = header_path;
@@ -144,7 +144,7 @@ void handle_config_file(IniManager& ini, Config& config) {
     }
 
     const auto& root_name = get_value("pseudo", "root_name");
-    if (!root_name.empty()) config.options.header_path = root_name;
+    if (!root_name.empty()) config.options.root_name = root_name;
 
     const auto& use_tag_enums = get_value("pseudo", "use_tag_enums");
     config.options.use_tag_enums = use_tag_enums != "false";
@@ -159,7 +159,7 @@ void handle_config_file(IniManager& ini, Config& config) {
     config.options.use_implicit_property = use_implicit_property != "false";
 
     const auto& use_make_properties = get_value("pseudo", "use_make_properties");
-    config.options.use_make_properties = use_make_properties != "false";
+    config.options.use_make_properties = use_make_properties == "true";
 
     const auto& use_lists = get_value("pseudo", "use_lists");
     config.options.use_lists = use_lists != "false";
@@ -218,7 +218,7 @@ int main(int argc, char** argv) {
             }
 
             ++i;
-        } else if (args.at(i) == "-cf=" || args.at(i) == "--config=" || args.at(i) == "/cf=") {
+        } else if (args.at(i).find("-cf=") != std::string::npos || args.at(i).find("--config=") != std::string::npos || args.at(i).find("/cf=") != std::string::npos) {
             std::size_t pos{args.at(i).find('=')};
 
             if (pos + 1 == std::string::npos) {
@@ -231,19 +231,25 @@ int main(int argc, char** argv) {
     }
 
     // handle config file
-    if (!std::filesystem::create_directories(std::filesystem::path{config_file}.parent_path()) &&
-        !std::filesystem::exists(std::filesystem::path{config_file}.parent_path())) {
-        throw std::runtime_error{"failed to create directory: " + std::string{config_file}};
-    }
-    if (!std::filesystem::exists(config_file)) {
-        if (!write_default_config(config_file)) {
-            std::cerr << "failed to write default configuration file: " << config_file << "\n";
-            return 1;
-        }
-
+    try {
+        std::string parent_p = std::filesystem::path{config_file}.parent_path();
+        if (!parent_p.empty() && !std::filesystem::create_directories(parent_p) &&
+            !std::filesystem::exists(std::filesystem::path{config_file}.parent_path())) {
+            throw std::runtime_error{"failed to create directory: " + std::string{config_file}};
+            }
         if (!std::filesystem::exists(config_file)) {
-            throw std::runtime_error{"failed to create configuration file: " + std::string{config_file}};
+            if (!write_default_config(config_file)) {
+                std::cerr << "failed to write default configuration file: " << config_file << "\n";
+                return 1;
+            }
+
+            if (!std::filesystem::exists(config_file)) {
+                throw std::runtime_error{"failed to create configuration file: " + std::string{config_file}};
+            }
         }
+    } catch (std::exception& e) {
+        std::cerr << "failed to create configuration file: " << e.what() << "\n";
+        return 1;
     }
 
     try {
@@ -260,7 +266,9 @@ int main(int argc, char** argv) {
         if (args.at(i) == "-h" || args.at(i) == "--help" || args.at(i) == "/h" ||
             args.at(i) == "-v" || args.at(i) == "--version" || args.at(i) == "/v" ||
             args.at(i) == "-c" || args.at(i) == "--copyright" || args.at(i) == "/c" ||
-            args.at(i) == "-cf" || args.at(i) == "--config" || args.at(i) == "/cf") {
+            args.at(i) == "-cf" || args.at(i) == "--config" || args.at(i) == "/cf" ||
+            args.at(i).find("-cf=") != std::string::npos || args.at(i).find("--config=") != std::string::npos || args.at(i).find("/cf=") != std::string::npos
+            ) {
             continue;
         } else if (args.at(i) == "-f" || args.at(i) == "--formatting" || args.at(i) == "/f") {
             if (argc >= i + 1) {

@@ -79,8 +79,8 @@ bygg::string_type bygg::HTML::generate_pseudocode(const Section& section, const 
     string_type pseudocode{};
     int tabc{};
 
+    if (!options.header_path.empty() && options.include_header) pseudocode += "#include <" + options.header_path + ">\n\n";
     if (options.include_main && !options.main_function.empty()) {
-        if (!options.header_path.empty()) pseudocode += "#include <" + options.header_path + ">\n\n";
         if (options.main_args == MainArgs::ArgcArgv) {
             pseudocode += (options.main_return_type.empty() ? "int" : options.main_return_type) + " " + options.main_function + "(int argc, char** argv) {\n";
         } else {
