@@ -2,6 +2,9 @@
 
 ![action](https://github.com/jcbnilsson/bygg/actions/workflows/cmake-multi-platform.yml/badge.svg)
 
+[Demo](https://bygg-web.jacobnilsson.com)
+[Docs](https://jacobnilsson.com/docs/bygg)
+
 Component-based HTML/CSS builder for C++17.
 
 ## Features
