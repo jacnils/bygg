@@ -124,17 +124,19 @@ if (BYGG_USE_LIBXML2)
     )
 endif()
 
-add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
-add_library(${PROJECT_NAME}_static STATIC ${SOURCE_FILES})
+if (BUILD_SHARED_LIBS)
+    add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
+    target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}")
+else()
+    add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+            VERSION ${PROJECT_VERSION}
+            SOVERSION ${PROJECT_VERSION}
+            OUTPUT_NAME ${PROJECT_NAME}
+    )
+    target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}")
+endif()
 
-set_target_properties(${PROJECT_NAME}_static PROPERTIES
-        VERSION ${PROJECT_VERSION}
-        SOVERSION ${PROJECT_VERSION}
-        OUTPUT_NAME ${PROJECT_NAME}
-)
-
-target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}")
-target_include_directories(${PROJECT_NAME}_static PRIVATE "${PROJECT_SOURCE_DIR}")
 include_directories(include)
 
 if (BYGG_USE_LIBXML2)
@@ -150,64 +152,87 @@ if (BYGG_USE_LIBXML2)
         FetchContent_GetProperties(libxml2)
         FetchContent_MakeAvailable(libxml2)
 
-        target_link_libraries(${PROJECT_NAME} PRIVATE xml2)
-        target_include_directories(${PROJECT_NAME} PRIVATE
-            "${libxml2_SOURCE_DIR}/include"
-            "${libxml2_BINARY_DIR}/include"
-        )
-        target_link_libraries(${PROJECT_NAME}_static PRIVATE xml2)
-        target_include_directories(${PROJECT_NAME}_static PRIVATE
+        if (BUILD_SHARED_LIB)
+            target_link_libraries(${PROJECT_NAME} PRIVATE xml2)
+            target_include_directories(${PROJECT_NAME} PRIVATE
                 "${libxml2_SOURCE_DIR}/include"
                 "${libxml2_BINARY_DIR}/include"
-        )
+            )
+        else()
+            target_link_libraries(${PROJECT_NAME} PRIVATE xml2)
+            target_include_directories(${PROJECT_NAME} PRIVATE
+                    "${libxml2_SOURCE_DIR}/include"
+                    "${libxml2_BINARY_DIR}/include"
+            )
+        endif()
     else()
         find_package(LibXml2 REQUIRED)
-        target_link_libraries(${PROJECT_NAME} PRIVATE LibXml2::LibXml2)
-        target_link_libraries(${PROJECT_NAME}_static PRIVATE LibXml2::LibXml2)
+        if (BUILD_SHARED_LIBS)
+            target_link_libraries(${PROJECT_NAME} PRIVATE LibXml2::LibXml2)
+        else()
+            target_link_libraries(${PROJECT_NAME} PRIVATE LibXml2::LibXml2)
+        endif()
     endif()
 endif()
 
-target_sources(${PROJECT_NAME} PUBLIC
-        FILE_SET HEADERS
-        BASE_DIRS include
-        FILES ${PUBLIC_HEADERS}
-)
-target_sources(${PROJECT_NAME}_static PUBLIC
-        FILE_SET HEADERS
-        BASE_DIRS include
-        FILES ${PUBLIC_HEADERS}
-)
-
-if (APPLE)
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-            INSTALL_RPATH "@loader_path/../lib"
-            BUILD_WITH_INSTALL_RPATH ON
+if (BUILD_SHARED_LIBS)
+    target_sources(${PROJECT_NAME} PUBLIC
+            FILE_SET HEADERS
+            BASE_DIRS include
+            FILES ${PUBLIC_HEADERS}
     )
-    set_target_properties(${PROJECT_NAME}_static PROPERTIES
-            INSTALL_RPATH "@loader_path/../lib"
-            BUILD_WITH_INSTALL_RPATH ON
+else()
+    target_sources(${PROJECT_NAME} PUBLIC
+            FILE_SET HEADERS
+            BASE_DIRS include
+            FILES ${PUBLIC_HEADERS}
     )
 endif()
 
-install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_static
-        EXPORT ${PROJECT_NAME}Targets
-        FILE_SET HEADERS
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
+if (APPLE)
+    if (BUILD_SHARED_LIBS)
+        set_target_properties(${PROJECT_NAME} PROPERTIES
+                INSTALL_RPATH "@loader_path/../lib"
+                BUILD_WITH_INSTALL_RPATH ON
+        )
+    else()
+        set_target_properties(${PROJECT_NAME} PROPERTIES
+                INSTALL_RPATH "@loader_path/../lib"
+                BUILD_WITH_INSTALL_RPATH ON
+        )
+    endif()
+endif()
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-        VERSION ${PROJECT_VERSION}
-        SOVERSION ${PROJECT_VERSION}
-        PUBLIC_HEADER "${PUBLIC_HEADERS}"
-)
-set_target_properties(${PROJECT_NAME}_static PROPERTIES
-        VERSION ${PROJECT_VERSION}
-        SOVERSION ${PROJECT_VERSION}
-        PUBLIC_HEADER "${PUBLIC_HEADERS}"
-)
+if (BUILD_SHARED_LIBS)
+    install(TARGETS ${PROJECT_NAME}
+            EXPORT ${PROJECT_NAME}Targets
+            FILE_SET HEADERS
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    )
+
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+            VERSION ${PROJECT_VERSION}
+            SOVERSION ${PROJECT_VERSION}
+            PUBLIC_HEADER "${PUBLIC_HEADERS}"
+    )
+else()
+    install(TARGETS ${PROJECT_NAME}
+            EXPORT ${PROJECT_NAME}Targets
+            FILE_SET HEADERS
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    )
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+            VERSION ${PROJECT_VERSION}
+            SOVERSION ${PROJECT_VERSION}
+            PUBLIC_HEADER "${PUBLIC_HEADERS}"
+    )
+endif()
 
 write_basic_package_version_file(
     "${PROJECT_NAME}ConfigVersion.cmake"
@@ -269,10 +294,6 @@ if (BYGG_BUILD_TESTS)
         set(BYGG_BUILD_CATCH2 OFF)
     endif()
 
-    set(LINK_TARGETS
-            ${PROJECT_NAME}
-    )
-
     if (BYGG_BUILD_CATCH2)
         include(FetchContent)
 
@@ -283,18 +304,8 @@ if (BYGG_BUILD_TESTS)
         )
 
         FetchContent_MakeAvailable(Catch2)
-
-        set(LINK_TARGETS
-                Catch2::Catch2WithMain
-                ${LINK_TARGETS}
-        )
     else()
         find_package(Catch2 3 REQUIRED)
-
-        set(LINK_TARGETS
-            Catch2::Catch2WithMain
-            ${LINK_TARGETS}
-        )
     endif()
 
     add_executable(${PROJECT_NAME}_test
@@ -305,7 +316,10 @@ if (BYGG_BUILD_TESTS)
             tests/parser.cpp
     )
 
-    target_link_libraries(${PROJECT_NAME}_test PRIVATE ${LINK_TARGETS})
+    target_link_libraries(${PROJECT_NAME}_test PRIVATE
+            Catch2::Catch2WithMain
+            bygg
+    )
     target_include_directories(${PROJECT_NAME}_test PRIVATE
         "${PROJECT_SOURCE_DIR}/include"
     )
