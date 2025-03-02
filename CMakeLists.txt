@@ -125,8 +125,16 @@ if (BYGG_USE_LIBXML2)
 endif()
 
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
+add_library(${PROJECT_NAME}_static STATIC ${SOURCE_FILES})
+
+set_target_properties(${PROJECT_NAME}_static PROPERTIES
+        VERSION ${PROJECT_VERSION}
+        SOVERSION ${PROJECT_VERSION}
+        OUTPUT_NAME ${PROJECT_NAME}
+)
 
 target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}")
+target_include_directories(${PROJECT_NAME}_static PRIVATE "${PROJECT_SOURCE_DIR}")
 include_directories(include)
 
 if (BYGG_USE_LIBXML2)
@@ -140,22 +148,31 @@ if (BYGG_USE_LIBXML2)
         )
 
         FetchContent_GetProperties(libxml2)
-
         FetchContent_MakeAvailable(libxml2)
 
         target_link_libraries(${PROJECT_NAME} PRIVATE xml2)
-
         target_include_directories(${PROJECT_NAME} PRIVATE
             "${libxml2_SOURCE_DIR}/include"
             "${libxml2_BINARY_DIR}/include"
         )
+        target_link_libraries(${PROJECT_NAME}_static PRIVATE xml2)
+        target_include_directories(${PROJECT_NAME}_static PRIVATE
+                "${libxml2_SOURCE_DIR}/include"
+                "${libxml2_BINARY_DIR}/include"
+        )
     else()
         find_package(LibXml2 REQUIRED)
         target_link_libraries(${PROJECT_NAME} PRIVATE LibXml2::LibXml2)
+        target_link_libraries(${PROJECT_NAME}_static PRIVATE LibXml2::LibXml2)
     endif()
 endif()
 
 target_sources(${PROJECT_NAME} PUBLIC
+        FILE_SET HEADERS
+        BASE_DIRS include
+        FILES ${PUBLIC_HEADERS}
+)
+target_sources(${PROJECT_NAME}_static PUBLIC
         FILE_SET HEADERS
         BASE_DIRS include
         FILES ${PUBLIC_HEADERS}
@@ -166,9 +183,13 @@ if (APPLE)
             INSTALL_RPATH "@loader_path/../lib"
             BUILD_WITH_INSTALL_RPATH ON
     )
+    set_target_properties(${PROJECT_NAME}_static PROPERTIES
+            INSTALL_RPATH "@loader_path/../lib"
+            BUILD_WITH_INSTALL_RPATH ON
+    )
 endif()
 
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_static
         EXPORT ${PROJECT_NAME}Targets
         FILE_SET HEADERS
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -178,6 +199,11 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
+        VERSION ${PROJECT_VERSION}
+        SOVERSION ${PROJECT_VERSION}
+        PUBLIC_HEADER "${PUBLIC_HEADERS}"
+)
+set_target_properties(${PROJECT_NAME}_static PROPERTIES
         VERSION ${PROJECT_VERSION}
         SOVERSION ${PROJECT_VERSION}
         PUBLIC_HEADER "${PUBLIC_HEADERS}"
